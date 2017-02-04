@@ -5,3 +5,4 @@ all:
 	npm install nodejs-websocket
 	npm install password-hash
 	npm install mysql
+	npm install randomstring

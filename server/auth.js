@@ -1,4 +1,5 @@
 var db = require( __dirname + '/db.js');
+var session = require( __dirname + '/session.js');
 
 // #############################################################################
 // PASSWORD HASHING AND AUTHENTICATION
@@ -25,32 +26,43 @@ var add_user = function(email, nickname, college, password) {
     });
 };
 
-var login_failed = function(email) {
+var login_failed = function(email, conn) {
     console.log('Login failed for ' + email);
+
+    var msgobj = {};
+    msgobj.type = 'loginfail';
+    conn.sendText(JSON.stringify(msgobj));
 };
 
-var login_success = function(email) {
+var login_success = function(email, conn) {
     console.log('Login success for ' + email);
+    
+    var new_token = session.make_token(email);
+    
+    var msgobj = {};
+    msgobj.type = 'logintoken';
+    msgobj.token = new_token;
+    conn.sendText(JSON.stringify(msgobj));
 };
 
-var authenticate = function(email, password) {
+var authenticate = function(email, password, conn) {
     // passwordHash.verify('Password0', hashedPassword)
     
     // Get the hashed password from database
     db.connection.query('SELECT `hash` FROM `authentication` WHERE `email` = ?', [email], function(error, results, fields) {
         if (error) {
             console.log(error);
-            login_failed(email);
+            login_failed(email, conn);
             return;
         }
         if (results.length == 1) {
             var hashed_password = results[0]['hash'];
             if (passwordHash.verify(password, hashed_password)) {
-                login_success(email);
+                login_success(email, conn);
                 return;
             }
         }
-        login_failed(email);
+        login_failed(email, conn);
     });
 };
 
