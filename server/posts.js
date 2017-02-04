@@ -60,7 +60,7 @@ var send_list = function(email, page, conn) {
         
         var college = results[0].college;
         
-        db.connection.query('SELECT  `post`.`postid` AS postid, `post`.`college` AS college,   `likes` AS likes,   post.`text` AS posttext,   `dislikes` AS dislikes,   `comment`.text AS commenttext,   `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.commentid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`college` = ? OR `public` = 1', [college], function(error, results, fields) {
+        db.connection.query('SELECT  `post`.`postid` AS postid, `post`.`college` AS college,   `likes` AS likes,   post.`text` AS posttext,   `dislikes` AS dislikes,   `comment`.text AS commenttext,   `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.commentid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`college` = ? OR `public` = 1 ORDER BY `post`.`postid` DESC', [college], function(error, results, fields) {
             if (error) {
                 console.log(error);
                 return;
