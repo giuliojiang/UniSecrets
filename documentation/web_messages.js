@@ -16,7 +16,6 @@ SERVER TO CLIENT
     }
     Token check failed, you need to log in first
     
-    // TODO SERVER CLIENT
     {
         type: postsuccess
     }
