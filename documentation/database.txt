@@ -1,0 +1,9 @@
+authentication(K email, hash)
+
+user(K email, nickname, college)           college > college
+
+college(K college)
+
+post(K postid, college, public, likes, text)    college > college
+
+comment(K commentid, K postid, K email, text)   postid > post, email > user

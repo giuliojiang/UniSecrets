@@ -1,0 +1,62 @@
+<html>
+
+    <head>
+        <title>AngularJS table</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+
+    </head>
+    
+    <body>
+
+        <div ng-app="mainApp" ng-controller="studentController">
+            Email: <input type="text" name="email" ng-model="email"><br>
+            Password: <input type="password" name="password" ng-model="password">
+            
+            <br>
+            
+            <button type="button" ng-click="do_login()">Login</button>
+        </div>
+        
+    
+    </body>
+    
+    <script>
+    
+        var mainApp = angular.module("mainApp", []);
+        
+        mainApp.controller('studentController', function($scope) {
+            
+            var ws = new WebSocket("ws://secrets.jstudios.ovh:8001");
+
+            ws.onopen = function()
+            {
+                console.log('Connection opened');
+            };
+
+            ws.onmessage = function (evt) 
+            { 
+                var data = evt.data;
+                console.log('Received ' + data);
+            };
+
+            ws.onclose = function()
+            { 
+                console.log('Closed websocket');
+            };
+            
+            $scope.do_login = function() {
+    
+                var msgobj = {};
+                msgobj.type = 'login';
+                msgobj.email = $scope.email;
+                msgobj.password = $scope.password;
+                ws.send(JSON.stringify(msgobj));
+            };
+            
+        });
+    
+    </script>
+
+</html>
+
+<!-- https://www.tutorialspoint.com/angularjs/angularjs_tables.htm -->

@@ -1,0 +1,39 @@
+CORE
+
+    gj414 --- 09q83098509
+    
+    User always sends the token in all operations
+    
+    Invalid token: redirect to landing and cause to delete LocalStorage token
+    
+    At each operation, use map token > username
+    
+    for status, use username > status object
+        
+    Token verification is also done right at connection of websocket
+    
+    reversemap username > token is used to delete existing tokens when user logs in
+    
+LOG IN
+    
+    - use reversemap to delete existing tokens
+    
+    - make new token
+    
+    - send it to user
+    
+    - add it to maps
+    
+WHEN USER LOGS OUT
+
+    - delete tokens
+    
+    - trigger token deletion on user
+    
+    - redirect to landing.html
+    
+WRONG TOKEN
+
+    - trigger token deletion on user
+    
+    - redirect to landing.html
