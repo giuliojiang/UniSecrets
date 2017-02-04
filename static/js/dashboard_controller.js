@@ -28,6 +28,7 @@ mainApp.controller("main_controller", function($scope) {
       localStorage.token = raw_data.token;
     } else if (type == 'postlist') {
         $scope.postlist = raw_data;
+        $scope.set_show_comments_to_false();
         $scope.$apply();
     } else if (type == 'loginfirst') {
         window.location = 'login.html';
@@ -40,8 +41,19 @@ mainApp.controller("main_controller", function($scope) {
     console.log('Closed websocket');
   };
 
-  // $scope.toggle_post_comments(post_id) = function() {
+  $scope.set_show_comments_to_false = function() {
+    angular.forEach($scope.postlist.posts, function(post) {
+      post.show_comments = false;
+    });
+  };
 
-  // };
+  $scope.toggle_post_comments = function(post_id) {
+    var postlist_len = $scope.postlist.posts.length;
+    angular.forEach($scope.postlist.posts, function(post) {
+      if (post.id == post_id) {
+        post.show_comments ? post.show_comments = false : post.show_comments = true;
+      }
+    });
+  };
 
 });

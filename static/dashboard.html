@@ -58,21 +58,20 @@
             <br>
             <div class="row">
               <div class="col s1 center-align" style="display:inline">
-                <a href="#"><i class="material-icons">thumb_up</i></a>
+                <a href=""><i class="material-icons">thumb_up</i></a>
                 <div class="display:block; float: right">   {{apost.likes}}</div>
               </div>
               <div class="col s1 center-align">
-                <a href="#"><i class="material-icons">thumb_down</i></a>
+                <a href=""><i class="material-icons">thumb_down</i></a>
                 <div class="display:block; float: right">   {{apost.dislikes}}</div>
               </div>
               <div class="col s1 center-align">
-                <!-- <a href="toggle_post_comments(post_id)">Comment</a> <1!-- TODO --1> -->
-                <a href="#">Comment</a> <!-- TODO -->
+                <a href="" ng-click="toggle_post_comments(apost.id)">Comment</a> <!-- TODO -->
                 <div class="display:block; float: right">   7</div>
               </div>
             </div>
 
-            <div class="row post-comments">
+            <div class="row post-comments" ng-show="apost.show_comments">
               <div class="col s12">
                 <div class="post-comment">
                   <p><b>NicknameHere</b> says: <em>CommentTextHere</em></p>
@@ -82,7 +81,7 @@
                 </div>
                 <div class="user-comment">
                   <label>Write a comment below:<input ng-model="user_comment" type="text" class="materialize-textarea"></input></label>
-                  <button class="btn waves-effect waves-light" type="submit" name="action" ng-click="post()">Submit comment
+                  <button class="btn waves-effect waves-light" type="submit" name="action" ng-click="post_comment()">Submit comment
                   </button>
                 </div>
               </div>
