@@ -1,17 +1,21 @@
 SERVER TO CLIENT
 
-    // TODO CLIENT
     {
         type : logintoken,
         token: token
     }
     Sends new session token to user upon login success
 
-    // TODO CLIENT
     {
         type : loginfail
     }
     Login fails
+    
+    // TODO SERVER CLIENT
+    {
+        type: loginfirst
+    }
+    Token check failed, you need to log in first
 
 CLIENT TO SERVER
 
@@ -31,6 +35,7 @@ CLIENT TO SERVER
     }
     Registration msg
 
+    // TODO SERVER
     {
         type: new_post,
         "public": 0/1,

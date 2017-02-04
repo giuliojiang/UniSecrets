@@ -1,4 +1,5 @@
 var auth = require( __dirname + '/auth.js');
+var posts = require(__dirname + '/posts.js');
 
 // #############################################################################
 // WEBSOCKET PART
@@ -29,7 +30,13 @@ var server = ws.createServer(function (conn) {
           var password = msgobj.password;
 
           auth.add_user(email, nickname, college, password);
-        } else {
+        } else if (type == 'new_post') {
+            var user_token = msgobj.user_token;
+            var is_public = msgobj['public'];
+            var text = msgobj.text;
+            posts.new_post(user_token, is_public, text, conn);
+        }
+        else {
             console.log('Unrecognized message type ' + type);
             return;
         }
