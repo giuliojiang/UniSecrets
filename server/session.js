@@ -21,6 +21,8 @@ var make_token = function(email) {
     user_token[email] = new_token;
     token_user[new_token] = email;
     
+    console.log('There are ' + Object.keys(token_user).length + ' users logged in');
+    
     return new_token;
 };
 

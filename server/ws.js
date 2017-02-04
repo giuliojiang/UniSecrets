@@ -5,7 +5,7 @@ var auth = require( __dirname + '/auth.js');
 var ws = require("nodejs-websocket")
 
 var server = ws.createServer(function (conn) {
-    console.log("New connection")
+    console.log("New connection");
     conn.on("text", function (str) {
         console.log("Received "+str)
 
@@ -33,8 +33,11 @@ var server = ws.createServer(function (conn) {
             console.log('Unrecognized message type ' + type);
             return;
         }
-    })
+    });
     conn.on("close", function (code, reason) {
         console.log("Connection closed")
-    })
+    });
+    conn.on('error', function(err) {
+        console.log('WebSocket error: ' + err);
+    });
 }).listen(8001);
