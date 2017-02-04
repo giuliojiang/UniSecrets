@@ -12,7 +12,7 @@ SERVER TO CLIENT
         type : loginfail
     }
     Login fails
-    
+
 CLIENT TO SERVER
 
     // TODO CLIENT
@@ -22,3 +22,13 @@ CLIENT TO SERVER
         password: password
     }
     Attempt to login
+
+    // TODO CLIENT & SERVER
+    {
+        type: registration,
+        email: email,
+        nickname: nickname,
+        college: college,
+        password: password
+    }
+    Registration msg
