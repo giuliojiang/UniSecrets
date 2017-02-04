@@ -1,6 +1,8 @@
 // #############################################################################
 // MAIL PART
 
+var $mail = {};
+
 const nodemailer = require('nodemailer');
 var signer = require('nodemailer-dkim').signer;
 
@@ -18,21 +20,22 @@ transporter.use('stream', require('nodemailer-dkim').signer({
     privateKey: fs.readFileSync('/opt/UniSecrets/mail.private')
 }));
 
-// setup email data with unicode symbols
-let mailOptions = {
-    from: '"Uni Secrets" <account@secrets.jstudios.ovh>', // sender address
-    to: 'giuliojiang@gmail.com', // list of receivers
-    subject: 'Uni Secrets account activation', // Subject line
-    text: 'You activation code is 1234' // plain text body
+$mail.sendEmail = function(destination, content) {
+    var mailOptions = {
+        from: '"Uni Secrets" <account@secrets.jstudios.ovh>', // sender address
+        to: destination, // list of receivers
+        subject: 'Uni Secrets', // Subject line
+        text: content // plain text body
+    };
+    
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+            return console.log(error);
+        }
+        console.log('Message %s sent: %s', info.messageId, info.response);
+    });
 };
-
-// send mail with defined transport object
-// transporter.sendMail(mailOptions, function(error, info) {
-//     if (error) {
-//         return console.log(error);
-//     }
-//     console.log('Message %s sent: %s', info.messageId, info.response);
-// });
 
 // #############################################################################
 // HTTP PART
@@ -46,4 +49,39 @@ app.listen(8080, function () {
 });
 
 // #############################################################################
+// DATABASE PART
+var mysql      = require('mysql');
+var connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : 'UniSecrets',
+  password : 'UniSecrets',
+  database : 'UniSecrets'
+});
+
+connection.connect();
+
+connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
+  if (error) throw error;
+  console.log('The solution is: ', results[0].solution);
+});
+
+connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
+  if (error) throw error;
+  console.log('The solution is: ', results[0].solution);
+});
+
+// #############################################################################
 // WEBSOCKET PART
+var ws = require("nodejs-websocket")
+ 
+// Scream server example: "hi" -> "HI!!!" 
+var server = ws.createServer(function (conn) {
+    console.log("New connection")
+    conn.on("text", function (str) {
+        console.log("Received "+str)
+        conn.sendText(str.toUpperCase()+"!!!")
+    })
+    conn.on("close", function (code, reason) {
+        console.log("Connection closed")
+    })
+}).listen(8001);
