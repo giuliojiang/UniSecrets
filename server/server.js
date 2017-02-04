@@ -61,14 +61,41 @@ var connection = mysql.createConnection({
 connection.connect();
 
 connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
-  if (error) throw error;
-  console.log('The solution is: ', results[0].solution);
+    if (error) throw error;
+    if (results[0].solution == 2) {
+        console.log('Database connection successful.');
+    }
 });
 
-connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
-  if (error) throw error;
-  console.log('The solution is: ', results[0].solution);
-});
+// #############################################################################
+// PASSWORD HASHING AND AUTHENTICATION
+var passwordHash = require('password-hash');
+
+var $auth = {};
+
+$auth.add_user = function(email, nickname, college, password) {
+    var hashed_password = passwordHash.generate(password);
+    
+    console.log('Hashed a password: ' + hashed_password);
+
+    // Add user to user table
+    connection.query('INSERT INTO `user`(`email`, `nickname`, `college`) VALUES (?,?,?)', [email, nickname, college], function (error, results, fields) {
+        if (error) {
+            console.log(error);
+            return;
+        }
+        connection.query('INSERT INTO `authentication`(`email`, `hash`) VALUES (?,?)', [email, hashed_password], function(error, results, fields) {
+            if (error) {
+                console.log(error);
+                return;
+            }
+            console.log('Successfully added account ' + email);
+        });
+    });
+};
+
+// TEST
+$auth.add_user('gj414@ic.ac.uk', 'gj', 'Imperial College London', 'ciaociao');
 
 // #############################################################################
 // WEBSOCKET PART
