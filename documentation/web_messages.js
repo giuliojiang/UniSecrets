@@ -1,17 +1,25 @@
 SERVER TO CLIENT
 
-    // TODO CLIENT
     {
         type : logintoken,
         token: token
     }
     Sends new session token to user upon login success
 
-    // TODO CLIENT
     {
         type : loginfail
     }
     Login fails
+    
+    {
+        type: loginfirst
+    }
+    Token check failed, you need to log in first
+    
+    {
+        type: postsuccess
+    }
+    Confirmation that a new secret was successfully posted
 
 CLIENT TO SERVER
 

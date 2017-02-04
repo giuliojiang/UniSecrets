@@ -17,6 +17,7 @@ mainApp.controller("main_controller", function($scope) {
     var type = raw_data.type;
     if (type == 'logintoken') {
       localStorage.token = raw_data.token;
+      window.location = 'dashboard.html';
     } else {
       alert("You failed to login");
     }

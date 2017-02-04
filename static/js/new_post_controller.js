@@ -13,6 +13,15 @@ mainApp.controller("main_controller", function($scope) {
   {
     var data = evt.data;
     console.log('Received ' + data);
+    
+    var msgobj = JSON.parse(data);
+    var type = msgobj.type;
+    if (type == 'loginfirst') {
+        alert('You need to login first!');
+        window.location = 'login.html';
+    } else if (type == 'postsuccess') {
+        window.location = 'dashboard.html';
+    }
   };
 
   ws.onclose = function()

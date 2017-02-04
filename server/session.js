@@ -26,6 +26,19 @@ var make_token = function(email) {
     return new_token;
 };
 
+// Takes a token, returns a username if found any
+var validate_token = function(token) {
+    return token_user[token];
+}
+
+var send_login_first = function(conn) {
+    var msgobj = {};
+    msgobj.type = 'loginfirst';
+    conn.sendText(JSON.stringify(msgobj));
+}
+
 module.exports = {
-    make_token: make_token
+    make_token: make_token,
+    validate_token: validate_token,
+    send_login_first: send_login_first
 };
