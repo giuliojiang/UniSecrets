@@ -49,7 +49,7 @@
       <div class="secret-list">
         <div ng-repeat="apost in postlist.posts" class="secret-container card-medium z-depth-1">
           <div class="secret-university" style="padding-left:15px">
-            <p>Found at: Imperial College London</p>
+            <p>Found at: {{apost.college}}</p>
           </div>
           <div class="card-content" style="padding-left:15px">
             <p>{{apost.text}}</p>
@@ -58,15 +58,16 @@
             <br>
             <div class="row">
               <div class="col s1 center-align" style="display:inline">
-                <a href="#"><i class="material-icons">thumb_up</i></a> <!-- TODO-->
-                <div class="display:block; float: right">   300</div>
+                <a href="#"><i class="material-icons">thumb_up</i></a>
+                <div class="display:block; float: right">   {{apost.likes}}</div>
               </div>
               <div class="col s1 center-align">
                 <a href="#"><i class="material-icons">thumb_down</i></a>
-                <div class="display:block; float: right">   500</div> <!-- TODO -->
+                <div class="display:block; float: right">   {{apost.dislikes}}</div>
               </div>
               <div class="col s1 center-align">
-                <a href="toggle_post_comments(post_id)">Comment</a> <!-- TODO -->
+                <!-- <a href="toggle_post_comments(post_id)">Comment</a> <1!-- TODO --1> -->
+                <a href="#">Comment</a> <!-- TODO -->
                 <div class="display:block; float: right">   7</div>
               </div>
             </div>

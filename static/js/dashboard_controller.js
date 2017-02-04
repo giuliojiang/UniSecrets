@@ -40,8 +40,8 @@ mainApp.controller("main_controller", function($scope) {
     console.log('Closed websocket');
   };
 
-  $scope.toggle_post_comments(post_id) = function() {
+  // $scope.toggle_post_comments(post_id) = function() {
 
-  };
+  // };
 
 });
