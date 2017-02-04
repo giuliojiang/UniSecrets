@@ -5,12 +5,32 @@
   <!-- Compiled and minified JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
 
+  <!-- Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
   <body>
+
+    <div class="navbar-fixed">
+      <nav>
+        <div class="nav-wrapper">
+          <a href="#!" class="brand-logo">UniSecrets</a>
+          <ul class="right hide-on-med-and-down">
+            <li><a href="index.html">Landing</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
     <div class="container">
       <h1>Welcome to UniSecrets!</h1>
 
-      <button ng-click="registration_redirect">Please register to continue</button>
-      <button ng-click="signin_redirect">Already have an account? Sign in.</button>
+      <!-- <button ng-click="registration_redirect">Please register to continue</button> -->
+      <a href="registration.html">Please register to continue</a>
+      <br>
+      <!-- <button ng-click="signin_redirect">Already have an account? Sign in.</button> -->
+      <a href="login.html">Already have an account? Sign in.</a>
+      <br>
+      <a href="dashboard.html">Dashboard Link</a>
 
     </div>
 
