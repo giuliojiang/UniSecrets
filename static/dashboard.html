@@ -42,25 +42,53 @@
 
       <h3>Here's the freshest secrets on campus:</h3>
 
-      <div ng-repeat="apost in postlist.posts" class="secret-container card-medium z-depth-1">
-        <div class="card-content">
-          <p>{{apost.text}}</p>
-        </div>
-        <div class="card-action">
-          <br>
-          <div class="row">
-            <div class="col s1 center-align">
-              <a href="#"><i class="material-icons">thumb_up</i></a> <!--TODO-->
+      <br>
+      <button class="btn-floating btn-large waves-effect blue z-depth-2"><i class="material-icons">replay</i></button>
+      <br>
+      <br>
+      <div class="secret-list">
+        <div ng-repeat="apost in postlist.posts" class="secret-container card-medium z-depth-1">
+          <div class="secret-university" style="padding-left:15px">
+            <p>Found at: Imperial College London</p>
+          </div>
+          <div class="card-content" style="padding-left:15px">
+            <p>{{apost.text}}</p>
+          </div>
+          <div class="card-action">
+            <br>
+            <div class="row">
+              <div class="col s1 center-align" style="display:inline">
+                <a href="#"><i class="material-icons">thumb_up</i></a> <!-- TODO-->
+                <div class="display:block; float: right">   300</div>
+              </div>
+              <div class="col s1 center-align">
+                <a href="#"><i class="material-icons">thumb_down</i></a>
+                <div class="display:block; float: right">   500</div> <!-- TODO -->
+              </div>
+              <div class="col s1 center-align">
+                <a href="toggle_post_comments(post_id)">Comment</a> <!-- TODO -->
+                <div class="display:block; float: right">   7</div>
+              </div>
             </div>
-            <div class="col s1 center-align">
 
-              <a href="#"><i class="material-icons">thumb_down</i></a> <!--TODO-->
-            </div>
-            <div class="col s1 center-align">
-              <a href="#">Comment</a> <!--COMMENT LIST TODO-->
+            <div class="row post-comments">
+              <div class="col s12">
+                <div class="post-comment">
+                  <p><b>NicknameHere</b> says: <em>CommentTextHere</em></p>
+                </div>
+                <div class="post-comment">
+                  <p><b>NicknameHere</b> says: <em>CommentTextHere</em></p>
+                </div>
+                <div class="user-comment">
+                  <label>Write a comment below:<input ng-model="user_comment" type="text" class="materialize-textarea"></input></label>
+                  <button class="btn waves-effect waves-light" type="submit" name="action" ng-click="post()">Submit comment
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
       </div>
 
     </div>
