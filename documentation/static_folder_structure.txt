@@ -1,0 +1,10 @@
+js/
+    index_controller.js
+    registration_controller.js
+    common.js
+img/
+    
+css/
+    style.css
+index.htm
+registration.htm
