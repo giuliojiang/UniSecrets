@@ -11,11 +11,16 @@ SERVER TO CLIENT
     }
     Login fails
     
-    // TODO SERVER CLIENT
     {
         type: loginfirst
     }
     Token check failed, you need to log in first
+    
+    // TODO SERVER CLIENT
+    {
+        type: postsuccess
+    }
+    Confirmation that a new secret was successfully posted
 
 CLIENT TO SERVER
 
@@ -35,7 +40,6 @@ CLIENT TO SERVER
     }
     Registration msg
 
-    // TODO SERVER
     {
         type: new_post,
         "public": 0/1,

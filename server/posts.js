@@ -34,6 +34,11 @@ var new_post = function(token, is_public, text, conn) {
                 return;
             }
             console.log('Successfully inserted post: ' + text);
+            
+            // Send confirmation
+            var msgobj = {};
+            msgobj.type = 'postsuccess';
+            conn.sendText(JSON.stringify(msgobj));
         });
     });
     

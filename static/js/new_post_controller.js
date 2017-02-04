@@ -19,6 +19,8 @@ mainApp.controller("main_controller", function($scope) {
     if (type == 'loginfirst') {
         alert('You need to login first!');
         window.location = 'login.html';
+    } else if (type == 'postsuccess') {
+        window.location = 'dashboard.html';
     }
   };
 
