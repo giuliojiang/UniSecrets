@@ -1,5 +1,6 @@
 var auth = require( __dirname + '/auth.js');
 var posts = require(__dirname + '/posts.js');
+var session = require( __dirname + '/session.js');
 
 // #############################################################################
 // WEBSOCKET PART

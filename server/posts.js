@@ -111,7 +111,7 @@ var send_list = function(email, page, conn) {
             
             conn.sendText(JSON.stringify(msgobj));
 
-        }
+        });
     });
 };
 

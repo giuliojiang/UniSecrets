@@ -26,11 +26,10 @@ mainApp.controller("main_controller", function($scope) {
     var type = raw_data.type;
     if (type == 'logintoken') {
       localStorage.token = raw_data.token;
-    } if (type == 'postlist') {
-        $scope.postlist = msgobj;
-    }
-    else {
-      alert("You failed to login");
+    } else if (type == 'postlist') {
+        $scope.postlist = raw_data;
+    } else if (type == 'loginfirst') {
+        window.location = 'login.html';
     }
 
   };
