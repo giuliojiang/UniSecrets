@@ -20,6 +20,22 @@ SERVER TO CLIENT
         type: postsuccess
     }
     Confirmation that a new secret was successfully posted
+    
+    // TODO SERVER CLIENT
+    {
+        type: postlist,
+        posts: [
+            text: text,
+            likes: 12,
+            dislikes: 973498234e456,
+            college: UCLSUCKS,
+            comments: [
+                nickname: foiasho,
+                text: text
+            ]
+        ]
+    }
+    List of messages for the dashboard!
 
 CLIENT TO SERVER
 
@@ -46,3 +62,11 @@ CLIENT TO SERVER
         user_token: dfh2UMV0fmfimSVju9rwm
     }
     New post msg
+    
+    // TODO SERVER
+    {
+        type: requestposts,
+        user_token: dfh2UMV0fmfimSVju9rwm,
+        page: 0
+    }
+    Request updated post list

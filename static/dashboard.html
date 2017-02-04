@@ -42,22 +42,22 @@
 
       <h3>Here's the freshest secrets on campus: </h3>
 
-      <div class="secret-container card-medium z-depth-1">
+      <div ng-repeat="apost in postlist.posts" class="secret-container card-medium z-depth-1">
         <div class="card-content">
-          <p>I like to pretend im a carrot when noone is watching.</p>
+          <p>{{apost.text}}</p>
         </div>
         <div class="card-action">
           <br>
           <div class="row">
             <div class="col s1 center-align">
-              <a href="#"><i class="material-icons">thumb_up</i></a>
+              <a href="#"><i class="material-icons">thumb_up</i></a> <!--TODO-->
             </div>
             <div class="col s1 center-align">
 
-              <a href="#"><i class="material-icons">thumb_down</i></a>
+              <a href="#"><i class="material-icons">thumb_down</i></a> <!--TODO-->
             </div>
             <div class="col s1 center-align">
-              <a href="#">Comment</a>
+              <a href="#">Comment</a> <!--COMMENT LIST TODO-->
             </div>
           </div>
         </div>
