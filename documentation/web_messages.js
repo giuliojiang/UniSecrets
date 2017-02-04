@@ -15,7 +15,6 @@ SERVER TO CLIENT
 
 CLIENT TO SERVER
 
-    // TODO CLIENT
     {
         type: login,
         email: email,
@@ -23,7 +22,6 @@ CLIENT TO SERVER
     }
     Attempt to login
 
-    // TODO CLIENT & SERVER
     {
         type: registration,
         email: email,
@@ -32,3 +30,11 @@ CLIENT TO SERVER
         password: password
     }
     Registration msg
+
+    {
+        type: new_post,
+        "public": 0/1,
+        text: I like rowing sometimes,
+        user_token: dfh2UMV0fmfimSVju9rwm
+    }
+    New post msg
