@@ -1,5 +1,6 @@
 var auth = require( __dirname + '/auth.js');
 var posts = require(__dirname + '/posts.js');
+var session = require( __dirname + '/session.js');
 
 // #############################################################################
 // WEBSOCKET PART
@@ -17,6 +18,8 @@ var server = ws.createServer(function (conn) {
         }
         var type = msgobj.type;
 
+        var email = undefined;
+        
         if (type == 'login') {
             var email = msgobj.email;
             var password = msgobj.password;
@@ -30,11 +33,28 @@ var server = ws.createServer(function (conn) {
           var password = msgobj.password;
 
           auth.add_user(email, nickname, college, password);
-        } else if (type == 'new_post') {
-            var user_token = msgobj.user_token;
+        } else {
+            email = session.validate_token(msgobj.user_token);
+            if (!email) {
+                session.send_login_first(conn);
+                return;
+            }
+        }
+        
+        // All handlers after here require you to be logged in first!
+            
+        if (type == 'new_post') {
             var is_public = msgobj['public'];
             var text = msgobj.text;
-            posts.new_post(user_token, is_public, text, conn);
+            posts.new_post(email, is_public, text, conn);
+        } else if (type == 'requestposts') {
+//             {
+//                 type: requestposts,
+//                 user_token: dfh2UMV0fmfimSVju9rwm,
+//                 page: 0
+//             }
+            var page = msgobj.page;
+            posts.send_list(email, page, conn);
         }
         else {
             console.log('Unrecognized message type ' + type);
