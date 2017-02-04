@@ -28,6 +28,7 @@ mainApp.controller("main_controller", function($scope) {
       localStorage.token = raw_data.token;
     } else if (type == 'postlist') {
         $scope.postlist = raw_data;
+        $scope.$apply();
     } else if (type == 'loginfirst') {
         window.location = 'login.html';
     }
