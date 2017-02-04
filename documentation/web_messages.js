@@ -21,7 +21,6 @@ SERVER TO CLIENT
     }
     Confirmation that a new secret was successfully posted
     
-    // TODO SERVER CLIENT
     {
         type: postlist,
         posts: [
@@ -63,7 +62,6 @@ CLIENT TO SERVER
     }
     New post msg
     
-    // TODO SERVER
     {
         type: requestposts,
         user_token: dfh2UMV0fmfimSVju9rwm,
