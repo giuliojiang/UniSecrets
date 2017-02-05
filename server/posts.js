@@ -141,7 +141,7 @@ var add_comment = function(email, postid, text, conn) {
         console.log('Successfully inserted a comment: ' + text);
         
         // Send single post update
-        db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   `likes` AS likes,   post.`text` AS posttext,   `dislikes` AS dislikes,   `comment`.text AS commenttext,   `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`postid` = ? OR `public` = 1 ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [postid], function(error, results, fields) {
+        db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   `likes` AS likes,   post.`text` AS posttext,   `dislikes` AS dislikes,   `comment`.text AS commenttext,   `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`postid` = ? ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [postid], function(error, results, fields) {
             if (error) {
                 console.log('Error when getting the updated comment ' + error);
                 return;
