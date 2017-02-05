@@ -32,7 +32,7 @@ js_dir = os.path.abspath(tmp_dir + os.sep + 'js')
 include_dir = os.path.abspath(exec_dir + os.sep + 'include')
 
 # UniSecrets/config
-config_dir = os.path.abspath(exec_dir + os.sep + 'config')
+config_dir = os.path.abspath('/opt/UniSecrets/config/')
 
 # for each js file, preprocess
 for filename in os.listdir(js_dir):

@@ -1,1 +1,1 @@
-var wshostname = "ws://secrets.jstudios.ovh:8001";
+var wshostname = "ws://localhost:8001";

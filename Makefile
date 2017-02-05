@@ -3,3 +3,7 @@ all: client
 
 client:
 	cd script && python preprocess_js.py
+
+install:
+	- mkdir /opt/UniSecrets
+	- cp -r config /opt/UniSecrets/config
