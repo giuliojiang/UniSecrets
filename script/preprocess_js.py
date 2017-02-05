@@ -31,6 +31,9 @@ js_dir = os.path.abspath(tmp_dir + os.sep + 'js')
 # UniSecrets/include
 include_dir = os.path.abspath(exec_dir + os.sep + 'include')
 
+# UniSecrets/config
+config_dir = os.path.abspath(exec_dir + os.sep + 'config')
+
 # for each js file, preprocess
 for filename in os.listdir(js_dir):
     full_filename = os.path.abspath(js_dir + os.sep + filename)
@@ -41,6 +44,6 @@ for filename in os.listdir(js_dir):
         temporary_filename = full_filename + '.pre'
         subprocess.call(['mv', full_filename, temporary_filename])
         # preprocess
-        subprocess.call(['cpp', '-I', include_dir, temporary_filename, '-o', full_filename])
+        subprocess.call(['cpp', '-P', '-I', include_dir, '-I', config_dir, temporary_filename, '-o', full_filename])
         # remove temporary
         subprocess.call(['rm', temporary_filename])
