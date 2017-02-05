@@ -67,12 +67,17 @@
               </div>
               <div class="col s1 center-align">
                 <a href="" ng-click="toggle_post_comments(apost.id)">Comment</a> <!-- TODO -->
-                <div class="display:block; float: right">   7</div>
+                <div class="display:block; float: right">   {{apost.comments.length}}</div>
               </div>
             </div>
 
             <div class="row post-comments" ng-show="apost.show_comments">
               <div class="col s12">
+              
+                <div class="post-comment" ng-repeat="acomment in apost.comments">
+                  <p><b>{{acomment.nickname}}</b> says: <em>{{acomment.text}}</em></p>
+                </div>
+              
                 <div class="post-comment">
                   <p><b>NicknameHere</b> says: <em>CommentTextHere</em></p>
                 </div>
