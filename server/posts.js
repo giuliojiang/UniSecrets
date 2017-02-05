@@ -1,6 +1,6 @@
 var db = require( __dirname + '/db.js');
 var session = require( __dirname + '/session.js');
-
+var marked = require('marked');
 
 var new_post = function(email, is_public, text, conn) {
 
@@ -92,7 +92,7 @@ var send_list = function(email, page, conn) {
                 if (!list_contains_postid(msgobj.posts, postid)) {
                     var postobj = {};
                     postobj.id = postid;
-                    postobj.text = posttext;
+                    postobj.text = marked(posttext);
                     postobj.likes = likes;
                     postobj.dislikes = dislikes;
                     postobj.college = acollege;
@@ -110,7 +110,7 @@ var send_list = function(email, page, conn) {
                             console.log('found');
                             var commentobj = {};
                             commentobj.nickname = commentnickname;
-                            commentobj.text = commenttext;
+                            commentobj.text = marked(commenttext);
                             msgobj.posts[j].comments.push(commentobj);
                         }
                     }
@@ -153,7 +153,7 @@ var add_comment = function(email, postid, text, conn) {
             msgobj.comments = [];
             
             for (var i = 0; i < results.length; i++) {
-                msgobj.text = results[i].posttext;
+                msgobj.text = marked(results[i].posttext);
                 msgobj.likes = results[i].likes;
                 msgobj.dislikes = results[i].dislikes;
                 msgobj.college = results[i].college;
@@ -162,7 +162,7 @@ var add_comment = function(email, postid, text, conn) {
                 if (commentnick && commenttext) {
                     var commentobj = {};
                     commentobj.nickname = commentnick;
-                    commentobj.text = commenttext;
+                    commentobj.text = marked(commenttext);
                     msgobj.comments.push(commentobj);
                 }
             }

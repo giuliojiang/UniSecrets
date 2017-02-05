@@ -6,3 +6,4 @@ all:
 	npm install password-hash
 	npm install mysql
 	npm install randomstring
+	npm install marked

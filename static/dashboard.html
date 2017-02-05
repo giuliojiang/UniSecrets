@@ -18,6 +18,7 @@
 
     <!-- Angular -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0-beta.2/angular-sanitize.js"></script>
 
     <!-- Controller -->
     <script src="js/dashboard_controller.js"></script>
@@ -52,7 +53,7 @@
             <p>Found at: {{apost.college}}</p>
           </div>
           <div class="card-content" style="padding-left:15px">
-            <p>{{apost.text}}</p>
+            <div ng-bind-html="apost.text"></div>
           </div>
           <div class="card-action">
             <br>
@@ -66,7 +67,7 @@
                 <div class="display:block; float: right">   {{apost.dislikes}}</div>
               </div>
               <div class="col s1 center-align">
-                <a href="" ng-click="toggle_post_comments(apost.id)">Comment</a> <!-- TODO -->
+                <a href="" ng-click="toggle_post_comments(apost.id)">Comment</a>
                 <div class="display:block; float: right">   {{apost.comments.length}}</div>
               </div>
             </div>
@@ -75,7 +76,7 @@
               <div class="col s12">
               
                 <div class="post-comment" ng-repeat="acomment in apost.comments">
-                  <p><b>{{acomment.nickname}}</b> says: <em>{{acomment.text}}</em></p>
+                  <p><b>{{acomment.nickname}}</b> says: <em><span ng-bind-html="acomment.text"></span></em></p>
                 </div>
 
                 <div class="user-comment">
