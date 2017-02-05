@@ -24,6 +24,7 @@ SERVER TO CLIENT
     {
         type: postlist,
         posts: [
+            id: 92490,
             text: text,
             likes: 12,
             dislikes: 973498234e456,
@@ -65,6 +66,14 @@ CLIENT TO SERVER
     {
         type: requestposts,
         user_token: dfh2UMV0fmfimSVju9rwm,
-        page: 0
+        more: 1 // TODO CLIENT SERVER
     }
     Request updated post list
+    
+    {
+        type: new_comment,
+        user_token: dfh2UMV0fmfimSVju9rwm,
+        postid: 82099834,
+        text: notbad
+    }
+    Add a new comment

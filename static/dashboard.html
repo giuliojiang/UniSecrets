@@ -77,16 +77,10 @@
                 <div class="post-comment" ng-repeat="acomment in apost.comments">
                   <p><b>{{acomment.nickname}}</b> says: <em>{{acomment.text}}</em></p>
                 </div>
-              
-                <div class="post-comment">
-                  <p><b>NicknameHere</b> says: <em>CommentTextHere</em></p>
-                </div>
-                <div class="post-comment">
-                  <p><b>NicknameHere</b> says: <em>CommentTextHere</em></p>
-                </div>
+
                 <div class="user-comment">
-                  <label>Write a comment below:<input ng-model="user_comment" type="text" class="materialize-textarea"></input></label>
-                  <button class="btn waves-effect waves-light" type="submit" name="action" ng-click="post_comment()">Submit comment
+                  <label>Write a comment below:<input ng-model="apost.user_comment" type="text" class="materialize-textarea"></input></label>
+                  <button class="btn waves-effect waves-light" type="submit" name="action" ng-click="post_comment(apost.id, apost.user_comment)">Submit comment
                   </button>
                 </div>
               </div>

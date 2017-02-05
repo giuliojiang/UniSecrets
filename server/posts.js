@@ -60,7 +60,7 @@ var send_list = function(email, page, conn) {
         
         var college = results[0].college;
         
-        db.connection.query('SELECT  `post`.`postid` AS postid, `post`.`college` AS college,   `likes` AS likes,   post.`text` AS posttext,   `dislikes` AS dislikes,   `comment`.text AS commenttext,   `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.commentid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`college` = ? OR `public` = 1 ORDER BY `post`.`postid` DESC', [college], function(error, results, fields) {
+        db.connection.query('SELECT  `post`.`postid` AS postid, `post`.`college` AS college,   `likes` AS likes,   post.`text` AS posttext,   `dislikes` AS dislikes,   `comment`.text AS commenttext,   `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`college` = ? OR `public` = 1 ORDER BY `post`.`postid` DESC, `comment`.commentid ASC', [college], function(error, results, fields) {
             if (error) {
                 console.log(error);
                 return;
@@ -96,18 +96,24 @@ var send_list = function(email, page, conn) {
                     msgobj.posts.push(postobj);
                 }
                 
+                console.log('comments: ' + commentnickname + ' ' + commenttext);
+
                 if (commenttext && commentnickname) {
-                    for (var j = 0; j < msgobj.posts; j++) {
-                        var wip_post = msgobj.posts[j];
-                        if (wip_post.id == postid) {
+                    console.log('valid. Trying to find ' + postid);
+                    for (var j = 0; j < msgobj.posts.length; j++) {
+                        console.log('This is ' + msgobj.posts[j].id);
+                        if (msgobj.posts[j].id == postid) {
+                            console.log('found');
                             var commentobj = {};
                             commentobj.nickname = commentnickname;
                             commentobj.text = commenttext;
-                            wip_post.comments.push(commentobj);
+                            msgobj.posts[j].comments.push(commentobj);
                         }
                     }
                 }
             }
+            
+            console.log(JSON.stringify(msgobj));
             
             conn.sendText(JSON.stringify(msgobj));
 
@@ -115,7 +121,19 @@ var send_list = function(email, page, conn) {
     });
 };
 
+var add_comment = function(email, postid, text) {
+    db.connection.query('INSERT INTO `comment`(`postid`, `email`, `text`) VALUES (?,?,?)', [postid, email, text], function(error, results, fields) {
+        if (error) {
+            console.log('Error when inserting a comment ' + error);
+            return;
+        }
+        
+        console.log('Successfully inserted a comment: ' + text);
+    });
+};
+
 module.exports = {
     new_post: new_post,
-    send_list: send_list
+    send_list: send_list,
+    add_comment: add_comment
 };

@@ -48,13 +48,12 @@ var server = ws.createServer(function (conn) {
             var text = msgobj.text;
             posts.new_post(email, is_public, text, conn);
         } else if (type == 'requestposts') {
-//             {
-//                 type: requestposts,
-//                 user_token: dfh2UMV0fmfimSVju9rwm,
-//                 page: 0
-//             }
             var page = msgobj.page;
             posts.send_list(email, page, conn);
+        } else if (type == 'new_comment') {
+            var text = msgobj.text;
+            var postid = msgobj.postid;
+            posts.add_comment(email, postid, text);
         }
         else {
             console.log('Unrecognized message type ' + type);

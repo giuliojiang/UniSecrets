@@ -45,4 +45,15 @@ mainApp.controller("main_controller", function($scope) {
 // WS MODULES LOADED HERE
 #include<clientws.js>
 
+    $scope.post_comment = function(postid, text) {
+        var msgobj = {};
+        msgobj.type = 'new_comment';
+        msgobj.user_token = localStorage.token;
+        msgobj.text = text;
+        msgobj.postid = postid;
+        
+        ws.send(JSON.stringify(msgobj));
+
+    }
+
 });
