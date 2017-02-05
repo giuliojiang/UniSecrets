@@ -32,7 +32,7 @@ var server = ws.createServer(function (conn) {
           var college = msgobj.college;
           var password = msgobj.password;
 
-          auth.add_user(email, nickname, college, password);
+          auth.add_user(email, nickname, college, password, conn);
         } else {
             email = session.validate_token(msgobj.user_token);
             if (!email) {

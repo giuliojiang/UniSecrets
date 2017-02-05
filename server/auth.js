@@ -5,7 +5,7 @@ var session = require( __dirname + '/session.js');
 // PASSWORD HASHING AND AUTHENTICATION
 var passwordHash = require('password-hash');
 
-var add_user = function(email, nickname, college, password) {
+var add_user = function(email, nickname, college, password, conn) {
     var hashed_password = passwordHash.generate(password);
     
     console.log('Hashed a password: ' + hashed_password);
@@ -14,14 +14,27 @@ var add_user = function(email, nickname, college, password) {
     db.connection.query('INSERT INTO `user`(`email`, `nickname`, `college`) VALUES (?,?,?)', [email, nickname, college], function (error, results, fields) {
         if (error) {
             console.log(error);
+            var msgobj = {};
+            msgobj.type = 'alert';
+            msgobj.msg = 'Registration failed. Was your email already used?';
+            conn.sendText(JSON.stringify(msgobj));
             return;
         }
         db.connection.query('INSERT INTO `authentication`(`email`, `hash`) VALUES (?,?)', [email, hashed_password], function(error, results, fields) {
             if (error) {
                 console.log(error);
+                var msgobj = {};
+                msgobj.type = 'alert';
+                msgobj.msg = 'Registration failed. Was your email already used?';
+                conn.sendText(JSON.stringify(msgobj));
                 return;
             }
             console.log('Successfully added account ' + email);
+            
+            var msgobj = {};
+            msgobj.type = 'alert';
+            msgobj.msg = 'Registration successful. Now you can log in';
+            conn.sendText(JSON.stringify(msgobj));
         });
     });
 };
