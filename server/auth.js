@@ -17,7 +17,7 @@ var add_user = function(email, nickname, college, password, conn) {
             var msgobj = {};
             msgobj.type = 'alert';
             msgobj.msg = 'Registration failed. Was your email already used?';
-            conn.sendText(JSON.stringify(msgobj));
+            conn.send(JSON.stringify(msgobj));
             return;
         }
         db.connection.query('INSERT INTO `authentication`(`email`, `hash`) VALUES (?,?)', [email, hashed_password], function(error, results, fields) {
@@ -26,7 +26,7 @@ var add_user = function(email, nickname, college, password, conn) {
                 var msgobj = {};
                 msgobj.type = 'alert';
                 msgobj.msg = 'Registration failed. Was your email already used?';
-                conn.sendText(JSON.stringify(msgobj));
+                conn.send(JSON.stringify(msgobj));
                 return;
             }
             console.log('Successfully added account ' + email);
@@ -34,7 +34,7 @@ var add_user = function(email, nickname, college, password, conn) {
             var msgobj = {};
             msgobj.type = 'alert';
             msgobj.msg = 'Registration successful. Now you can log in';
-            conn.sendText(JSON.stringify(msgobj));
+            conn.send(JSON.stringify(msgobj));
         });
     });
 };
@@ -44,7 +44,7 @@ var login_failed = function(email, conn) {
 
     var msgobj = {};
     msgobj.type = 'loginfail';
-    conn.sendText(JSON.stringify(msgobj));
+    conn.send(JSON.stringify(msgobj));
 };
 
 var login_success = function(email, conn) {
@@ -55,7 +55,7 @@ var login_success = function(email, conn) {
     var msgobj = {};
     msgobj.type = 'logintoken';
     msgobj.token = new_token;
-    conn.sendText(JSON.stringify(msgobj));
+    conn.send(JSON.stringify(msgobj));
 };
 
 var authenticate = function(email, password, conn) {

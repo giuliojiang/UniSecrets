@@ -1,16 +1,38 @@
 var auth = require( __dirname + '/auth.js');
 var posts = require(__dirname + '/posts.js');
 var session = require( __dirname + '/session.js');
+var fs = require('fs');
 
 // #############################################################################
 // WEBSOCKET PART
-var ws = require("nodejs-websocket")
+var ws = require("ws");
+var WebSocketServer = ws.Server;
 
-var server = ws.createServer(function (conn) {
+// Load configuration
+var config_file = fs.readFileSync(__dirname + '/../config/server_config.json');
+var config = JSON.parse(config_file);
+
+var server = undefined;
+var app = null;
+var processRequest = function(req, res) {
+    res.writeHead(200);
+    res.end('');
+};
+
+if (config.use_ssl) {
+    app = require('https').createServer( {
+        key: fs.readFileSync(config.ssl_privkey),
+        cert: fs.readFileSync(config.ssl_certificate)
+    }, processRequest).listen(8001);
+    server = new WebSocketServer({server: app});
+} else {
+    app = require('http').createServer(processRequest).listen(8001);
+    server = new WebSocketServer();
+}
+
+server.on('connection', function(conn) {
     console.log("New connection");
-    conn.on("text", function (str) {
-        console.log("Received "+str)
-
+    conn.on("message", function (str) {
         var msgobj = JSON.parse(str);
         if (!msgobj) {
             console.log("Cannot parse message to JSON");
@@ -61,7 +83,7 @@ var server = ws.createServer(function (conn) {
         } else if (type == 'validatetoken') {
             var msgobj = {};
             msgobj.type = 'tokenok';
-            conn.sendText(JSON.stringify(msgobj));
+            conn.send(JSON.stringify(msgobj));
         }
         else {
             console.log('Unrecognized message type ' + type);
@@ -74,4 +96,4 @@ var server = ws.createServer(function (conn) {
     conn.on('error', function(err) {
         console.log('WebSocket error: ' + err);
     });
-}).listen(8001);
+});

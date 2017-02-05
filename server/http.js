@@ -39,3 +39,7 @@ if (config.use_ssl) {
         console.log(err);
     });
 }
+
+module.exports = {
+    app: app
+};
