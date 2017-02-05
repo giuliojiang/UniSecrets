@@ -2,6 +2,8 @@ var mainApp = angular.module("mainApp", []);
 
 mainApp.controller("main_controller", function($scope) {
 
+    $scope.college = 'Imperial College London';
+    
     $scope.wsonopen = function(ws) {
 
     }
@@ -24,7 +26,6 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.email = $scope.email;
         msgobj.nickname = $scope.nickname;
         msgobj.college = $scope.college;
-        msgobj.college = 'Imperial College London';
         if ($scope.password1 != $scope.password2) {
             alert("Your passwords do not match");
             return;
