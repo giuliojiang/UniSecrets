@@ -69,7 +69,7 @@ mainApp.controller("main_controller", function($scope) {
 // WS MODULES LOADED HERE
 #include<clientws.js>
 
-    $scope.post_comment = function(postid, text) {
+    $scope.post_comment = function(postid, text, postobj) {
         var msgobj = {};
         msgobj.type = 'new_comment';
         msgobj.user_token = localStorage.token;
@@ -77,11 +77,21 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.postid = postid;
         
         ws.send(JSON.stringify(msgobj));
-
+        
+        postobj.user_comment = '';
     }
     
     $scope.reload_page = function() {
         location.reload();
+    }
+    
+    $scope.likepost = function(postid, is_like) {
+        var msgobj = {};
+        msgobj.type = 'like';
+        msgobj.user_token = localStorage.token;
+        msgobj.postid = postid;
+        msgobj.value = is_like;
+        ws.send(JSON.stringify(msgobj));
     }
 
 });
