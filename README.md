@@ -13,3 +13,13 @@ Accessible only by students and academic people!
 ## Building
 
 Run `make` to install all npm modules.
+
+If it is the first time you setup the server, you'll need:
+
+* run `make install` to initialize configuration files for your system. You can then edit `/opt/UniSecrets/config/` configuration files.
+
+* a pem private key in `/opt/UniSecrets/mail.private`
+
+## Starting the server
+
+Simply run `./StartServer`

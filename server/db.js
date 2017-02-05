@@ -1,22 +1,37 @@
 // #############################################################################
 // DATABASE PART
 var mysql      = require('mysql');
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'UniSecrets',
-  password : 'UniSecrets',
-  database : 'UniSecrets'
-});
 
-connection.connect();
+var db_config = {
+    host: 'localhost',
+    user: 'UniSecrets',
+    password: 'UniSecrets',
+    database: 'UniSecrets'
+};
 
-connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
-    if (error) throw error;
-    if (results[0].solution == 2) {
-        console.log('Database connection successful.');
-    }
-});
+var connection;
+
+function handleDisconnect() {
+    connection = mysql.createConnection(db_config);
+    
+    connection.connect(function(err) {
+        if (err) {
+            console.log('Error when connecting to database: ' + err);
+            setTimeout(handleDisconnect, 2000);
+        }
+    });
+    
+    connection.on('error', function(err) {
+        console.log('MySQL Database error: ' + err);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            handleDisconnect();
+        }
+    });
+};
+
+handleDisconnect();
 
 module.exports = {
     connection: connection
 };
+
