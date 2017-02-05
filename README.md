@@ -13,3 +13,7 @@ Accessible only by students and academic people!
 ## Building
 
 Run `make` to install all npm modules.
+
+## Starting the server
+
+Simply run `./StartServer`
