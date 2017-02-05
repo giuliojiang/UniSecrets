@@ -36,6 +36,21 @@ SERVER TO CLIENT
         ]
     }
     List of messages for the dashboard!
+    
+    // TODO SERVER CLIENT
+    {
+        type: updatepost,
+        id: 92490,
+        text: text,
+        likes: 12,
+        dislikes: 973498234e456,
+        college: UCLSUCKS,
+        comments: [
+            nickname: foiasho,
+            text: text
+        ]
+    }
+    Update content of single post
 
 CLIENT TO SERVER
 
