@@ -129,6 +129,21 @@ var add_comment = function(email, postid, text) {
         }
         
         console.log('Successfully inserted a comment: ' + text);
+        
+        // Send single post update TODO
+//     {
+//         type: updatepost,
+//         id: 92490,
+//         text: text,
+//         likes: 12,
+//         dislikes: 973498234e456,
+//         college: UCLSUCKS,
+//         comments: [
+//             nickname: foiasho,
+//             text: text
+//         ]
+//     }
+
     });
 };
 

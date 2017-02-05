@@ -55,5 +55,9 @@ mainApp.controller("main_controller", function($scope) {
         ws.send(JSON.stringify(msgobj));
 
     }
+    
+    $scope.reload_page = function() {
+        location.reload();
+    }
 
 });
