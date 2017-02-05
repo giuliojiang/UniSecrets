@@ -9,17 +9,21 @@ var user_token = {};
 var token_user = {};
 
 var user_state = {};
+// state.visible_posts has the postids that the user has been sent
 
 var make_token = function(email) {
     var existing_token = user_token[email];
     if (existing_token) {
         delete token_user[existing_token];
+        delete user_state[email];
     }
     
     var new_token = generate_token();
     
     user_token[email] = new_token;
     token_user[new_token] = email;
+    user_state[email] = {};
+    user_state[email].visible_posts = {};
     
     console.log('There are ' + Object.keys(token_user).length + ' users logged in');
     
@@ -37,8 +41,13 @@ var send_login_first = function(conn) {
     conn.sendText(JSON.stringify(msgobj));
 }
 
+var get_state = function(email) {
+    return user_state[email];
+}
+
 module.exports = {
     make_token: make_token,
     validate_token: validate_token,
-    send_login_first: send_login_first
+    send_login_first: send_login_first,
+    get_state: get_state
 };
