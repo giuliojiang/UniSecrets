@@ -37,7 +37,6 @@ SERVER TO CLIENT
     }
     List of messages for the dashboard!
     
-    // TODO SERVER CLIENT
     {
         type: updatepost,
         id: 92490,

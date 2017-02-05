@@ -53,7 +53,7 @@ var server = ws.createServer(function (conn) {
         } else if (type == 'new_comment') {
             var text = msgobj.text;
             var postid = msgobj.postid;
-            posts.add_comment(email, postid, text);
+            posts.add_comment(email, postid, text, conn);
         }
         else {
             console.log('Unrecognized message type ' + type);

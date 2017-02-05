@@ -60,6 +60,8 @@ var send_list = function(email, page, conn) {
         
         var college = results[0].college;
         
+        var state = session.get_state(email);
+        
         db.connection.query('SELECT  `post`.`postid` AS postid, `post`.`college` AS college,   `likes` AS likes,   post.`text` AS posttext,   `dislikes` AS dislikes,   `comment`.text AS commenttext,   `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`college` = ? OR `public` = 1 ORDER BY `post`.`postid` DESC, `comment`.commentid ASC', [college], function(error, results, fields) {
             if (error) {
                 console.log(error);
@@ -84,6 +86,8 @@ var send_list = function(email, page, conn) {
                 var dislikes = results[i].dislikes;
                 var commenttext = results[i].commenttext;
                 var commentnickname = results[i].commentnickname;
+                
+                state.visible_posts[postid] = true;
                 
                 if (!list_contains_postid(msgobj.posts, postid)) {
                     var postobj = {};
@@ -121,7 +125,13 @@ var send_list = function(email, page, conn) {
     });
 };
 
-var add_comment = function(email, postid, text) {
+var add_comment = function(email, postid, text, conn) {
+    var state = session.get_state(email);
+    if (!state.visible_posts[postid]) {
+        console.log('User ' + email + ' has no access to post ' + postid);
+        return;
+    }
+    
     db.connection.query('INSERT INTO `comment`(`postid`, `email`, `text`) VALUES (?,?,?)', [postid, email, text], function(error, results, fields) {
         if (error) {
             console.log('Error when inserting a comment ' + error);
@@ -130,19 +140,35 @@ var add_comment = function(email, postid, text) {
         
         console.log('Successfully inserted a comment: ' + text);
         
-        // Send single post update TODO
-//     {
-//         type: updatepost,
-//         id: 92490,
-//         text: text,
-//         likes: 12,
-//         dislikes: 973498234e456,
-//         college: UCLSUCKS,
-//         comments: [
-//             nickname: foiasho,
-//             text: text
-//         ]
-//     }
+        // Send single post update
+        db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   `likes` AS likes,   post.`text` AS posttext,   `dislikes` AS dislikes,   `comment`.text AS commenttext,   `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`postid` = ? OR `public` = 1 ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [postid], function(error, results, fields) {
+            if (error) {
+                console.log('Error when getting the updated comment ' + error);
+                return;
+            }
+            
+            var msgobj = {};
+            msgobj.type = 'updatepost';
+            msgobj.id = postid;
+            msgobj.comments = [];
+            
+            for (var i = 0; i < results.length; i++) {
+                msgobj.text = results[i].posttext;
+                msgobj.likes = results[i].likes;
+                msgobj.dislikes = results[i].dislikes;
+                msgobj.college = results[i].college;
+                var commentnick = results[i].commentnickname;
+                var commenttext = results[i].commenttext;
+                if (commentnick && commenttext) {
+                    var commentobj = {};
+                    commentobj.nickname = commentnick;
+                    commentobj.text = commenttext;
+                    msgobj.comments.push(commentobj);
+                }
+            }
+            
+            conn.sendText(JSON.stringify(msgobj));
+        });
 
     });
 };

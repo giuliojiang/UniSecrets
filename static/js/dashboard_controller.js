@@ -39,8 +39,32 @@ mainApp.controller("main_controller", function($scope) {
             $scope.$apply();
         } else if (type == 'loginfirst') {
             window.location = 'login.html';
+        } else if (type == 'updatepost') {
+            var postid = raw_data.id;
+            
+            if (!$scope.postlist) {
+                return;
+            }
+            if (!$scope.postlist.posts) {
+                return;
+            }
+            
+            for (var i = 0; i < $scope.postlist.posts.length; i++) {
+                if ($scope.postlist.posts[i].id == postid) {
+                    var thepost = $scope.postlist.posts[i];
+                    thepost.id = raw_data.id;
+                    thepost.text = raw_data.text;
+                    thepost.likes = raw_data.likes;
+                    thepost.dislikes = raw_data.dislikes;
+                    thepost.college = raw_data.college;
+                    thepost.comments = raw_data.comments;
+                }
+            }
+            
+            $scope.$apply();
         }
     }
+
     
 // WS MODULES LOADED HERE
 #include<clientws.js>
