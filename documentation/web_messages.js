@@ -50,6 +50,11 @@ SERVER TO CLIENT
         ]
     }
     Update content of single post
+    
+    {
+        type: alert
+        msg: pofihasopeirhpaer
+    }
 
 CLIENT TO SERVER
 

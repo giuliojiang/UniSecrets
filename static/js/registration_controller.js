@@ -7,7 +7,11 @@ mainApp.controller("main_controller", function($scope) {
     }
     
     $scope.wsmessage = function(ws, data) {
-
+        var msgobj = JSON.parse(data);
+        var type = msgobj.type;
+        if (type == 'alert') {
+            alert(msgobj.msg);
+        }
     }
     
 // WS MODULES LOADED HERE
@@ -20,6 +24,7 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.email = $scope.email;
         msgobj.nickname = $scope.nickname;
         msgobj.college = $scope.college;
+        msgobj.college = 'Imperial College London';
         if ($scope.password1 != $scope.password2) {
             alert("Your passwords do not match");
             return;
