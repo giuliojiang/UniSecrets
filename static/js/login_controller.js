@@ -3,7 +3,10 @@ var mainApp = angular.module("mainApp", []);
 mainApp.controller("main_controller", function($scope) {
 
     $scope.wsonopen = function(ws) {
-
+        var msgobj = {};
+        msgobj.type = 'validatetoken';
+        msgobj.user_token = localStorage.token;
+        ws.send(JSON.stringify(msgobj));
     }
     
     $scope.wsmessage = function(ws, data) {
@@ -12,8 +15,10 @@ mainApp.controller("main_controller", function($scope) {
         if (type == 'logintoken') {
             localStorage.token = raw_data.token;
             window.location = 'dashboard.html';
-        } else {
-            alert("You failed to login");
+        } else if (type == 'tokenok') {
+            window.location = 'dashboard.html';
+        } else if (type == 'loginfail') {
+            alert('Login failed');
         }
     }
     

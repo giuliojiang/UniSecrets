@@ -55,6 +55,11 @@ SERVER TO CLIENT
         type: alert
         msg: pofihasopeirhpaer
     }
+    
+    {
+        type: tokenok
+    }
+    Response to validatetoken
 
 CLIENT TO SERVER
 
@@ -97,7 +102,6 @@ CLIENT TO SERVER
     }
     Add a new comment
     
-    // TODO SERVER
     {
         type: like,
         user_token: dfh2UMV0fmfimSVju9rwm,
@@ -106,3 +110,11 @@ CLIENT TO SERVER
     }
     LIke/ unlike post
     Server will send a updatepost in return
+    
+    {
+        type: validatetoken,
+        user_token: dfh2UMV0fmfimSVju9rwm
+    }
+    Check if token is valid upon connection of WebSocket.
+    Might respond with a 'loginfirst' if fail,
+    or 'tokenok' if ok
