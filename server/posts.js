@@ -20,7 +20,7 @@ var new_post = function(email, is_public, text, conn) {
         
         var is_public_int = is_public ? 1 : 0;
         
-        db.connection.query('INSERT INTO `post`(`college`, `public`, `likes`, `text`, `dislikes`) VALUES (?,?,?,?,?)', [college, is_public_int, 0, text,0], function(error, results, fields) {
+        db.connection.query('INSERT INTO `post`(`college`, `public`, `text`) VALUES (?,?,?,?,?)', [college, is_public_int, text], function(error, results, fields) {
             if (error) {
                 console.log(error);
                 return;
