@@ -1,4 +1,4 @@
-all: client install
+all: install client
 	cd server && make
 
 client:

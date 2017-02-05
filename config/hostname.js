@@ -1,2 +1,1 @@
-var wshostname = "ws://localhost:8001";
-
+var wshostname = "localhost:8001";
