@@ -58,6 +58,10 @@ var server = ws.createServer(function (conn) {
             var postid = msgobj.postid;
             var value = msgobj.value;
             posts.like_unlike_post(email, postid, value, conn);
+        } else if (type == 'validatetoken') {
+            var msgobj = {};
+            msgobj.type = 'tokenok';
+            conn.sendText(JSON.stringify(msgobj));
         }
         else {
             console.log('Unrecognized message type ' + type);

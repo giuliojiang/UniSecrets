@@ -3,7 +3,10 @@ var mainApp = angular.module("mainApp", []);
 mainApp.controller("main_controller", function($scope) {
 
     $scope.wsonopen = function(ws) {
-
+        var msgobj = {};
+        msgobj.type = 'validatetoken';
+        msgobj.user_token = localStorage.token;
+        ws.send(JSON.stringify(msgobj));
     }
     
     $scope.wsmessage = function(ws, data) {
