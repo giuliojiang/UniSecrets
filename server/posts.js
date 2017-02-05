@@ -62,7 +62,7 @@ var send_list = function(email, page, conn) {
         
         var state = session.get_state(email);
         
-        db.connection.query('SELECT  `post`.`postid` AS postid, `post`.`college` AS college,   `likes` AS likes,   post.`text` AS posttext,   `dislikes` AS dislikes,   `comment`.text AS commenttext,   `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`college` = ? OR `public` = 1 ORDER BY `post`.`postid` DESC, `comment`.commentid ASC', [college], function(error, results, fields) {
+        db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     `likes`.`postid` = `post`.`postid` ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) AS counter FROM   dislikes WHERE   `dislikes`.`postid` = `post`.`postid` ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`college` = ? OR `public` = 1 ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [college], function(error, results, fields) {
             if (error) {
                 console.log(error);
                 return;
@@ -125,6 +125,38 @@ var send_list = function(email, page, conn) {
     });
 };
 
+var send_single_post_update = function(postid, conn) {
+    // Send single post update
+    db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     likes.postid = `post`.postid ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) FROM   dislikes WHERE   dislikes.postid = `post`.postid ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`postid` = ? ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [postid], function(error, results, fields) {
+        if (error) {
+            console.log('Error when getting the updated comment ' + error);
+            return;
+        }
+        
+        var msgobj = {};
+        msgobj.type = 'updatepost';
+        msgobj.id = postid;
+        msgobj.comments = [];
+        
+        for (var i = 0; i < results.length; i++) {
+            msgobj.text = marked(results[i].posttext);
+            msgobj.likes = results[i].likes;
+            msgobj.dislikes = results[i].dislikes;
+            msgobj.college = results[i].college;
+            var commentnick = results[i].commentnickname;
+            var commenttext = results[i].commenttext;
+            if (commentnick && commenttext) {
+                var commentobj = {};
+                commentobj.nickname = commentnick;
+                commentobj.text = marked(commenttext);
+                msgobj.comments.push(commentobj);
+            }
+        }
+        
+        conn.sendText(JSON.stringify(msgobj));
+    });
+};
+
 var add_comment = function(email, postid, text, conn) {
     var state = session.get_state(email);
     if (!state.visible_posts[postid]) {
@@ -140,41 +172,74 @@ var add_comment = function(email, postid, text, conn) {
         
         console.log('Successfully inserted a comment: ' + text);
         
-        // Send single post update
-        db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   `likes` AS likes,   post.`text` AS posttext,   `dislikes` AS dislikes,   `comment`.text AS commenttext,   `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`postid` = ? ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [postid], function(error, results, fields) {
+        send_single_post_update(postid, conn);
+
+    });
+};
+
+var like_unlike_post = function(email, postid, value, conn) {
+    if (value == 1) {
+        // remove from dislikes
+        db.connection.query('DELETE FROM `dislikes` WHERE postid = ? AND email = ?', [postid, email], function(error, results, fields) {
             if (error) {
-                console.log('Error when getting the updated comment ' + error);
+                console.log(error);
                 return;
             }
             
-            var msgobj = {};
-            msgobj.type = 'updatepost';
-            msgobj.id = postid;
-            msgobj.comments = [];
-            
-            for (var i = 0; i < results.length; i++) {
-                msgobj.text = marked(results[i].posttext);
-                msgobj.likes = results[i].likes;
-                msgobj.dislikes = results[i].dislikes;
-                msgobj.college = results[i].college;
-                var commentnick = results[i].commentnickname;
-                var commenttext = results[i].commenttext;
-                if (commentnick && commenttext) {
-                    var commentobj = {};
-                    commentobj.nickname = commentnick;
-                    commentobj.text = marked(commenttext);
-                    msgobj.comments.push(commentobj);
+            // add to likes
+            db.connection.query('INSERT INTO `likes`(`postid`, `email`) VALUES (?,?)', [postid, email], function(error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    return;
                 }
+                
+                send_single_post_update(postid, conn);
+            });
+        });
+        
+    } else if (value == -1) {
+        // remove from likes
+        db.connection.query('DELETE FROM `likes` WHERE postid = ? AND email = ?', [postid, email], function(error, results, fields) {
+            if (error) {
+                console.log(error);
+                return;
             }
             
-            conn.sendText(JSON.stringify(msgobj));
+            // add to dislikes
+            db.connection.query('INSERT INTO `dislikes`(`postid`, `email`) VALUES (?,?)', [postid, email], function(error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    return;
+                }
+                
+                send_single_post_update(postid, conn);
+            });
         });
+    } else {
+        // remove from likes
+        db.connection.query('DELETE FROM `likes` WHERE postid = ? AND email = ?', [postid, email], function(error, results, fields) {
+            if (error) {
+                console.log(error);
+                return;
+            }
+            
+            // remove from dislikes
+            db.connection.query('DELETE FROM `dislikes` WHERE postid = ? AND email = ?', [postid, email], function(error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    return;
+                }
+                
+                send_single_post_update(postid, conn);
+            });
+        });
+    }
 
-    });
 };
 
 module.exports = {
     new_post: new_post,
     send_list: send_list,
-    add_comment: add_comment
+    add_comment: add_comment,
+    like_unlike_post: like_unlike_post
 };

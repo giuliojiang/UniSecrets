@@ -96,3 +96,13 @@ CLIENT TO SERVER
         text: notbad
     }
     Add a new comment
+    
+    // TODO SERVER
+    {
+        type: like,
+        user_token: dfh2UMV0fmfimSVju9rwm,
+        postid: 093749,
+        value: 1 // +1 0 or -1
+    }
+    LIke/ unlike post
+    Server will send a updatepost in return
