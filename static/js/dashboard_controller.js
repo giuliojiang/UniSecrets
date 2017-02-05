@@ -4,7 +4,7 @@ mainApp.controller("main_controller", function($scope) {
 
     $scope.page = 0;
     
-    $scope.wsopen = function(ws) {
+    $scope.wsonopen = function(ws) {
         // send first request for posts
         var msgobj = {};
         msgobj.type = 'requestposts';
