@@ -23,7 +23,7 @@ mainApp.controller("main_controller", function($scope) {
         var msgobj = {};
         msgobj.type = 'validatetoken';
         msgobj.user_token = localStorage.token;
-        ws.send(JSON.stringify(msgobj));
+        ws_send(JSON.stringify(msgobj));
     }
     
     $scope.wsmessage = function(ws, data) {
@@ -69,7 +69,7 @@ mainApp.controller("main_controller", function($scope) {
                 msgobj.type = 'requestposts';
                 msgobj.user_token = localStorage.token;
                 msgobj.page = $scope.page;
-                ws.send(JSON.stringify(msgobj));
+                ws_send(JSON.stringify(msgobj));
             }
         }
     }
@@ -85,7 +85,7 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.text = text;
         msgobj.postid = postid;
         
-        ws.send(JSON.stringify(msgobj));
+        ws_send(JSON.stringify(msgobj));
         
         postobj.user_comment = '';
     }
@@ -100,7 +100,7 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.user_token = localStorage.token;
         msgobj.postid = postid;
         msgobj.value = is_like;
-        ws.send(JSON.stringify(msgobj));
+        ws_send(JSON.stringify(msgobj));
     }
     
     $scope.generate_post_link = function(postid) {

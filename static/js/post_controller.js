@@ -12,7 +12,7 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.type = 'getpost';
         msgobj.user_token = localStorage.token;
         msgobj.postid = localStorage.postid;
-        ws.send(JSON.stringify(msgobj));
+        ws_send(JSON.stringify(msgobj));
     }
 
     $scope.wsonopen = function(ws) {
@@ -66,7 +66,7 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.text = text;
         msgobj.postid = postid;
         
-        ws.send(JSON.stringify(msgobj));
+        ws_send(JSON.stringify(msgobj));
         
         postobj.user_comment = '';
     }
@@ -81,7 +81,7 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.user_token = localStorage.token;
         msgobj.postid = postid;
         msgobj.value = is_like;
-        ws.send(JSON.stringify(msgobj));
+        ws_send(JSON.stringify(msgobj));
     }
     
     $(window).on('hashchange', function() {

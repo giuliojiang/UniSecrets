@@ -8,7 +8,7 @@ mainApp.controller("main_controller", function($scope) {
         var msgobj = {};
         msgobj.type = 'validatetoken';
         msgobj.user_token = localStorage.token;
-        ws.send(JSON.stringify(msgobj));
+        ws_send(JSON.stringify(msgobj));
     }
     
     $scope.wsmessage = function(ws, data) {
@@ -36,7 +36,7 @@ mainApp.controller("main_controller", function($scope) {
             return;
         }
         msgobj.password = $scope.password1;
-        ws.send(JSON.stringify(msgobj));
+        ws_send(JSON.stringify(msgobj));
     };
 
 });
