@@ -48,6 +48,8 @@ server.on('connection', function(conn) {
 
             // try to authenticate
             auth.authenticate(email, password, conn);
+            
+            return;
         } else if (type == 'registration') {
           var email = msgobj.email;
           var nickname = msgobj.nickname;
@@ -55,6 +57,8 @@ server.on('connection', function(conn) {
           var password = msgobj.password;
 
           auth.add_user(email, nickname, college, password, conn);
+          
+          return;
         } else {
             email = session.validate_token(msgobj.user_token);
             if (!email) {
