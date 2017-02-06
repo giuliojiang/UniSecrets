@@ -21,7 +21,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0-beta.2/angular-sanitize.js"></script>
 
     <!-- Controller -->
-    <script src="js/dashboard_controller.js"></script>
+    <script src="js/post_controller.js"></script>
 
   </head>
 
@@ -37,22 +37,22 @@
         </div>
       </nav>
     </div>
+    
+    <div ng-show="show_not_found">
+        <h1>Post not found or not accessible</h1>
+    </div>
 
-    <div class="container">
+    <div class="container" ng-hide="show_not_found">
       <a class="btn-large waves-effect waves-light red right z-depth-3" href="new_post.html">Got something you wanna tell us?</a>
-
-      <h3>Here's the freshest secrets on campus:</h3>
 
       <br>
       <button class="btn-floating btn-large waves-effect blue z-depth-2" ng-click="reload_page()"><i class="material-icons">replay</i></button>
       <br>
       <br>
       <div class="secret-list">
-        <div ng-repeat="apost in postlist.posts" class="secret-container card-medium z-depth-1">
+        <div class="secret-container card-medium z-depth-1">
           <div class="secret-university" style="padding-left:15px">
-            <a href="{{generate_post_link(apost.id)}}">
-                <p>Found at: {{apost.college}}</p>
-            </a>
+            <p>Found at: {{apost.college}}</p>
           </div>
           <div class="card-content" style="padding-left:15px">
             <div ng-bind-html="apost.text"></div>
@@ -69,12 +69,12 @@
                 <div class="display:block; float: right">   {{apost.dislikes}}</div>
               </div>
               <div class="col s1 center-align">
-                <a href="" ng-click="toggle_post_comments(apost.id)">Comment</a>
+                <a href=""">Comment</a>
                 <div class="display:block; float: right">   {{apost.comments.length}}</div>
               </div>
             </div>
 
-            <div class="row post-comments" ng-show="apost.show_comments">
+            <div class="row post-comments">
               <div class="col s12">
               
                 <div class="post-comment" ng-repeat="acomment in apost.comments">

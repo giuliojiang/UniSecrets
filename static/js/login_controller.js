@@ -9,14 +9,22 @@ mainApp.controller("main_controller", function($scope) {
         ws.send(JSON.stringify(msgobj));
     }
     
+    $scope.goto_dashboard_or_post = function() {
+        if (localStorage.postid) {
+            window.location = 'post.html#' + localStorage.postid;
+        } else {
+            window.location = 'dashboard.html';
+        }
+    }
+    
     $scope.wsmessage = function(ws, data) {
         var raw_data = JSON.parse(data);
         var type = raw_data.type;
         if (type == 'logintoken') {
             localStorage.token = raw_data.token;
-            window.location = 'dashboard.html';
+            $scope.goto_dashboard_or_post();
         } else if (type == 'tokenok') {
-            window.location = 'dashboard.html';
+            $scope.goto_dashboard_or_post();
         } else if (type == 'loginfail') {
             alert('Login failed');
         }
