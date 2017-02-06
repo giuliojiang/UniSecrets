@@ -7,3 +7,6 @@ all:
 	npm install mysql
 	npm install randomstring
 	npm install marked
+
+clean:
+	- rm -rf node_modules

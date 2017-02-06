@@ -6,3 +6,10 @@ client:
 
 install:
 	cd script && python initialize_config.py
+
+purge: clean
+	- rm -rf config
+
+clean:
+	- rm -rf tmp
+	cd server && make clean

@@ -99,8 +99,6 @@ var send_list = function(email, page, conn) {
                     postobj.comments = [];
                     msgobj.posts.push(postobj);
                 }
-                
-                console.log('comments: ' + commentnickname + ' ' + commenttext);
 
                 if (commenttext && commentnickname) {
                     for (var j = 0; j < msgobj.posts.length; j++) {
