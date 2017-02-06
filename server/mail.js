@@ -1,12 +1,15 @@
 // #############################################################################
 // MAIL PART
 
-var $mail = {};
-
 const nodemailer = require('nodemailer');
 var signer = require('nodemailer-dkim').signer;
 
 var fs = require('fs');
+
+// Load configuration
+var config_file = fs.readFileSync(__dirname + '/../config/server_config.json');
+var config = JSON.parse(config_file);
+
 
 var transporter = nodemailer.createTransport({
     sendmail: true,
@@ -14,13 +17,16 @@ var transporter = nodemailer.createTransport({
     path: '/usr/sbin/sendmail'
 });
 
-transporter.use('stream', require('nodemailer-dkim').signer({
-    domainName: 'secrets.jstudios.ovh',
-    keySelector: 'mail',
-    privateKey: fs.readFileSync('/opt/UniSecrets/mail.private')
-}));
+if (config.mail_use_dkim) {
+    console.log('Setting up DKIM signature...');
+    transporter.use('stream', require('nodemailer-dkim').signer({
+        domainName: 'secrets.jstudios.ovh',
+        keySelector: 'mail',
+        privateKey: fs.readFileSync(config.mail_dkim_privkey)
+    }));
+}
 
-$mail.sendEmail = function(destination, content) {
+var sendEmail = function(destination, content) {
     var mailOptions = {
         from: '"Uni Secrets" <account@secrets.jstudios.ovh>', // sender address
         to: destination, // list of receivers
@@ -35,4 +41,8 @@ $mail.sendEmail = function(destination, content) {
         }
         console.log('Message %s sent: %s', info.messageId, info.response);
     });
+};
+
+module.exports = {
+    sendEmail: sendEmail
 };

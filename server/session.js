@@ -38,7 +38,7 @@ var validate_token = function(token) {
 var send_login_first = function(conn) {
     var msgobj = {};
     msgobj.type = 'loginfirst';
-    conn.sendText(JSON.stringify(msgobj));
+    conn.send(JSON.stringify(msgobj));
 }
 
 var get_state = function(email) {

@@ -30,7 +30,7 @@ var new_post = function(email, is_public, text, conn) {
             // Send confirmation
             var msgobj = {};
             msgobj.type = 'postsuccess';
-            conn.sendText(JSON.stringify(msgobj));
+            conn.send(JSON.stringify(msgobj));
         });
     });
     
@@ -103,11 +103,8 @@ var send_list = function(email, page, conn) {
                 console.log('comments: ' + commentnickname + ' ' + commenttext);
 
                 if (commenttext && commentnickname) {
-                    console.log('valid. Trying to find ' + postid);
                     for (var j = 0; j < msgobj.posts.length; j++) {
-                        console.log('This is ' + msgobj.posts[j].id);
                         if (msgobj.posts[j].id == postid) {
-                            console.log('found');
                             var commentobj = {};
                             commentobj.nickname = commentnickname;
                             commentobj.text = marked(commenttext);
@@ -119,7 +116,7 @@ var send_list = function(email, page, conn) {
             
             console.log(JSON.stringify(msgobj));
             
-            conn.sendText(JSON.stringify(msgobj));
+            conn.send(JSON.stringify(msgobj));
 
         });
     });
@@ -153,7 +150,7 @@ var send_single_post_update = function(postid, conn) {
             }
         }
         
-        conn.sendText(JSON.stringify(msgobj));
+        conn.send(JSON.stringify(msgobj));
     });
 };
 

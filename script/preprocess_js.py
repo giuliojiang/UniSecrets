@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import os
+import json
 
 def run_command_shell_proc(cmd):
     print('>>> {}'.format(cmd))
@@ -19,6 +20,13 @@ static_dir = os.path.abspath(exec_dir + os.sep + 'static')
 # UniSecrets/tmp
 tmp_dir = os.path.abspath(exec_dir + os.sep + 'tmp')
 
+# UniSecrets/config
+config_dir = os.path.abspath(exec_dir + os.sep + 'config')
+config_file_path = os.path.abspath(config_dir + os.sep + 'server_config.json')
+config_file = open(config_file_path, 'r')
+config_obj = json.loads(config_file.read())
+HTTPS_DEFINE = config_obj['use_ssl']
+
 # Remove UniSecrets/tmp
 subprocess.call(['rm', '-rf', tmp_dir])
 
@@ -32,7 +40,7 @@ js_dir = os.path.abspath(tmp_dir + os.sep + 'js')
 include_dir = os.path.abspath(exec_dir + os.sep + 'include')
 
 # UniSecrets/config
-config_dir = os.path.abspath('/opt/UniSecrets/config/')
+config_dir = os.path.abspath(exec_dir + os.sep + 'config')
 
 # for each js file, preprocess
 for filename in os.listdir(js_dir):
@@ -44,6 +52,19 @@ for filename in os.listdir(js_dir):
         temporary_filename = full_filename + '.pre'
         subprocess.call(['mv', full_filename, temporary_filename])
         # preprocess
-        subprocess.call(['cpp', '-P', '-I', include_dir, '-I', config_dir, temporary_filename, '-o', full_filename])
+        cmd = []
+        cmd.append('cpp')
+        cmd.append('-P')
+        cmd.append('-I')
+        cmd.append(include_dir)
+        cmd.append('-I')
+        cmd.append(config_dir)
+        if HTTPS_DEFINE:
+            cmd.append('-D')
+            cmd.append('HTTPS')
+        cmd.append(temporary_filename)
+        cmd.append('-o')
+        cmd.append(full_filename)
+        subprocess.call(cmd)
         # remove temporary
         subprocess.call(['rm', temporary_filename])

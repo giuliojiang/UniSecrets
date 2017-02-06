@@ -1,6 +1,12 @@
 #include<hostname.js>
 
-    var ws = new WebSocket(wshostname);
+var wsaddress = 'ws://' + wshostname;
+
+#ifdef HTTPS
+wsaddress = 'wss://' + wshostname;
+#endif
+
+    var ws = new WebSocket(wsaddress);
 
     ws.onopen = function()
     {
