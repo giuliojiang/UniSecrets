@@ -69,12 +69,12 @@
                 <div class="display:block; float: right">   {{apost.dislikes}}</div>
               </div>
               <div class="col s1 center-align">
-                <a href="" ng-click="toggle_post_comments(apost.id)">Comment</a>
+                <a href=""">Comment</a>
                 <div class="display:block; float: right">   {{apost.comments.length}}</div>
               </div>
             </div>
 
-            <div class="row post-comments" ng-show="apost.show_comments">
+            <div class="row post-comments">
               <div class="col s12">
               
                 <div class="post-comment" ng-repeat="acomment in apost.comments">

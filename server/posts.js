@@ -117,7 +117,7 @@ var send_list = function(email, page, conn) {
     });
 };
 
-var send_single_post_update = function(postid, conn) {
+var send_single_post_update = function(email, postid, conn) {
     // Send single post update
     db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     likes.postid = `post`.postid ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) FROM   dislikes WHERE   dislikes.postid = `post`.postid ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`postid` = ? ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [postid], function(error, results, fields) {
         if (error) {
@@ -145,6 +145,8 @@ var send_single_post_update = function(postid, conn) {
             }
         }
         
+        var state = session.get_state(email);
+        state.visible_posts[postid] = true;
         conn.send(JSON.stringify(msgobj));
     });
 };
@@ -164,7 +166,7 @@ var add_comment = function(email, postid, text, conn) {
         
         console.log('Successfully inserted a comment: ' + text);
         
-        send_single_post_update(postid, conn);
+        send_single_post_update(email, postid, conn);
 
     });
 };
@@ -185,7 +187,7 @@ var like_unlike_post = function(email, postid, value, conn) {
                     return;
                 }
                 
-                send_single_post_update(postid, conn);
+                send_single_post_update(email, postid, conn);
             });
         });
         
@@ -204,7 +206,7 @@ var like_unlike_post = function(email, postid, value, conn) {
                     return;
                 }
                 
-                send_single_post_update(postid, conn);
+                send_single_post_update(email, postid, conn);
             });
         });
     } else {
@@ -222,7 +224,7 @@ var like_unlike_post = function(email, postid, value, conn) {
                     return;
                 }
                 
-                send_single_post_update(postid, conn);
+                send_single_post_update(email, postid, conn);
             });
         });
     }
@@ -241,7 +243,7 @@ var send_single_post = function(email, postid, conn) {
         }
         
         if (results.length == 1) {
-            send_single_post_update(postid, conn);
+            send_single_post_update(email, postid, conn);
         } else {
             var msgobj = {};
             msgobj.type = 'postnotfound';

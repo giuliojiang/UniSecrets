@@ -7,16 +7,6 @@ mainApp.controller("main_controller", function($scope) {
     
     $scope.show_not_found = false;
 
-    $scope.set_show_comments_to_false = function() {
-        $scope.apost.show_comments = false;
-    };
-
-    $scope.toggle_post_comments = function(post_id) {
-        if (apost.id == post_id) {
-            apost.show_comments ? apost.show_comments = false : apost.show_comments = true;
-        }
-    };
-    
     var request_post = function(ws) {
         var msgobj = {};
         msgobj.type = 'getpost';
