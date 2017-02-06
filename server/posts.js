@@ -232,9 +232,14 @@ var like_unlike_post = function(email, postid, value, conn) {
 
 };
 
+var send_single_post = function(postid, conn) {
+    
+};
+
 module.exports = {
     new_post: new_post,
     send_list: send_list,
     add_comment: add_comment,
-    like_unlike_post: like_unlike_post
+    like_unlike_post: like_unlike_post,
+    send_single_post: send_single_post
 };

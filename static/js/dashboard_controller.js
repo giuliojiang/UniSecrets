@@ -20,11 +20,9 @@ mainApp.controller("main_controller", function($scope) {
     };
 
     $scope.wsonopen = function(ws) {
-        // send first request for posts
         var msgobj = {};
-        msgobj.type = 'requestposts';
+        msgobj.type = 'validatetoken';
         msgobj.user_token = localStorage.token;
-        msgobj.page = $scope.page;
         ws.send(JSON.stringify(msgobj));
     }
     
@@ -62,6 +60,17 @@ mainApp.controller("main_controller", function($scope) {
             }
             
             $scope.$apply();
+        } else if (type == 'tokenok') {
+            if (localStorage.postid) {
+                window.location = 'post.html#' + localStorage.postid;
+            } else {
+                // send first request for posts
+                var msgobj = {};
+                msgobj.type = 'requestposts';
+                msgobj.user_token = localStorage.token;
+                msgobj.page = $scope.page;
+                ws.send(JSON.stringify(msgobj));
+            }
         }
     }
 

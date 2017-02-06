@@ -60,6 +60,13 @@ SERVER TO CLIENT
         type: tokenok
     }
     Response to validatetoken
+    
+    // TODO SERVER
+    {
+        type: postnotfound
+    }
+    Response to 'getpost'
+    When the requested post is not found or not accessible
 
 CLIENT TO SERVER
 
@@ -118,3 +125,13 @@ CLIENT TO SERVER
     Check if token is valid upon connection of WebSocket.
     Might respond with a 'loginfirst' if fail,
     or 'tokenok' if ok
+
+    // TODO SERVER
+    {
+        type: getpost,
+        user_token: dfh2UMV0fmfimSVju9rwm,
+        postid: 8754
+    }
+    Requests a single post from the server
+    Can return a 'updatepost'
+    or a 'postnotfound'
