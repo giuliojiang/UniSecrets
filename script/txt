@@ -1,0 +1,15 @@
+SELECT
+  *
+FROM
+  `post`
+WHERE
+  `postid` = ? AND(
+    `public` = 1 OR `college` =(
+    SELECT
+      `user`.`college`
+    FROM
+      `user`
+    WHERE
+      `user`.`email` = ?
+  )
+  )

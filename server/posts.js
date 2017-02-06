@@ -25,7 +25,6 @@ var new_post = function(email, is_public, text, conn) {
                 console.log(error);
                 return;
             }
-            console.log('Successfully inserted post: ' + text);
             
             // Send confirmation
             var msgobj = {};
@@ -111,9 +110,7 @@ var send_list = function(email, page, conn) {
                     }
                 }
             }
-            
-            console.log(JSON.stringify(msgobj));
-            
+
             conn.send(JSON.stringify(msgobj));
 
         });
@@ -232,8 +229,26 @@ var like_unlike_post = function(email, postid, value, conn) {
 
 };
 
-var send_single_post = function(postid, conn) {
-    
+var send_single_post = function(email, postid, conn) {
+    // Check that user has access to the post
+    db.connection.query('SELECT   * FROM   `post` WHERE   `postid` = ? AND(     `public` = 1 OR `college` =(     SELECT       `user`.`college`     FROM       `user`     WHERE       `user`.`email` = ?   )   )', [postid, email], function(error, results, fields) {
+        if (error) {
+            console.log(error);
+            var msgobj = {};
+            msgobj.type = 'postnotfound';
+            conn.send(JSON.stringify(msgobj));
+            return;
+        }
+        
+        if (results.length == 1) {
+            send_single_post_update(postid, conn);
+        } else {
+            var msgobj = {};
+            msgobj.type = 'postnotfound';
+            conn.send(JSON.stringify(msgobj));
+            return;
+        }
+    });
 };
 
 module.exports = {

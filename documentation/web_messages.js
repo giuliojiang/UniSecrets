@@ -61,7 +61,6 @@ SERVER TO CLIENT
     }
     Response to validatetoken
     
-    // TODO SERVER
     {
         type: postnotfound
     }
@@ -126,7 +125,6 @@ CLIENT TO SERVER
     Might respond with a 'loginfirst' if fail,
     or 'tokenok' if ok
 
-    // TODO SERVER
     {
         type: getpost,
         user_token: dfh2UMV0fmfimSVju9rwm,

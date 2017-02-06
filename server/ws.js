@@ -90,7 +90,7 @@ server.on('connection', function(conn) {
             conn.send(JSON.stringify(msgobj));
         } else if (type == 'getpost') {
             var postid = msgobj.postid;
-            posts.send_single_post(postid, conn);
+            posts.send_single_post(email, postid, conn);
         }
         else {
             console.log('Unrecognized message type ' + type);
