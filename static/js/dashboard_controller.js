@@ -102,5 +102,9 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.value = is_like;
         ws.send(JSON.stringify(msgobj));
     }
+    
+    $scope.generate_post_link = function(postid) {
+        return 'post.html#' + postid;
+    }
 
 });

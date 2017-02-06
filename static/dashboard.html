@@ -50,7 +50,9 @@
       <div class="secret-list">
         <div ng-repeat="apost in postlist.posts" class="secret-container card-medium z-depth-1">
           <div class="secret-university" style="padding-left:15px">
-            <p>Found at: {{apost.college}}</p>
+            <a href="{{generate_post_link(apost.id)}}">
+                <p>Found at: {{apost.college}}</p>
+            </a>
           </div>
           <div class="card-content" style="padding-left:15px">
             <div ng-bind-html="apost.text"></div>
