@@ -24,11 +24,11 @@ if (config.use_ssl) {
         key: fs.readFileSync(config.ssl_privkey),
         cert: fs.readFileSync(config.ssl_certificate)
     }, processRequest).listen(8001);
-    server = new WebSocketServer({server: app});
 } else {
     app = require('http').createServer(processRequest).listen(8001);
-    server = new WebSocketServer();
 }
+
+server = new WebSocketServer({server: app});
 
 server.on('connection', function(conn) {
     console.log("New connection");
