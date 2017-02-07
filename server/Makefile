@@ -1,12 +1,8 @@
 all:
-	npm install nodemailer
-	npm install nodemailer-dkim
-	npm install express
-	npm install ws
-	npm install password-hash
-	npm install mysql
-	npm install randomstring
-	npm install marked
+	npm install
+
+reinstall:
+	npm install --save nodemailer nodemailer-dkim express ws password-hash mysql randomstring marked
 
 clean:
 	- rm -rf node_modules
