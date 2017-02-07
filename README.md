@@ -9,6 +9,8 @@ Accessible only by students and academic people!
 * NodeJS v7
 * MySQL database on `localhost` setup with username database password all to `UniSecrets`
 * `sendmail` setup on localhost
+* `python`
+* `cpp` (The C preprocessor)
 
 ## Building
 
