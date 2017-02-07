@@ -23,3 +23,13 @@ If it is the first time you setup the server, configuration files will be create
 ## Starting the server
 
 Simply run `./StartServer`
+
+## About hacks
+
+This project was created by Giulio Jiang and Abraao Mota during the Hackathon ICHack 17.
+
+Warning! This project contains hacks! They are totally hacky in the sense that they are no common practice at all, but that doesn't mean it makes the project less mantainable or understandable (they probably make it better ;) ). Enjoy!
+
+## Live website
+
+(coming soon)
