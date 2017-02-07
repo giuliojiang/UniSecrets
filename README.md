@@ -11,6 +11,7 @@ Accessible only by students and academic people!
 * `sendmail` setup on localhost
 * `python`
 * `cpp` (The C preprocessor)
+* `make`
 
 ## Building
 
