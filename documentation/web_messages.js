@@ -66,6 +66,16 @@ SERVER TO CLIENT
     }
     Response to 'getpost'
     When the requested post is not found or not accessible
+    
+    {
+        type: toactivation
+    }
+    After user inserted registration details, he is redirected to the email verification page
+    
+    {
+        type: activationsuccess
+    }
+    Activation of new account was successful. User will be shown a message and a button to go to login
 
 CLIENT TO SERVER
 
@@ -133,3 +143,10 @@ CLIENT TO SERVER
     Requests a single post from the server
     Can return a 'updatepost'
     or a 'postnotfound'
+    
+    {
+        type: activationcode,
+        email: oighs@goph.co,
+        code: fpoiahseporhfoihapseuhgrposaiuhr
+    }
+    Client sends email and activation code to activate an account
