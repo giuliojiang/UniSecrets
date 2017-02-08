@@ -18,27 +18,20 @@ mainApp.controller("main_controller", function($scope) {
             alert(msgobj.msg);
         } else if (type == 'tokenok') {
             window.location = 'dashboard.html';
-        } else if (type == 'toactivation') {
-            window.location = 'activation.html';
         }
     }
     
 // WS MODULES LOADED HERE
 #include<clientws.js>
 
-    $scope.sign_up = function() {
+    $scope.submit = function() {
 
         var msgobj = {};
-        msgobj.type = 'registration';
+        msgobj.type = 'activationcode';
         msgobj.email = $scope.email;
-        msgobj.nickname = $scope.nickname;
-        msgobj.college = $scope.college;
-        if ($scope.password1 != $scope.password2) {
-            alert("Your passwords do not match");
-            return;
-        }
-        msgobj.password = $scope.password1;
+        msgobj.code = $scope.code;
         ws_send(JSON.stringify(msgobj));
+        
     };
 
 });

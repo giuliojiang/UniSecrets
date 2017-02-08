@@ -66,6 +66,11 @@ SERVER TO CLIENT
     }
     Response to 'getpost'
     When the requested post is not found or not accessible
+    
+    {
+        type: toactivation
+    }
+    After user inserted registration details, he is redirected to the email verification page
 
 CLIENT TO SERVER
 
@@ -133,3 +138,11 @@ CLIENT TO SERVER
     Requests a single post from the server
     Can return a 'updatepost'
     or a 'postnotfound'
+    
+    // TODO SERVER
+    {
+        type: activationcode,
+        email: oighs@goph.co,
+        code: fpoiahseporhfoihapseuhgrposaiuhr
+    }
+    Client sends email and activation code to activate an account
