@@ -71,6 +71,11 @@ SERVER TO CLIENT
         type: toactivation
     }
     After user inserted registration details, he is redirected to the email verification page
+    
+    {
+        type: activationsuccess
+    }
+    Activation of new account was successful. User will be shown a message and a button to go to login
 
 CLIENT TO SERVER
 
@@ -139,7 +144,6 @@ CLIENT TO SERVER
     Can return a 'updatepost'
     or a 'postnotfound'
     
-    // TODO SERVER
     {
         type: activationcode,
         email: oighs@goph.co,

@@ -62,7 +62,7 @@ var authenticate = function(email, password, conn) {
     // passwordHash.verify('Password0', hashedPassword)
     
     // Get the hashed password from database
-    db.connection.query('SELECT `hash` FROM `authentication` WHERE `email` = ?', [email], function(error, results, fields) {
+    db.connection.query('SELECT `hash` FROM `user` WHERE `email` = ? AND `activation` IS NULL', [email], function(error, results, fields) {
         if (error) {
             console.log(error);
             login_failed(email, conn);
@@ -79,7 +79,50 @@ var authenticate = function(email, password, conn) {
     });
 };
 
+var activate_account = function(email, code, conn) {
+    // first check if the email with that code exist
+    db.connection.query('SELECT * FROM `user` WHERE `email` = ? AND `activation` = ?', [email, code], function(error, results, fields) {
+        if (error) {
+            var msgobj = {};
+            msgobj.type = 'alert';
+            msgobj.msg = 'Activation failed.';
+            conn.send(JSON.stringify(msgobj));
+            return;
+        }
+        
+        if (results.length != 1) {
+            var msgobj = {};
+            msgobj.type = 'alert';
+            msgobj.msg = 'Activation failed.';
+            conn.send(JSON.stringify(msgobj));
+            return;
+        }
+        
+        // now activate account on database
+        db.connection.query('UPDATE `user` SET `activation`= NULL WHERE `email` = ?', [email], function(error, results, fields) {
+            if (error) {
+                var msgobj = {};
+                msgobj.type = 'alert';
+                msgobj.msg = 'Activation failed.';
+                conn.send(JSON.stringify(msgobj));
+                return;
+            }
+            
+            console.log('Activated account ' + email);
+            
+            var msgobj = {};
+            msgobj.type = 'activationsuccess';
+            conn.send(JSON.stringify(msgobj));
+        });
+    });
+    
+    
+    
+    
+};
+
 module.exports = {
     authenticate: authenticate,
-    add_user: add_user
+    add_user: add_user,
+    activate_account: activate_account
 };

@@ -18,6 +18,9 @@ mainApp.controller("main_controller", function($scope) {
             alert(msgobj.msg);
         } else if (type == 'tokenok') {
             window.location = 'dashboard.html';
+        } else if (type == 'activationsuccess') {
+            alert('Activation successful. You will not be redirected to the login pagae');
+            window.location = 'login.html';
         }
     }
     

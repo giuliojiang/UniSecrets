@@ -59,7 +59,12 @@ server.on('connection', function(conn) {
           auth.add_user(email, nickname, college, password, conn);
           
           return;
-        } else {
+        } else if (type == 'activationcode') {
+            var email = msgobj.email;
+            var code = msgobj.code;
+            auth.activate_account(email, code, conn);
+        }
+        else {
             email = session.validate_token(msgobj.user_token);
             if (!email) {
                 session.send_login_first(conn);
