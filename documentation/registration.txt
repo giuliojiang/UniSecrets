@@ -1,0 +1,15 @@
+when user registers, add the row to users with non-empty activation token
+
+email the user:
+email: ljflikjsre
+activation token: fpoiahspeorihaposfihpaoisuehr
+
+activation.html
+is used to activate the token
+
+If successful, the activation token is set to NULL in the database
+
+
+
+
+When user logs in, need to check that activation token IS NULL.

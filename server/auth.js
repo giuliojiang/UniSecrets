@@ -1,5 +1,6 @@
 var db = require( __dirname + '/db.js');
 var session = require( __dirname + '/session.js');
+var randomstring = require("randomstring");
 
 // #############################################################################
 // PASSWORD HASHING AND AUTHENTICATION
@@ -7,11 +8,12 @@ var passwordHash = require('password-hash');
 
 var add_user = function(email, nickname, college, password, conn) {
     var hashed_password = passwordHash.generate(password);
+    var activation_code = randomstring.generate(30);
     
     console.log('Hashed a password: ' + hashed_password);
 
     // Add user to user table
-    db.connection.query('INSERT INTO `user`(`email`, `nickname`, `college`) VALUES (?,?,?)', [email, nickname, college], function (error, results, fields) {
+    db.connection.query('INSERT INTO `user`(`email`, `nickname`, `college`, `hash`, `activation`) VALUES (?,?,?,?,?)', [email, nickname, college, hashed_password, activation_code], function (error, results, fields) {
         if (error) {
             console.log(error);
             var msgobj = {};

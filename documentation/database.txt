@@ -1,6 +1,4 @@
-authentication(K email, hash)
-
-user(K email, nickname, college)                        college > college
+user(K email, nickname, college, hash, activation)                  college > college
 
 college(K college)
 
@@ -11,3 +9,19 @@ comment(K commentid, K postid, K email, text)           postid > post, email > u
 likes(K postid, K email)                                postid > post, email > user
 
 dislikes(K postid, K email)                             postid > post, email > user
+
+
+
+
+PENDING ACTIONS
+
+>>> users insert hash column
+
+>>> move authentication hash column to users
+UPDATE user, authentication 
+SET user.hash=authentication.hash
+WHERE user.email=authentication.email;
+
+>>> authenticataion table remove
+
+>>> user insert activation column TEXT (default is NULL)
