@@ -1,7 +1,7 @@
 var db = require( __dirname + '/db.js');
 var session = require( __dirname + '/session.js');
 var randomstring = require("randomstring");
-var mail = require('mail.js');
+var mail = require( __dirname + '/mail.js');
 
 // #############################################################################
 // PASSWORD HASHING AND AUTHENTICATION
