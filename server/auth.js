@@ -7,35 +7,79 @@ var mail = require( __dirname + '/mail.js');
 // PASSWORD HASHING AND AUTHENTICATION
 var passwordHash = require('password-hash');
 
-var add_user = function(email, nickname, college, password, conn) {
+var add_user = function(email, nickname, password, conn) {
     var hashed_password = passwordHash.generate(password);
     var activation_code = randomstring.generate(30);
     
-    console.log('Hashed a password: ' + hashed_password);
-
-    // Add user to user table
-    db.connection.query('INSERT INTO `user`(`email`, `nickname`, `college`, `hash`, `activation`) VALUES (?,?,?,?,?)', [email, nickname, college, hashed_password, activation_code], function (error, results, fields) {
+    // Split the email's domain
+    var email_domain = undefined;
+    var email_split = email.split('@');
+    if (email_split.length == 2) {
+        email_domain = email_split[1];
+    } else {
+        var msgobj = {};
+        msgobj.type = 'alert';
+        msgobj.msg = 'Registration failed. Email invalid';
+        conn.send(JSON.stringify(msgobj));
+        return;
+    }
+    
+    db.connection.query('SELECT `college` FROM `college` WHERE `domain` = ?', [email_domain], function(error, results, fields) {
         if (error) {
             console.log(error);
             var msgobj = {};
             msgobj.type = 'alert';
-            msgobj.msg = 'Registration failed. Was your email already used?';
+            msgobj.msg = 'Registration failed.';
             conn.send(JSON.stringify(msgobj));
             return;
         }
-        console.log('Successfully added account ' + email + ' to database');
         
-        // Send email to user
-        var mailContent = 'Please activate your account at UniSecrets\n';
-        mailContent += 'email: ' + email + '\n';
-        mailContent += 'activation code: ' + activation_code + '\n';
-        mail.sendEmail(email, mailContent);
+        if (results.lenght == 0) {
+            console.log('No college found for email ' + email);
+            var msgobj = {};
+            msgobj.type = 'collegenotfound';
+            conn.send(JSON.stringify(msgobj));
+            return;
+        }
         
-        // Redirect user to the activation page
-        var msgobj = {};
-        msgobj.type = 'toactivation';
-        conn.send(JSON.stringify(msgobj));
+        if (results.length != 1) {
+            console.log('Unexpected results length ' + results.length);
+            var msgobj = {};
+            msgobj.type = 'alert';
+            msgobj.msg = 'Registration failed.';
+            conn.send(JSON.stringify(msgobj));
+            return;
+        }
+    
+        var college = results[0].college;
+        
+        console.log('Hashed a password: ' + hashed_password);
 
+        // Add user to user table
+        db.connection.query('INSERT INTO `user`(`email`, `nickname`, `college`, `hash`, `activation`) VALUES (?,?,?,?,?)', [email, nickname, college, hashed_password, activation_code], function (error, results, fields) {
+            if (error) {
+                console.log(error);
+                var msgobj = {};
+                msgobj.type = 'alert';
+                msgobj.msg = 'Registration failed. Was your email already used?';
+                conn.send(JSON.stringify(msgobj));
+                return;
+            }
+            console.log('Successfully added account ' + email + ' to database');
+            
+            // Send email to user
+            var mailContent = 'Please activate your account at UniSecrets\n';
+            mailContent += 'email: ' + email + '\n';
+            mailContent += 'activation code: ' + activation_code + '\n';
+            mail.sendEmail(email, mailContent);
+            
+            // Redirect user to the activation page
+            var msgobj = {};
+            msgobj.type = 'toactivation';
+            conn.send(JSON.stringify(msgobj));
+
+        });
+        
     });
 };
 

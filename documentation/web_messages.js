@@ -76,6 +76,12 @@ SERVER TO CLIENT
         type: activationsuccess
     }
     Activation of new account was successful. User will be shown a message and a button to go to login
+    
+    // TODO CLIENT
+    {
+        type: collegenotfound
+    }
+    When user registers, but the email used doesn't correspond to any known college in the database.
 
 CLIENT TO SERVER
 
@@ -90,7 +96,7 @@ CLIENT TO SERVER
         type: registration,
         email: email,
         nickname: nickname,
-        college: college,
+        // college: college,  TODO CLIENT
         password: password
     }
     Registration msg

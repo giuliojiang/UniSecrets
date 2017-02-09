@@ -1,6 +1,6 @@
 user(K email, nickname, college, hash, activation)                  college > college
 
-college(K college)
+college(K college, K domain)
 
 post(K postid, college, public, text)   college > college
 
@@ -15,13 +15,4 @@ dislikes(K postid, K email)                             postid > post, email > u
 
 PENDING ACTIONS
 
->>> users insert hash column
-
->>> move authentication hash column to users
-UPDATE user, authentication 
-SET user.hash=authentication.hash
-WHERE user.email=authentication.email;
-
->>> authenticataion table remove
-
->>> user insert activation column TEXT (default is NULL)
+college add column domain (default is NULL)

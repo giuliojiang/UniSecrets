@@ -13,3 +13,6 @@ purge: clean
 clean:
 	- rm -rf tmp
 	cd server && make clean
+
+installdb:
+	cd db && ./createTables.sh
