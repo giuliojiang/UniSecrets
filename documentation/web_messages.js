@@ -94,6 +94,18 @@ SERVER TO CLIENT
     }
     When user registers, but the email used doesn't correspond to any known college in the database.
     in: registration
+    
+    {
+        type: pendingcollegelist,
+        colleges: [
+            {
+                college: "imperial",
+                domain: "ic.ac.uk"
+            }
+        ]
+    }
+    Sends to an admin the list of pending colleges to be activated
+    in: admin
 
 
 CLIENT TO SERVER
@@ -176,9 +188,17 @@ CLIENT TO SERVER
     }
     User requests a new college to be added to database
     
-    // TODO SERVER
     {
         type: pendingcollegeslist,
         user_token: dfh2UMV0fmfimSVju9rwm
     }
     Request list of colleges that need to be activaated
+    
+    {
+        type: pendingcollegeaction,
+        user_token: dfh2UMV0fmfimSVju9rwm
+        accept: 1,
+        college: Imperial,
+        domain: ic.ac.uk
+    }
+    Accept or reject a college

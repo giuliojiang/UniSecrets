@@ -221,9 +221,78 @@ var add_college = function(email, college, conn) {
     });
 };
 
+var is_user_admin = function(email, callback) {
+    db.connection.query('SELECT * FROM `moderator` WHERE `email` = ?', [email], function(error, results, fields) {
+        if (error) {
+            console.log(error);
+            callback(undefined, false);
+            return;
+        }
+        
+        callback(undefined, results.length == 1);
+    });
+};
+
+var send_pending_colleges = function(conn) {
+    db.connection.query('SELECT * FROM `pendingcollege`', [], function(error, results, fields) {
+        if (error) {
+            console.log(error);
+            send_alert('Could not retrieve pending colleges');
+            return;
+        }
+        
+        var msgobj = {};
+        msgobj.type = 'pendingcollegelist';
+        msgobj.colleges = [];
+        for (var i = 0; i < results.length; i++) {
+            var collegeobj = {};
+            collegeobj.college = results[i].college;
+            collegeobj.domain = results[i].domain;
+            msgobj.colleges.push(collegeobj);
+        }
+        conn.send(JSON.stringify(msgobj));
+    });
+
+};
+
+var college_action = function(accept, college, domain, conn) {
+    if (accept == 1) {
+        db.connection.query('INSERT INTO `college`(`college`, `domain`) VALUES (?,?)', [college, domain], function(error, results, fields) {
+            if (error) {
+                console.log(error);
+                send_alert('An error occurred');
+                return;
+            }
+            
+            db.connection.query('DELETE FROM `pendingcollege` WHERE `college` = ? AND `domain` = ?', [college, domain], function(error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    send_alert('An error occurred');
+                    return;
+                }
+                
+                send_pending_colleges(conn);
+            });
+        });
+    } else {
+        db.connection.query('DELETE FROM `pendingcollege` WHERE `college` = ? AND `domain` = ?', [college, domain], function(error, results, fields) {
+            if (error) {
+                console.log(error);
+                send_alert('An error occurred');
+                return;
+            }
+            
+            send_pending_colleges(conn);
+        });
+    }
+};
+
 module.exports = {
     authenticate: authenticate,
     add_user: add_user,
     activate_account: activate_account,
-    add_college: add_college
+    add_college: add_college,
+    is_user_admin: is_user_admin,
+    send_pending_colleges: send_pending_colleges,
+    college_action: college_action
 };

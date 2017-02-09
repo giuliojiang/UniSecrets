@@ -38,18 +38,18 @@
 
       <h2>Pending college activations</h2>
 
-      <div class="row">
+      <div class="row" ng-repeat="a_college in colleges">
         <div class="col s4">
-            <p>Imperial College London</p>
+            <p>{{a_college.college}}</p>
         </div>
         <div class="col s4">
-            <p>ic.ac.uk</p>
+            <p>{{a_college.domain}}</p>
         </div>
         <div class="col s2">
-            <button class="btn waves-effect waves-light green" type="submit" name="action">Accept</button>
+            <button class="btn waves-effect waves-light green" type="submit" name="action" ng-click="accept_college(a_college, 1)">Accept</button>
         </div>
         <div class="col s2">
-            <button class="btn waves-effect waves-light red" type="submit" name="action">Delete</button>
+            <button class="btn waves-effect waves-light red" type="submit" name="action" ng-click="accept_college(a_college, 0)">Delete</button>
         </div>
       </div>
 
