@@ -13,6 +13,9 @@ var config = JSON.parse(config_file);
 var express = require('express');
 var app = express();
 
+var http_port = config.http_port;
+var https_port = config.https_port;
+
 app.use('/', express.static(__dirname + '/../tmp'));
 
 if (config.use_ssl) {
@@ -26,15 +29,15 @@ if (config.use_ssl) {
     };
     
     var httpsServer = https.createServer(credentials, app);
-    httpsServer.listen(443, function() {
-        console.log('HTTPS server listening on port 443');
+    httpsServer.listen(https_port, function() {
+        console.log('HTTPS server listening on port ' + https_port);
     }).on('error', function(err) {
         console.log(err);
     });
 } else {
     var httpServer = http.createServer(app);
-    httpServer.listen(8080, function() {
-        console.log('HTTP server listening on port 8080');
+    httpServer.listen(http_port, function() {
+        console.log('HTTP server listening on port ' + http_port);
     }).on('error', function(err) {
         console.log(err);
     });

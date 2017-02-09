@@ -23,9 +23,9 @@ if (config.use_ssl) {
     app = require('https').createServer( {
         key: fs.readFileSync(config.ssl_privkey),
         cert: fs.readFileSync(config.ssl_certificate)
-    }, processRequest).listen(8001);
+    }, processRequest).listen(config.ws_port);
 } else {
-    app = require('http').createServer(processRequest).listen(8001);
+    app = require('http').createServer(processRequest).listen(config.ws_port);
 }
 
 server = new WebSocketServer({server: app});
