@@ -2,24 +2,29 @@ SERVER TO CLIENT
 
     {
         type : logintoken,
-        token: token
+        token: token,
+        admin: 1
     }
     Sends new session token to user upon login success
+    in: login
 
     {
         type : loginfail
     }
     Login fails
+    in: login
     
     {
         type: loginfirst
     }
     Token check failed, you need to log in first
+    in: post, dashboard, new_post
     
     {
         type: postsuccess
     }
     Confirmation that a new secret was successfully posted
+    in: new_post
     
     {
         type: postlist,
@@ -36,6 +41,7 @@ SERVER TO CLIENT
         ]
     }
     List of messages for the dashboard!
+    in: dashboard
     
     {
         type: updatepost,
@@ -50,32 +56,57 @@ SERVER TO CLIENT
         ]
     }
     Update content of single post
+    in: post, dashboard
     
     {
         type: alert
         msg: pofihasopeirhpaer
     }
+    in: registration, activation
     
     {
         type: tokenok
     }
     Response to validatetoken
+    in: login, dashboard, registration, activation
     
     {
         type: postnotfound
     }
     Response to 'getpost'
     When the requested post is not found or not accessible
+    in: post
     
     {
         type: toactivation
     }
     After user inserted registration details, he is redirected to the email verification page
+    in: registration
     
     {
         type: activationsuccess
     }
     Activation of new account was successful. User will be shown a message and a button to go to login
+    in: activation
+    
+    {
+        type: collegenotfound
+    }
+    When user registers, but the email used doesn't correspond to any known college in the database.
+    in: registration
+    
+    {
+        type: pendingcollegelist,
+        colleges: [
+            {
+                college: "imperial",
+                domain: "ic.ac.uk"
+            }
+        ]
+    }
+    Sends to an admin the list of pending colleges to be activated
+    in: admin
+
 
 CLIENT TO SERVER
 
@@ -90,7 +121,6 @@ CLIENT TO SERVER
         type: registration,
         email: email,
         nickname: nickname,
-        college: college,
         password: password
     }
     Registration msg
@@ -150,3 +180,25 @@ CLIENT TO SERVER
         code: fpoiahseporhfoihapseuhgrposaiuhr
     }
     Client sends email and activation code to activate an account
+    
+    {
+        type: addcollege,
+        email: poifhjsoper@fojs.ic.ac.uk,
+        college: "bella de padella"
+    }
+    User requests a new college to be added to database
+    
+    {
+        type: pendingcollegeslist,
+        user_token: dfh2UMV0fmfimSVju9rwm
+    }
+    Request list of colleges that need to be activaated
+    
+    {
+        type: pendingcollegeaction,
+        user_token: dfh2UMV0fmfimSVju9rwm
+        accept: 1,
+        college: Imperial,
+        domain: ic.ac.uk
+    }
+    Accept or reject a college

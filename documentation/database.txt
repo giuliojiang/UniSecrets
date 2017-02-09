@@ -1,6 +1,6 @@
 user(K email, nickname, college, hash, activation)                  college > college
 
-college(K college)
+college(K college, K domain)
 
 post(K postid, college, public, text)   college > college
 
@@ -10,18 +10,19 @@ likes(K postid, K email)                                postid > post, email > u
 
 dislikes(K postid, K email)                             postid > post, email > user
 
+pendingcollege(K college, K domain)
+
+moderator(K email)
+
 
 
 
 PENDING ACTIONS
 
->>> users insert hash column
+college add column domain (default is NULL)
 
->>> move authentication hash column to users
-UPDATE user, authentication 
-SET user.hash=authentication.hash
-WHERE user.email=authentication.email;
+add new table pendingcollege(K college, K domain)
 
->>> authenticataion table remove
+add new table moderator(K email)
+ALTER TABLE `moderator` ADD CONSTRAINT fk_moderator_email FOREIGN KEY (`email`) REFERENCES `user`(`email`) ON DELETE CASCADE ON UPDATE CASCADE;
 
->>> user insert activation column TEXT (default is NULL)

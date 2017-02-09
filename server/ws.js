@@ -42,6 +42,7 @@ server.on('connection', function(conn) {
 
         var email = undefined;
         
+        // ========= UNAUTHENTICATED MESSAGES ================
         if (type == 'login') {
             var email = msgobj.email;
             var password = msgobj.password;
@@ -53,17 +54,23 @@ server.on('connection', function(conn) {
         } else if (type == 'registration') {
           var email = msgobj.email;
           var nickname = msgobj.nickname;
-          var college = msgobj.college;
           var password = msgobj.password;
 
-          auth.add_user(email, nickname, college, password, conn);
+          auth.add_user(email, nickname, password, conn);
           
           return;
         } else if (type == 'activationcode') {
             var email = msgobj.email;
             var code = msgobj.code;
             auth.activate_account(email, code, conn);
+            return;
+        } else if (type == 'addcollege') {
+            var email = msgobj.email;
+            var college = msgobj.college;
+            auth.add_college(email, college, conn);
+            return;
         }
+        // ========= AUTHENTICATED MESSAGES ================
         else {
             email = session.validate_token(msgobj.user_token);
             if (!email) {
@@ -78,29 +85,58 @@ server.on('connection', function(conn) {
             var is_public = msgobj['public'];
             var text = msgobj.text;
             posts.new_post(email, is_public, text, conn);
+            return;
         } else if (type == 'requestposts') {
             var page = msgobj.page;
             posts.send_list(email, page, conn);
+            return;
         } else if (type == 'new_comment') {
             var text = msgobj.text;
             var postid = msgobj.postid;
             posts.add_comment(email, postid, text, conn);
+            return;
         } else if (type == 'like') {
             var postid = msgobj.postid;
             var value = msgobj.value;
             posts.like_unlike_post(email, postid, value, conn);
+            return;
         } else if (type == 'validatetoken') {
             var msgobj = {};
             msgobj.type = 'tokenok';
             conn.send(JSON.stringify(msgobj));
+            return;
         } else if (type == 'getpost') {
             var postid = msgobj.postid;
             posts.send_single_post(email, postid, conn);
-        }
-        else {
-            console.log('Unrecognized message type ' + type);
             return;
         }
+        // ========= PRIVILEGED MESSAGES ================
+        
+        var is_admin = false;
+        auth.is_user_admin(email, function(error, result) {
+            if (error) {
+                console.log(error);
+                is_admin = false;
+                return;
+            }
+            
+            is_admin = result;
+            
+            if (is_admin) {
+                if (type == 'pendingcollegeslist') {
+                    auth.send_pending_colleges(conn);
+                    return;
+                } else if (type == 'pendingcollegeaction') {
+                    var accept = msgobj.accept;
+                    var college = msgobj.college;
+                    var domain = msgobj.domain;
+                    auth.college_action(accept, college, domain, conn);
+                    return;
+                }
+            } else {
+                console.log('Unrecognized or unauthorized message type ' + type);
+            }
+        });
     });
     conn.on("close", function (code, reason) {
         console.log("Connection closed")

@@ -21,7 +21,12 @@ mainApp.controller("main_controller", function($scope) {
         var raw_data = JSON.parse(data);
         var type = raw_data.type;
         if (type == 'logintoken') {
+            localStorage.clear();
             localStorage.token = raw_data.token;
+            
+            var is_admin = raw_data.admin;
+            localStorage.admin = is_admin;
+            
             $scope.goto_dashboard_or_post();
         } else if (type == 'tokenok') {
             $scope.goto_dashboard_or_post();
