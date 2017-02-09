@@ -54,17 +54,15 @@ for filename in os.listdir(js_dir):
         # preprocess
         cmd = []
         cmd.append('cpp')
+        # -P: Not to print line numbers.
         cmd.append('-P')
-        cmd.append('-I')
-        cmd.append(include_dir)
-        cmd.append('-I')
-        cmd.append(config_dir)
+        # -I: Include directory.
+        cmd.append('-I' + include_dir)
+        cmd.append('-I' + config_dir)
+        # -D: sets a define flag.
         if HTTPS_DEFINE:
-            cmd.append('-D')
-            cmd.append('HTTPS')
+            cmd.append('-DHTTPS')
         cmd.append(temporary_filename)
-        cmd.append('-o')
-        cmd.append(full_filename)
-        subprocess.call(cmd)
+        subprocess.call(cmd, stdout=(open(full_filename, 'w')))
         # remove temporary
         subprocess.call(['rm', temporary_filename])

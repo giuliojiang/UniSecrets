@@ -15,7 +15,8 @@ Accessible only by students and academic people!
 
 ## Building
 
-Developed and tested on Ubuntu 16.04. It should work on OSX with minor modifications.
+Developed and tested on Ubuntu 16.04. It also works on OSX.
+Other UNIX based systems should be supported with possibly minor changes.
 
 Run `make` to install all npm modules.
 

@@ -14,4 +14,4 @@ subprocess.call(['make', 'client'])
 # start server
 server_dir = os.path.abspath(exec_dir + os.sep + 'server')
 os.chdir(server_dir)
-subprocess.call(['nodejs', 'server.js'])
+subprocess.call(['node', 'server.js'])
