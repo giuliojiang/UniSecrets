@@ -106,7 +106,12 @@ mainApp.controller("main_controller", function($scope) {
     }
     
     $scope.is_admin = function() {
-        return localStorage.admin;
+        return localStorage.admin == 1;
+    }
+    
+    $scope.do_logout = function() {
+        localStorage.clear();
+        location.reload();
     }
 
 });

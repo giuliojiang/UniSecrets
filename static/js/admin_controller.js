@@ -21,6 +21,7 @@ mainApp.controller("main_controller", function($scope) {
             return;
         } else if (type == 'pendingcollegelist') {
             $scope.colleges = raw_data.colleges;
+            $scope.$apply();
         }
 
     }

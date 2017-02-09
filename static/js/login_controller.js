@@ -25,7 +25,7 @@ mainApp.controller("main_controller", function($scope) {
             localStorage.token = raw_data.token;
             
             var is_admin = raw_data.admin;
-            localStorage.admin = is_admin == 1;
+            localStorage.admin = is_admin;
             
             $scope.goto_dashboard_or_post();
         } else if (type == 'tokenok') {
