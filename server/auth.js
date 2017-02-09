@@ -7,7 +7,7 @@ var mail = require( __dirname + '/mail.js');
 // PASSWORD HASHING AND AUTHENTICATION
 var passwordHash = require('password-hash');
 
-var send_alert(msg, conn) {
+var send_alert = function(msg, conn) {
     var msgobj = {};
     msgobj.type = 'alert';
     msgobj.msg = msg;
@@ -25,18 +25,18 @@ var add_user = function(email, nickname, password, conn) {
     if (email_split.length == 2) {
         email_domain = email_split[1];
     } else {
-        send_alert('Registration failed. Email invalid', conn);
+        send_alert('Registration failed (0). Email invalid', conn);
         return;
     }
     
     db.connection.query('SELECT `college` FROM `college` WHERE `domain` = ?', [email_domain], function(error, results, fields) {
         if (error) {
             console.log(error);
-            send_alert('Registration failed', conn);
+            send_alert('Registration failed (1)', conn);
             return;
         }
         
-        if (results.lenght == 0) {
+        if (results.length == 0) {
             console.log('No college found for email ' + email);
             var msgobj = {};
             msgobj.type = 'collegenotfound';
@@ -46,7 +46,7 @@ var add_user = function(email, nickname, password, conn) {
         
         if (results.length != 1) {
             console.log('Unexpected results length ' + results.length);
-            send_alert('Registration failed', conn);
+            send_alert('Registration failed (2)', conn);
             return;
         }
     
@@ -58,7 +58,7 @@ var add_user = function(email, nickname, password, conn) {
         db.connection.query('INSERT INTO `user`(`email`, `nickname`, `college`, `hash`, `activation`) VALUES (?,?,?,?,?)', [email, nickname, college, hashed_password, activation_code], function (error, results, fields) {
             if (error) {
                 console.log(error);
-                send_alert('Registration failed. Was your email already used?', conn);
+                send_alert('Registration failed (3). Was your email already used?', conn);
                 return;
             }
             console.log('Successfully added account ' + email + ' to database');

@@ -22,6 +22,7 @@ mainApp.controller("main_controller", function($scope) {
             window.location = 'activation.html';
         } else if (type == 'collegenotfound') {
             $scope.show_add_college = true;
+            $scope.$apply();
         }
     }
     
@@ -44,7 +45,7 @@ mainApp.controller("main_controller", function($scope) {
     
     $scope.add_college = function() {
         var msgobj = {};
-        msgobj.type = 'addcollege;
+        msgobj.type = 'addcollege';
         msgobj.email = $scope.email;
         msgobj.college = $scope.collegename;
         ws_send(JSON.stringify(msgobj));
