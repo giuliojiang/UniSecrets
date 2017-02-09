@@ -87,7 +87,7 @@ var login_failed = function(email, conn) {
     conn.send(JSON.stringify(msgobj));
 };
 
-var login_success = function(email, conn) {
+var login_success = function(email, is_admin, conn) {
     console.log('Login success for ' + email);
     
     var new_token = session.make_token(email);
@@ -95,6 +95,7 @@ var login_success = function(email, conn) {
     var msgobj = {};
     msgobj.type = 'logintoken';
     msgobj.token = new_token;
+    msgobj.admin = is_admin ? 1 : 0;
     conn.send(JSON.stringify(msgobj));
 };
 
@@ -111,8 +112,27 @@ var authenticate = function(email, password, conn) {
         if (results.length == 1) {
             var hashed_password = results[0]['hash'];
             if (passwordHash.verify(password, hashed_password)) {
-                login_success(email, conn);
-                return;
+                
+                // Check if user is admin or not
+                db.connection.query('SELECT `email` FROM `moderator` WHERE `email` = ?', [email], function(error, results, fields) {
+                    if (error) {
+                        console.log(error);
+                        login_failed(email, conn);
+                        return;
+                    }
+                    if (results.length == 0) {
+                        // not an admin
+                        login_success(email, false, conn);
+                    } else if (results.length == 1) {
+                        // is an admin
+                        login_success(email, true, conn);
+                    } else {
+                        // impossible!
+                        console.log('Unexpected result length of ' + results.length);
+                        login_failed(email, conn);
+                    }
+                    return;
+                });
             }
         }
         login_failed(email, conn);

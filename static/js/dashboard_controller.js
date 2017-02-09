@@ -29,9 +29,7 @@ mainApp.controller("main_controller", function($scope) {
     $scope.wsmessage = function(ws, data) {
         var raw_data = JSON.parse(data);
         var type = raw_data.type;
-        if (type == 'logintoken') {
-            localStorage.token = raw_data.token;
-        } else if (type == 'postlist') {
+        if (type == 'postlist') {
             $scope.postlist = raw_data;
             $scope.set_show_comments_to_false();
             $scope.$apply();
@@ -105,6 +103,10 @@ mainApp.controller("main_controller", function($scope) {
     
     $scope.generate_post_link = function(postid) {
         return 'post.html#' + postid;
+    }
+    
+    $scope.is_admin = function() {
+        return localStorage.admin;
     }
 
 });

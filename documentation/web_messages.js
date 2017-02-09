@@ -2,10 +2,11 @@ SERVER TO CLIENT
 
     {
         type : logintoken,
-        token: token
+        token: token,
+        admin: 1
     }
     Sends new session token to user upon login success
-    in: login, dashboard
+    in: login
 
     {
         type : loginfail
@@ -93,6 +94,7 @@ SERVER TO CLIENT
     }
     When user registers, but the email used doesn't correspond to any known college in the database.
     in: registration
+
 
 CLIENT TO SERVER
 

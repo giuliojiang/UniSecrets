@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Feb 09, 2017 at 05:28 PM
+-- Generation Time: Feb 09, 2017 at 06:38 PM
 -- Server version: 5.7.17-0ubuntu0.16.04.1
 -- PHP Version: 7.0.13-0ubuntu0.16.04.1
 
@@ -31,7 +31,8 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `college` (
-  `college` varchar(50) NOT NULL
+  `college` varchar(50) NOT NULL,
+  `domain` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -72,6 +73,27 @@ CREATE TABLE `likes` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `moderator`
+--
+
+CREATE TABLE `moderator` (
+  `email` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pendingcollege`
+--
+
+CREATE TABLE `pendingcollege` (
+  `college` varchar(50) NOT NULL,
+  `domain` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `post`
 --
 
@@ -104,7 +126,7 @@ CREATE TABLE `user` (
 -- Indexes for table `college`
 --
 ALTER TABLE `college`
-  ADD PRIMARY KEY (`college`);
+  ADD PRIMARY KEY (`college`,`domain`);
 
 --
 -- Indexes for table `comment`
@@ -127,6 +149,18 @@ ALTER TABLE `dislikes`
 ALTER TABLE `likes`
   ADD PRIMARY KEY (`postid`,`email`),
   ADD KEY `fk_likes_email` (`email`);
+
+--
+-- Indexes for table `moderator`
+--
+ALTER TABLE `moderator`
+  ADD PRIMARY KEY (`email`);
+
+--
+-- Indexes for table `pendingcollege`
+--
+ALTER TABLE `pendingcollege`
+  ADD PRIMARY KEY (`college`,`domain`);
 
 --
 -- Indexes for table `post`
@@ -180,6 +214,12 @@ ALTER TABLE `dislikes`
 ALTER TABLE `likes`
   ADD CONSTRAINT `fk_likes_email` FOREIGN KEY (`email`) REFERENCES `user` (`email`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_likes_postid` FOREIGN KEY (`postid`) REFERENCES `post` (`postid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `moderator`
+--
+ALTER TABLE `moderator`
+  ADD CONSTRAINT `fk_moderator_email` FOREIGN KEY (`email`) REFERENCES `user` (`email`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `post`
