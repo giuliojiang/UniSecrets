@@ -15,6 +15,8 @@ Accessible only by students and academic people!
 
 ## Building
 
+Developed and tested on Ubuntu 16.04. It should work on OSX with minor modifications.
+
 Run `make` to install all npm modules.
 
 If it is the first time you setup the server, configuration files will be created for you. You can edit files in `config` directory to change some settings.
