@@ -2,7 +2,7 @@ var mainApp = angular.module("mainApp", []);
 
 mainApp.controller("main_controller", function($scope) {
 
-    $scope.college = 'Imperial College London';
+    $scope.show_add_college = false;
     
     $scope.wsonopen = function(ws) {
         var msgobj = {};
@@ -20,6 +20,8 @@ mainApp.controller("main_controller", function($scope) {
             window.location = 'dashboard.html';
         } else if (type == 'toactivation') {
             window.location = 'activation.html';
+        } else if (type == 'collegenotfound') {
+            $scope.show_add_college = true;
         }
     }
     
@@ -32,7 +34,6 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.type = 'registration';
         msgobj.email = $scope.email;
         msgobj.nickname = $scope.nickname;
-        msgobj.college = $scope.college;
         if ($scope.password1 != $scope.password2) {
             alert("Your passwords do not match");
             return;
@@ -40,5 +41,13 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.password = $scope.password1;
         ws_send(JSON.stringify(msgobj));
     };
+    
+    $scope.add_college = function() {
+        var msgobj = {};
+        msgobj.type = 'addcollege;
+        msgobj.email = $scope.email;
+        msgobj.college = $scope.collegename;
+        ws_send(JSON.stringify(msgobj));
+    }
 
 });

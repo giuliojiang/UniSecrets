@@ -36,6 +36,20 @@
 
 
     <div class="container">
+    
+        <div class="row" ng-show="show_add_college">
+            <div class="col s6">
+                <h2>Sorry, we didn't recognize your college email</h2>
+                <p>Would you like to let us know about your college?</p>
+                <form>
+                    <label>College name: <input ng-model="collegename" type="text"/></label><br />
+                    <label>Your email: <input ng-model="email" type="email"/></label><br />
+                    <button class="btn waves-effect waves-light" type="submit" name="action" ng-click="add_college()">Send
+                        <i class="material-icons right">Send</i>
+                    </button>
+                </form>
+            </div>
+        </div>
 
       <h2>Create your account below</h2>
 
@@ -44,16 +58,15 @@
           <form>
             <label>E-mail: <input ng-model="email" type="email"/></label><br />
             <label>Nickname (This is the name that shows up when you comment, all posters are anonymous): <input ng-model="nickname" type="text"/></label><br />
-            <!--<label>University / College: <input ng-model="college" type="text"/></label><br />-->
-            <label> University / College: <input disabled ng-model="college" type="text"/></label><br />
             <label>Password: <input ng-model="password1" type="password"/></label><br />
             <label>Confirm your password: <input ng-model="password2" type="password" /></label><br />
             <button class="btn waves-effect waves-light" type="submit" name="action" ng-click="sign_up()">Sign up
-              <i class="material-icons right">send</i>
+              <i class="material-icons right">Send</i>
             </button>
           </form>
         </div>
       </div>
+      
 
 
     </div>
