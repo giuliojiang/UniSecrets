@@ -7,6 +7,14 @@ var mail = require( __dirname + '/mail.js');
 // PASSWORD HASHING AND AUTHENTICATION
 var passwordHash = require('password-hash');
 
+var send_alert(msg, conn) {
+    var msgobj = {};
+    msgobj.type = 'alert';
+    msgobj.msg = msg;
+    conn.send(JSON.stringify(msgobj));
+    return;
+}
+
 var add_user = function(email, nickname, password, conn) {
     var hashed_password = passwordHash.generate(password);
     var activation_code = randomstring.generate(30);
@@ -17,20 +25,14 @@ var add_user = function(email, nickname, password, conn) {
     if (email_split.length == 2) {
         email_domain = email_split[1];
     } else {
-        var msgobj = {};
-        msgobj.type = 'alert';
-        msgobj.msg = 'Registration failed. Email invalid';
-        conn.send(JSON.stringify(msgobj));
+        send_alert('Registration failed. Email invalid', conn);
         return;
     }
     
     db.connection.query('SELECT `college` FROM `college` WHERE `domain` = ?', [email_domain], function(error, results, fields) {
         if (error) {
             console.log(error);
-            var msgobj = {};
-            msgobj.type = 'alert';
-            msgobj.msg = 'Registration failed.';
-            conn.send(JSON.stringify(msgobj));
+            send_alert('Registration failed', conn);
             return;
         }
         
@@ -44,10 +46,7 @@ var add_user = function(email, nickname, password, conn) {
         
         if (results.length != 1) {
             console.log('Unexpected results length ' + results.length);
-            var msgobj = {};
-            msgobj.type = 'alert';
-            msgobj.msg = 'Registration failed.';
-            conn.send(JSON.stringify(msgobj));
+            send_alert('Registration failed', conn);
             return;
         }
     
@@ -59,10 +58,7 @@ var add_user = function(email, nickname, password, conn) {
         db.connection.query('INSERT INTO `user`(`email`, `nickname`, `college`, `hash`, `activation`) VALUES (?,?,?,?,?)', [email, nickname, college, hashed_password, activation_code], function (error, results, fields) {
             if (error) {
                 console.log(error);
-                var msgobj = {};
-                msgobj.type = 'alert';
-                msgobj.msg = 'Registration failed. Was your email already used?';
-                conn.send(JSON.stringify(msgobj));
+                send_alert('Registration failed. Was your email already used?', conn);
                 return;
             }
             console.log('Successfully added account ' + email + ' to database');
@@ -127,28 +123,19 @@ var activate_account = function(email, code, conn) {
     // first check if the email with that code exist
     db.connection.query('SELECT * FROM `user` WHERE `email` = ? AND `activation` = ?', [email, code], function(error, results, fields) {
         if (error) {
-            var msgobj = {};
-            msgobj.type = 'alert';
-            msgobj.msg = 'Activation failed.';
-            conn.send(JSON.stringify(msgobj));
+            send_alert('Activation failed', conn);
             return;
         }
         
         if (results.length != 1) {
-            var msgobj = {};
-            msgobj.type = 'alert';
-            msgobj.msg = 'Activation failed.';
-            conn.send(JSON.stringify(msgobj));
+            send_alert('Activation failed.', conn);
             return;
         }
         
         // now activate account on database
         db.connection.query('UPDATE `user` SET `activation`= NULL WHERE `email` = ?', [email], function(error, results, fields) {
             if (error) {
-                var msgobj = {};
-                msgobj.type = 'alert';
-                msgobj.msg = 'Activation failed.';
-                conn.send(JSON.stringify(msgobj));
+                send_alert('Activation failed', conn);
                 return;
             }
             
@@ -160,13 +147,62 @@ var activate_account = function(email, code, conn) {
         });
     });
     
+};
+
+var add_college = function(email, college, conn) {
+    // email checks
     
+    // check that it's a valid email
+    var email_split = email.split('@');
+    if (email_split.length != 2) {
+        send_alert('Your email address is not valid', conn);
+        return;
+    }
+    var email_domain = email_split[1];
     
+    // Check that email is .ac.uk
+    if (!email_domain.endsWith('.ac.uk')) {
+        send_alert('Your email address must end with .ac.uk', conn);
+        return;
+    }
     
+    // Check that the database doesn't already contain this
+    db.connection.query('SELECT `college`, `domain` FROM `college` WHERE `domain` = ?', [email_domain], function(error, results, fields) {
+        if (error) {
+            console.log(error);
+            send_alert('Could not process your request', conn);
+            return;
+        }
+        
+        if (results.length == 1) {
+            send_alert('Your college is already recognized by the system. Please register or log in', conn);
+            return;
+        }
+        
+        if (results.length > 1) {
+            console.log('Error. Unexpected result length of ' + results.length);
+            send_alert('Could not process your request', conn);
+            return;
+        }
+        
+        // Insert in the database
+        db.connection.query('INSERT INTO `pendingcollege`(`college`, `domain`) VALUES (?,?)', [college, email_domain], function(error, results, fields) {
+            if (error) {
+                console.log(error);
+                send_alert('A request for your college was already sent', conn);
+                return;
+            }
+            
+            console.log('Added college request for ' + email_domain);
+            send_alert('Thank you for your request', conn);
+            return;
+        });
+    });
 };
 
 module.exports = {
     authenticate: authenticate,
     add_user: add_user,
-    activate_account: activate_account
+    activate_account: activate_account,
+    add_college: add_college
 };

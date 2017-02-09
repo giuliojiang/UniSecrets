@@ -167,7 +167,6 @@ CLIENT TO SERVER
     }
     Client sends email and activation code to activate an account
     
-    // TODO SERVER
     {
         type: addcollege,
         email: poifhjsoper@fojs.ic.ac.uk,

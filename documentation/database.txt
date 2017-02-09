@@ -10,9 +10,13 @@ likes(K postid, K email)                                postid > post, email > u
 
 dislikes(K postid, K email)                             postid > post, email > user
 
+pendingcollege(K college, K domain)
+
 
 
 
 PENDING ACTIONS
 
 college add column domain (default is NULL)
+
+add new table pendingcollege(K college, K domain)

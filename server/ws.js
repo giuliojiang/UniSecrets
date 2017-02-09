@@ -42,6 +42,7 @@ server.on('connection', function(conn) {
 
         var email = undefined;
         
+        // ========= UNAUTHENTICATED MESSAGES ================
         if (type == 'login') {
             var email = msgobj.email;
             var password = msgobj.password;
@@ -62,7 +63,17 @@ server.on('connection', function(conn) {
             var email = msgobj.email;
             var code = msgobj.code;
             auth.activate_account(email, code, conn);
+        } else if (type == 'addcollege') {
+//         {
+//             type: addcollege,
+//             email: poifhjsoper@fojs.ic.ac.uk,
+//             college: "bella de padella"
+//         }
+            var email = msgobj.email;
+            var college = msgobj.college;
+            auth.add_college(email, college, conn);
         }
+        // ========= AUTHENTICATED MESSAGES ================
         else {
             email = session.validate_token(msgobj.user_token);
             if (!email) {
@@ -96,6 +107,7 @@ server.on('connection', function(conn) {
             var postid = msgobj.postid;
             posts.send_single_post(email, postid, conn);
         }
+        // ========= PRIVILEGED MESSAGES ================
         else {
             console.log('Unrecognized message type ' + type);
             return;
