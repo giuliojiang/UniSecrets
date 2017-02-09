@@ -175,3 +175,10 @@ CLIENT TO SERVER
         college: "bella de padella"
     }
     User requests a new college to be added to database
+    
+    // TODO SERVER
+    {
+        type: pendingcollegeslist,
+        user_token: dfh2UMV0fmfimSVju9rwm
+    }
+    Request list of colleges that need to be activaated

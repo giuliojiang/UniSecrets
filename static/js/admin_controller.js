@@ -3,48 +3,24 @@ var mainApp = angular.module("mainApp", []);
 mainApp.controller("main_controller", function($scope) {
 
     $scope.wsonopen = function(ws) {
+        // Send message to request list of unactivated colleges
         var msgobj = {};
-        msgobj.type = 'validatetoken';
+        msgobj.type = 'pendingcollegeslist';
         msgobj.user_token = localStorage.token;
         ws_send(JSON.stringify(msgobj));
     }
-    
-    $scope.goto_dashboard_or_post = function() {
-        if (localStorage.postid) {
-            window.location = 'post.html#' + localStorage.postid;
-        } else {
-            window.location = 'dashboard.html';
-        }
-    }
-    
+
     $scope.wsmessage = function(ws, data) {
         var raw_data = JSON.parse(data);
         var type = raw_data.type;
-        if (type == 'logintoken') {
-            localStorage.clear();
-            localStorage.token = raw_data.token;
-            
-            var is_admin = raw_data.admin;
-            localStorage.admin = is_admin == 1;
-            
-            $scope.goto_dashboard_or_post();
-        } else if (type == 'tokenok') {
-            $scope.goto_dashboard_or_post();
-        } else if (type == 'loginfail') {
-            alert('Login failed');
+        if (type == 'loginfirst') {
+            alert('You are not logged in');
+            window.location = 'login.html';
+            return;
         }
     }
     
 // WS MODULES LOADED HERE
 #include<clientws.js>
-
-    $scope.sign_in = function() {
-        var msgobj = {};
-        msgobj.type = 'login';
-        msgobj.email = $scope.email;
-        msgobj.password = $scope.password;
-        ws_send(JSON.stringify(msgobj));
-    };
-
 
 });

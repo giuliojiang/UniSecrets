@@ -134,8 +134,9 @@ var authenticate = function(email, password, conn) {
                     return;
                 });
             }
+        } else {
+            login_failed(email, conn);
         }
-        login_failed(email, conn);
     });
 };
 
