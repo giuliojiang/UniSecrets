@@ -63,7 +63,6 @@ for filename in os.listdir(js_dir):
         if HTTPS_DEFINE:
             cmd.append('-DHTTPS')
         cmd.append(temporary_filename)
-        print(cmd)
         subprocess.call(cmd, stdout=(open(full_filename, 'w')))
         # remove temporary
         subprocess.call(['rm', temporary_filename])
