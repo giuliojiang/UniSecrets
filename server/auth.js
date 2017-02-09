@@ -3,6 +3,33 @@ var session = require( __dirname + '/session.js');
 var randomstring = require("randomstring");
 var mail = require( __dirname + '/mail.js');
 
+// Load configuration
+var config_file = fs.readFileSync(__dirname + '/../config/server_config.json');
+var config = JSON.parse(config_file);
+
+var generate_web_address = function() {
+    var protocol_stem = config.use_ssl ? 'https' : 'http';
+    var hostname = config.hostname;
+    var port = undefined;
+    
+    if (config.use_ssl) {
+        if (config.https_port == 443) {
+            port = '';
+        } else {
+            port = ':' + config.https_port;
+        }
+    } else {
+        if (config.http_port == 80) {
+            port = '';
+        } else {
+            port = ':' + config.http_port;
+        }
+    }
+    
+    // https://secrets.jstudios.ovh:1234
+    return protocol_stem + '://' + hostname + port;
+}
+
 // #############################################################################
 // PASSWORD HASHING AND AUTHENTICATION
 var passwordHash = require('password-hash');
@@ -29,6 +56,7 @@ var add_user = function(email, nickname, college, password, conn) {
         var mailContent = 'Please activate your account at UniSecrets\n';
         mailContent += 'email: ' + email + '\n';
         mailContent += 'activation code: ' + activation_code + '\n';
+        mailContent += generate_web_address() + '/activation.html\n';
         mail.sendEmail(email, mailContent);
         
         // Redirect user to the activation page
