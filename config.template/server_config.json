@@ -3,5 +3,9 @@
     "ssl_certificate": "/path/to/certificate.pem",
     "ssl_privkey": "/path/to/privkey.pem",
     "mail_use_dkim": false,
-    "mail_dkim_privkey": "/path/to/mail.private"
+    "mail_dkim_privkey": "/path/to/mail.private",
+    "hostname": "localhost",
+    "ws_port": 8001,
+    "http_port": 8080,
+    "https_port": 443
 }

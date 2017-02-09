@@ -42,6 +42,16 @@ include_dir = os.path.abspath(exec_dir + os.sep + 'include')
 # UniSecrets/config
 config_dir = os.path.abspath(exec_dir + os.sep + 'config')
 
+# Generate file UniSecrets/include/hostname.js
+hostname_file_path = os.path.abspath(include_dir + os.sep + 'hostname.js')
+hostname_file = open(hostname_file_path, 'w')
+hostname_file.write('var wshostname = "')
+hostname_file.write(config_obj['hostname'])
+hostname_file.write(':')
+hostname_file.write(str(config_obj['ws_port']))
+hostname_file.write('";\n')
+hostname_file.close()
+
 # for each js file, preprocess
 for filename in os.listdir(js_dir):
     full_filename = os.path.abspath(js_dir + os.sep + filename)
