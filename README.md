@@ -26,6 +26,19 @@ If it is the first time you setup the server, configuration files will be create
 
 `make purge` will also clean all configuration
 
+## Bootstrapping
+
+Initially, the database will be empty. If you haven't created the tables and users yet, you can do it quickly by running
+`make installdb`, which will automatically create a table UniSecrets and popoulate it with table, together with a user `UniSecrets` with password `UniSecrets`.
+
+With no entries in the `college` table, users will not be able to register, because only whitelisted email domains will be accepted.
+
+You can manually add college domains by running the script `script/db_create_college`.
+
+To make a user administrator manually, you can use the script `script/db_make_admin`.
+
+Warning: these manual database scripts do not sanitize user input because they are meant to be used by server administrators only.
+
 ## Starting the server
 
 Simply run `./StartServer`

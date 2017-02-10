@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import subprocess
+
+print('Enter college name:')
+college_name = raw_input()
+print('Enter college email domain:')
+college_domain = raw_input()
+
+# open the mysql connection process
+sql_process = subprocess.Popen(['mysql', '-u', 'root', '-p', 'UniSecrets'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+sql = 'INSERT INTO `college`(`college`, `domain`) VALUES ("{}","{}");'.format(college_name, college_domain)
+p_out, p_err = sql_process.communicate(input=sql)
+print(p_out)
+print(p_err)
