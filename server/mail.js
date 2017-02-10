@@ -28,7 +28,7 @@ if (config.mail_use_dkim) {
 
 var sendEmail = function(destination, content) {
     var mailOptions = {
-        from: '"Uni Secrets" <account@secrets.jstudios.ovh>', // sender address
+        from: '"Uni Secrets" <account@'+ config.hostname +'>', // sender address
         to: destination, // list of receivers
         subject: 'Uni Secrets', // Subject line
         text: content // plain text body
