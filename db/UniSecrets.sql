@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Feb 09, 2017 at 06:38 PM
+-- Generation Time: Feb 11, 2017 at 03:29 PM
 -- Server version: 5.7.17-0ubuntu0.16.04.1
 -- PHP Version: 7.0.13-0ubuntu0.16.04.1
 
@@ -114,7 +114,7 @@ CREATE TABLE `user` (
   `email` varchar(50) NOT NULL,
   `nickname` varchar(50) NOT NULL,
   `college` varchar(50) NOT NULL,
-  `hash` text NOT NULL,
+  `hash` text,
   `activation` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -184,12 +184,12 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `comment`
 --
 ALTER TABLE `comment`
-  MODIFY `commentid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `commentid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `post`
 --
 ALTER TABLE `post`
-  MODIFY `postid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `postid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- Constraints for dumped tables
 --
@@ -198,7 +198,7 @@ ALTER TABLE `post`
 -- Constraints for table `comment`
 --
 ALTER TABLE `comment`
-  ADD CONSTRAINT `comment_fk_email` FOREIGN KEY (`email`) REFERENCES `user` (`email`),
+  ADD CONSTRAINT `fk_comment_email` FOREIGN KEY (`email`) REFERENCES `user` (`email`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_comment_postid` FOREIGN KEY (`postid`) REFERENCES `post` (`postid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
