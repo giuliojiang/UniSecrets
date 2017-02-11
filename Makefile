@@ -1,7 +1,7 @@
 all: install client
 	cd server && make
 
-client:
+client: install
 	cd script && python preprocess_js.py
 
 install:
