@@ -1,6 +1,7 @@
 var auth = require( __dirname + '/auth.js');
 var posts = require(__dirname + '/posts.js');
 var session = require( __dirname + '/session.js');
+var limiter = require( __dirname + '/limiter.js');
 var fs = require('fs');
 
 // #############################################################################
@@ -32,6 +33,14 @@ server = new WebSocketServer({server: app});
 
 server.on('connection', function(conn) {
     console.log("New connection");
+    conn.old_send = conn.send;
+    conn.send = function(m) {
+        try {
+            conn.old_send(m);
+        } catch (err) {
+            console.log(err);
+        }
+    };
     conn.on("message", function (str) {
         var msgobj = JSON.parse(str);
         if (!msgobj) {
@@ -44,25 +53,29 @@ server.on('connection', function(conn) {
         
         // ========= UNAUTHENTICATED MESSAGES ================
         if (type == 'login') {
-            var email = msgobj.email;
-            var password = msgobj.password;
+            limiter.execute(conn, conn, type, function(callback) {
+                var email = msgobj.email;
+                var password = msgobj.password;
 
-            // try to authenticate
-            auth.authenticate(email, password, conn);
-            
+                // try to authenticate
+                auth.authenticate(email, password, conn, callback);
+            });
             return;
         } else if (type == 'registration') {
-          var email = msgobj.email;
-          var nickname = msgobj.nickname;
-          var password = msgobj.password;
+            limiter.execute(conn, conn, type, function(callback) {
+                var email = msgobj.email;
+                var nickname = msgobj.nickname;
+                var password = msgobj.password;
 
-          auth.add_user(email, nickname, password, conn);
-          
-          return;
+                auth.add_user(email, nickname, password, conn, callback);
+            });
+            return;
         } else if (type == 'activationcode') {
-            var email = msgobj.email;
-            var code = msgobj.code;
-            auth.activate_account(email, code, conn);
+            limiter.execute(conn, conn, type, function(callback) {
+                var email = msgobj.email;
+                var code = msgobj.code;
+                auth.activate_account(email, code, conn, callback);
+            });
             return;
         } else if (type == 'addcollege') {
             var email = msgobj.email;
@@ -72,9 +85,21 @@ server.on('connection', function(conn) {
         }
         // ========= AUTHENTICATED MESSAGES ================
         else {
+            // prevent brute-force token guessing
+            if (limiter.limit_reached(conn, "generic_token_failure")) {
+                console.log('WS: preventing brute force token guessing. Too many attempts already...');
+                return;
+            }
+            
             email = session.validate_token(msgobj.user_token);
             if (!email) {
                 session.send_login_first(conn);
+                
+                // dummy limiter failure
+                limiter.execute(conn, conn, 'generic_token_failure', function(callback) {
+                    callback('Token failure');
+                });
+                
                 return;
             }
         }
@@ -82,18 +107,22 @@ server.on('connection', function(conn) {
         // All handlers after here require you to be logged in first!
             
         if (type == 'new_post') {
-            var is_public = msgobj['public'];
-            var text = msgobj.text;
-            posts.new_post(email, is_public, text, conn);
+            limiter.execute(conn, email, type, function(callback) {
+                var is_public = msgobj['public'];
+                var text = msgobj.text;
+                posts.new_post(email, is_public, text, conn);
+            });
             return;
         } else if (type == 'requestposts') {
             var page = msgobj.page;
             posts.send_list(email, page, conn);
             return;
         } else if (type == 'new_comment') {
-            var text = msgobj.text;
-            var postid = msgobj.postid;
-            posts.add_comment(email, postid, text, conn);
+            limiter.execute(conn, email, type, function(callback) {
+                var text = msgobj.text;
+                var postid = msgobj.postid;
+                posts.add_comment(email, postid, text, conn);
+            });
             return;
         } else if (type == 'like') {
             var postid = msgobj.postid;

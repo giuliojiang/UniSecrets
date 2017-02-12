@@ -69,6 +69,8 @@ mainApp.controller("main_controller", function($scope) {
                 msgobj.page = $scope.page;
                 ws_send(JSON.stringify(msgobj));
             }
+        } else if (type == 'alert') {
+            alert(raw_data.msg);
         }
     }
 

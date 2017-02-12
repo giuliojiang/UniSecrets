@@ -7,7 +7,6 @@ wsaddress = 'wss://' + wshostname;
 #endif
 
     var ws = undefined;
-    var ws_unsent_messages = [];
     var ws_first_connection = true;
     var ws_send = undefined;
     
@@ -16,33 +15,12 @@ wsaddress = 'wss://' + wshostname;
 
         ws_send = function(data) {
             ws.send(data);
-
-            if (ws.bufferedAmount === 0) {
-                // the data sent
-            }
-            else {
-                ws_unsent_messages.push(data);
-            }
         }
 
         ws.onopen = function()
         {
             console.log('Connection opened');
 
-            // process unsent messages
-            while (ws_unsent_messages.length > 0) {
-                var head = ws_unsent_messages[0];
-                
-                // Try to send it
-                try {
-                    ws.send(head);
-                } catch (err) {
-                    // If not successful, just give up
-                    return;
-                }
-                // If successful, remove head and send others
-                ws_unsent_messages.shift();
-            }
             
             if (ws_first_connection) {
                 $scope.wsonopen(ws);

@@ -43,7 +43,7 @@ var send_alert = function(msg, conn) {
     return;
 }
 
-var add_user = function(email, nickname, password, conn) {
+var add_user = function(email, nickname, password, conn, callback) {
     var hashed_password = passwordHash.generate(password);
     var activation_code = randomstring.generate(30);
     
@@ -54,6 +54,7 @@ var add_user = function(email, nickname, password, conn) {
         email_domain = email_split[1];
     } else {
         send_alert('Registration failed (0). Email invalid', conn);
+        callback('Registration failed (0). Email invalid');
         return;
     }
     
@@ -61,6 +62,7 @@ var add_user = function(email, nickname, password, conn) {
         if (error) {
             console.log(error);
             send_alert('Registration failed (1)', conn);
+            callback('Registration failed (1)');
             return;
         }
         
@@ -69,12 +71,14 @@ var add_user = function(email, nickname, password, conn) {
             var msgobj = {};
             msgobj.type = 'collegenotfound';
             conn.send(JSON.stringify(msgobj));
+            callback('Registration failed');
             return;
         }
         
         if (results.length != 1) {
             console.log('Unexpected results length ' + results.length);
             send_alert('Registration failed (2)', conn);
+            callback('Registration failed (2)');
             return;
         }
     
@@ -87,6 +91,7 @@ var add_user = function(email, nickname, password, conn) {
             if (error) {
                 console.log(error);
                 send_alert('Registration failed (3). Was your email already used?', conn);
+                callback('Registration failed');
                 return;
             }
             console.log('Successfully added account ' + email + ' to database');
@@ -126,16 +131,18 @@ var login_success = function(email, is_admin, conn) {
     msgobj.token = new_token;
     msgobj.admin = is_admin ? 1 : 0;
     conn.send(JSON.stringify(msgobj));
+    
+    
 };
 
-var authenticate = function(email, password, conn) {
+var authenticate = function(email, password, conn, callback) {
     // passwordHash.verify('Password0', hashedPassword)
     
     // Get the hashed password from database
     db.connection.query('SELECT `hash` FROM `user` WHERE `email` = ? AND `activation` IS NULL', [email], function(error, results, fields) {
         if (error) {
-            console.log(error);
             login_failed(email, conn);
+            callback(error);
             return;
         }
         if (results.length == 1) {
@@ -145,40 +152,53 @@ var authenticate = function(email, password, conn) {
                 // Check if user is admin or not
                 db.connection.query('SELECT `email` FROM `moderator` WHERE `email` = ?', [email], function(error, results, fields) {
                     if (error) {
-                        console.log(error);
                         login_failed(email, conn);
+                        callback(error);
                         return;
                     }
                     if (results.length == 0) {
                         // not an admin
                         login_success(email, false, conn);
+                        callback(undefined);
+                        return;
                     } else if (results.length == 1) {
                         // is an admin
                         login_success(email, true, conn);
+                        callback(undefined);
+                        return;
                     } else {
                         // impossible!
                         console.log('Unexpected result length of ' + results.length);
                         login_failed(email, conn);
+                        callback("login error");
+                        return;
                     }
-                    return;
                 });
+            } else {
+                login_failed(email, conn);
+                callback("login failed");
             }
+            return;
         } else {
             login_failed(email, conn);
+            callback("login failed");
+            return;
         }
     });
 };
 
-var activate_account = function(email, code, conn) {
+var activate_account = function(email, code, conn, callback) {
     // first check if the email with that code exist
     db.connection.query('SELECT * FROM `user` WHERE `email` = ? AND `activation` = ?', [email, code], function(error, results, fields) {
         if (error) {
             send_alert('Activation failed', conn);
+            callback('Activation failed');
             return;
         }
         
         if (results.length != 1) {
             send_alert('Activation failed.', conn);
+            callback('Activation failed');
             return;
         }
         
@@ -186,6 +206,7 @@ var activate_account = function(email, code, conn) {
         db.connection.query('UPDATE `user` SET `activation`= NULL WHERE `email` = ?', [email], function(error, results, fields) {
             if (error) {
                 send_alert('Activation failed', conn);
+                callback('Activation failed');
                 return;
             }
             
@@ -194,6 +215,7 @@ var activate_account = function(email, code, conn) {
             var msgobj = {};
             msgobj.type = 'activationsuccess';
             conn.send(JSON.stringify(msgobj));
+            callback(undefined);
         });
     });
     
@@ -266,7 +288,7 @@ var send_pending_colleges = function(conn) {
     db.connection.query('SELECT * FROM `pendingcollege`', [], function(error, results, fields) {
         if (error) {
             console.log(error);
-            send_alert('Could not retrieve pending colleges');
+            send_alert('Could not retrieve pending colleges', conn);
             return;
         }
         
@@ -289,14 +311,14 @@ var college_action = function(accept, college, domain, conn) {
         db.connection.query('INSERT INTO `college`(`college`, `domain`) VALUES (?,?)', [college, domain], function(error, results, fields) {
             if (error) {
                 console.log(error);
-                send_alert('An error occurred');
+                send_alert('An error occurred', conn);
                 return;
             }
             
             db.connection.query('DELETE FROM `pendingcollege` WHERE `college` = ? AND `domain` = ?', [college, domain], function(error, results, fields) {
                 if (error) {
                     console.log(error);
-                    send_alert('An error occurred');
+                    send_alert('An error occurred', conn);
                     return;
                 }
                 
@@ -307,7 +329,7 @@ var college_action = function(accept, college, domain, conn) {
         db.connection.query('DELETE FROM `pendingcollege` WHERE `college` = ? AND `domain` = ?', [college, domain], function(error, results, fields) {
             if (error) {
                 console.log(error);
-                send_alert('An error occurred');
+                send_alert('An error occurred', conn);
                 return;
             }
             
@@ -323,5 +345,6 @@ module.exports = {
     add_college: add_college,
     is_user_admin: is_user_admin,
     send_pending_colleges: send_pending_colleges,
-    college_action: college_action
+    college_action: college_action,
+    send_alert: send_alert
 };
