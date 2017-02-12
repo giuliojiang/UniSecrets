@@ -17,6 +17,8 @@ mainApp.controller("main_controller", function($scope) {
             window.location = 'login.html';
         } else if (type == 'postsuccess') {
             window.location = 'dashboard.html';
+        } else if (type == 'alert') {
+            alert(msgobj.msg);
         }
     }
     

@@ -10,8 +10,10 @@ mainApp.controller("main_controller", function($scope) {
     }
     
     $scope.goto_dashboard_or_post = function() {
-        if (localStorage.postid) {
-            window.location = 'post.html#' + localStorage.postid;
+        var target_post = localStorage.postid;
+        
+        if (target_post) {
+            window.location = 'post.html#' + target_post;
         } else {
             window.location = 'dashboard.html';
         }
@@ -21,7 +23,6 @@ mainApp.controller("main_controller", function($scope) {
         var raw_data = JSON.parse(data);
         var type = raw_data.type;
         if (type == 'logintoken') {
-            localStorage.clear();
             localStorage.token = raw_data.token;
             
             var is_admin = raw_data.admin;

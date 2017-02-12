@@ -242,7 +242,7 @@ var limit_reached = function(ident, type) {
         return false;
     }
     
-    return records[type][identifier] >= p_limit;
+    return records[type][identifier] > p_limit;
 };
 
 // EXECUTION ###################################################################

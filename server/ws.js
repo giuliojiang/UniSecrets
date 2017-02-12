@@ -95,18 +95,22 @@ server.on('connection', function(conn) {
         // All handlers after here require you to be logged in first!
             
         if (type == 'new_post') {
-            var is_public = msgobj['public'];
-            var text = msgobj.text;
-            posts.new_post(email, is_public, text, conn);
+            limiter.execute(conn, email, type, function(callback) {
+                var is_public = msgobj['public'];
+                var text = msgobj.text;
+                posts.new_post(email, is_public, text, conn);
+            });
             return;
         } else if (type == 'requestposts') {
             var page = msgobj.page;
             posts.send_list(email, page, conn);
             return;
         } else if (type == 'new_comment') {
-            var text = msgobj.text;
-            var postid = msgobj.postid;
-            posts.add_comment(email, postid, text, conn);
+            limiter.execute(conn, email, type, function(callback) {
+                var text = msgobj.text;
+                var postid = msgobj.postid;
+                posts.add_comment(email, postid, text, conn);
+            });
             return;
         } else if (type == 'like') {
             var postid = msgobj.postid;
