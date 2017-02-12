@@ -91,9 +91,7 @@ for (var property in rules) {
                 throw 'FATAL: LIMITER rule ['+ property +'][limit] must be an integer';
             }
             
-            recordobj = {};
-            reset_record(recordobj);
-            records[property] = recordobj;
+            records[property] = {};
         } else {
             throw "FATAL: LIMITER rule ["+ property +"] is not set correctly";
         }
@@ -104,6 +102,10 @@ for (var property in rules) {
 
 var get_client_address = function(conn) {
     return conn.upgradeReq.connection.remoteAddress.toString();
+};
+
+var reset_record = function(type) {
+    records[type] = {};
 };
 
 var increment_count = function(ident, type) {
@@ -176,7 +178,7 @@ var increment_error = function(ident, type) {
     records[type][identifier] += 1;
 };
 
-var limit_reached(ident, type) {
+var limit_reached = function(ident, type) {
     var type_settings = rules[type];
     if (!type_settings) {
         console.log('LIMITER rule ['+ type +'] has no settings associated');
@@ -203,7 +205,7 @@ var limit_reached(ident, type) {
         return false;
     }
     
-    return records[type][identifier] < p_limit;
+    return records[type][identifier] >= p_limit;
 };
 
 var execute = function(ident, type, f) {
@@ -211,7 +213,7 @@ var execute = function(ident, type, f) {
     increment_count(ident, type);
     
     if (limit_reached(ident, type)) {
-        console.log('LIMITER [+' type  '+] reached! Blocking...');
+        console.log('LIMITER [' + type  +'] reached! Blocking...');
         // And the function f will not be executed
     } else {
         f(function(err) {
