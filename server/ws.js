@@ -33,6 +33,14 @@ server = new WebSocketServer({server: app});
 
 server.on('connection', function(conn) {
     console.log("New connection");
+    conn.old_send = conn.send;
+    conn.send = function(m) {
+        try {
+            conn.old_send(m);
+        } catch (err) {
+            console.log(err);
+        }
+    };
     conn.on("message", function (str) {
         var msgobj = JSON.parse(str);
         if (!msgobj) {
@@ -54,13 +62,14 @@ server.on('connection', function(conn) {
             });
             return;
         } else if (type == 'registration') {
-          var email = msgobj.email;
-          var nickname = msgobj.nickname;
-          var password = msgobj.password;
+            limiter.execute(conn, conn, type, function(callback) {
+                var email = msgobj.email;
+                var nickname = msgobj.nickname;
+                var password = msgobj.password;
 
-          auth.add_user(email, nickname, password, conn);
-          
-          return;
+                auth.add_user(email, nickname, password, conn, callback);
+            });
+            return;
         } else if (type == 'activationcode') {
             var email = msgobj.email;
             var code = msgobj.code;

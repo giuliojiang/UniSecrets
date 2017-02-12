@@ -255,16 +255,22 @@ var execute = function(conn, ident, type, f) {
         auth.send_alert('Too many '+ type +' attempts', conn);
         // And the function f will not be executed
     } else {
-        f(function(err) {
-            if (err) {
-                // record an error
-                console.log('LIMITER ['+ type +'] finished with err=' + err);
-                increment_error(ident, type);
-            } else {
-                // record plain event
-                console.log('LIMITER ['+ type +'] finished with success');
-            }
-        });
+        try {
+            f(function(err) {
+                if (err) {
+                    // record an error
+                    console.log('LIMITER ['+ type +'] finished with err=' + err);
+                    increment_error(ident, type);
+                } else {
+                    // record plain event
+                    console.log('LIMITER ['+ type +'] finished with success');
+                }
+            });
+        } catch (exc) {
+            console.log('LIMITER ['+ type +'] crashed with exception:');
+            console.log(exc);
+            increment_error(ident, type);
+        }
     }
 };
 

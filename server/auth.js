@@ -43,7 +43,7 @@ var send_alert = function(msg, conn) {
     return;
 }
 
-var add_user = function(email, nickname, password, conn) {
+var add_user = function(email, nickname, password, conn, callback) {
     var hashed_password = passwordHash.generate(password);
     var activation_code = randomstring.generate(30);
     
@@ -54,6 +54,7 @@ var add_user = function(email, nickname, password, conn) {
         email_domain = email_split[1];
     } else {
         send_alert('Registration failed (0). Email invalid', conn);
+        callback('Registration failed (0). Email invalid');
         return;
     }
     
@@ -61,6 +62,7 @@ var add_user = function(email, nickname, password, conn) {
         if (error) {
             console.log(error);
             send_alert('Registration failed (1)', conn);
+            callback('Registration failed (1)');
             return;
         }
         
@@ -69,12 +71,14 @@ var add_user = function(email, nickname, password, conn) {
             var msgobj = {};
             msgobj.type = 'collegenotfound';
             conn.send(JSON.stringify(msgobj));
+            callback('Registration failed');
             return;
         }
         
         if (results.length != 1) {
             console.log('Unexpected results length ' + results.length);
             send_alert('Registration failed (2)', conn);
+            callback('Registration failed (2)');
             return;
         }
     
@@ -87,6 +91,7 @@ var add_user = function(email, nickname, password, conn) {
             if (error) {
                 console.log(error);
                 send_alert('Registration failed (3). Was your email already used?', conn);
+                callback('Registration failed');
                 return;
             }
             console.log('Successfully added account ' + email + ' to database');
