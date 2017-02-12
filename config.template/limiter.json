@@ -1,3 +1,5 @@
 {
-    
+    "login": ["ip", "tick", "error", 3],
+    "registration": ["ip", "tock", "count", 6],
+    "new_post": ["user", "tock", "count", 2]
 }

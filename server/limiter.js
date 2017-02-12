@@ -23,7 +23,8 @@
  
  EXECUTE
  
- Execute takes a ws connection object, and a function f to be executed.
+ Execute takes a ws connection object or user identifier object (email string
+ for example), and a function f to be executed.
  It will execute the function f with a callback used to signal
  if the operation was successful, and the type of operation
  that was executed.
@@ -40,8 +41,14 @@ var execute = function(conn, f) {
     f(function(err, type) {
         if (err) {
             // record an error
+            console.log('LIMITER ['+ type +'] finished with err=' + err);
         } else {
             // record plain event
+            console.log('LIMITER ['+ type +'] finished with success');
         }
-    }
+    });
+};
+
+module.exports = {
+    execute: execute
 };

@@ -1,6 +1,7 @@
 var auth = require( __dirname + '/auth.js');
 var posts = require(__dirname + '/posts.js');
 var session = require( __dirname + '/session.js');
+var limiter = require( __dirname + '/limiter.js');
 var fs = require('fs');
 
 // #############################################################################
@@ -44,12 +45,13 @@ server.on('connection', function(conn) {
         
         // ========= UNAUTHENTICATED MESSAGES ================
         if (type == 'login') {
-            var email = msgobj.email;
-            var password = msgobj.password;
+            limiter.execute(conn, function(callback) {
+                var email = msgobj.email;
+                var password = msgobj.password;
 
-            // try to authenticate
-            auth.authenticate(email, password, conn);
-            
+                // try to authenticate
+                auth.authenticate(email, password, conn, callback);
+            });
             return;
         } else if (type == 'registration') {
           var email = msgobj.email;
