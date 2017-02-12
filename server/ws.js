@@ -85,9 +85,21 @@ server.on('connection', function(conn) {
         }
         // ========= AUTHENTICATED MESSAGES ================
         else {
+            // prevent brute-force token guessing
+            if (limiter.limit_reached(conn, "generic_token_failure")) {
+                console.log('WS: preventing brute force token guessing. Too many attempts already...');
+                return;
+            }
+            
             email = session.validate_token(msgobj.user_token);
             if (!email) {
                 session.send_login_first(conn);
+                
+                // dummy limiter failure
+                limiter.execute(conn, conn, 'generic_token_failure', function(callback) {
+                    callback('Token failure');
+                });
+                
                 return;
             }
         }

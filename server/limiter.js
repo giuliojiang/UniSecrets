@@ -275,5 +275,6 @@ var execute = function(conn, ident, type, f) {
 };
 
 module.exports = {
-    execute: execute
+    execute: execute,
+    limit_reached: limit_reached
 };

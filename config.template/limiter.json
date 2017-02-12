@@ -3,5 +3,6 @@
     "registration": ["ip", "tock", "count", 10],
     "new_post": ["user", "tock", "count", 2],
     "activationcode": ["ip", "tock", "error", 5],
-    "new_comment": ["user", "tock", "count", 10]
+    "new_comment": ["user", "tock", "count", 10],
+    "generic_token_failure": ["ip", "tick", "error", 60]
 }

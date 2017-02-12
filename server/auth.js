@@ -131,6 +131,8 @@ var login_success = function(email, is_admin, conn) {
     msgobj.token = new_token;
     msgobj.admin = is_admin ? 1 : 0;
     conn.send(JSON.stringify(msgobj));
+    
+    
 };
 
 var authenticate = function(email, password, conn, callback) {
@@ -157,10 +159,12 @@ var authenticate = function(email, password, conn, callback) {
                     if (results.length == 0) {
                         // not an admin
                         login_success(email, false, conn);
+                        callback(undefined);
                         return;
                     } else if (results.length == 1) {
                         // is an admin
                         login_success(email, true, conn);
+                        callback(undefined);
                         return;
                     } else {
                         // impossible!
