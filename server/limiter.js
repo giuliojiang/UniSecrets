@@ -28,11 +28,9 @@
  
  EXECUTE
  
- Execute takes a ws connection object or user identifier object (email string
- for example), and a function f to be executed.
+ Execute takes a function f to be executed.
  It will execute the function f with a callback used to signal
- if the operation was successful, and the type of operation
- that was executed.
+ if the operation was successful.
  
  RECORDS OBJECT
  
@@ -46,6 +44,7 @@
 // "login": ["ip", "tick", "error", 3],
 
 var fs = require('fs');
+var auth = require( __dirname + '/auth.js');
 
 // Load configuration
 var config_file = fs.readFileSync(__dirname + '/../config/server_config.json');
@@ -247,12 +246,13 @@ var limit_reached = function(ident, type) {
 };
 
 // EXECUTION ###################################################################
-var execute = function(ident, type, f) {
+var execute = function(conn, ident, type, f) {
     // increment standard counter
     increment_count(ident, type);
     
     if (limit_reached(ident, type)) {
         console.log('LIMITER [' + type  +'] reached! Blocking...');
+        auth.send_alert('Too many '+ type +' attempts', conn);
         // And the function f will not be executed
     } else {
         f(function(err) {

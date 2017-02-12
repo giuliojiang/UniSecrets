@@ -32,6 +32,8 @@ mainApp.controller("main_controller", function($scope) {
             $scope.goto_dashboard_or_post();
         } else if (type == 'loginfail') {
             alert('Login failed');
+        } else if (type == 'alert') {
+            alert(raw_data.msg);
         }
     }
     

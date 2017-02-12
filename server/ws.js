@@ -45,7 +45,7 @@ server.on('connection', function(conn) {
         
         // ========= UNAUTHENTICATED MESSAGES ================
         if (type == 'login') {
-            limiter.execute(conn, type, function(callback) {
+            limiter.execute(conn, conn, type, function(callback) {
                 var email = msgobj.email;
                 var password = msgobj.password;
 

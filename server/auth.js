@@ -275,7 +275,7 @@ var send_pending_colleges = function(conn) {
     db.connection.query('SELECT * FROM `pendingcollege`', [], function(error, results, fields) {
         if (error) {
             console.log(error);
-            send_alert('Could not retrieve pending colleges');
+            send_alert('Could not retrieve pending colleges', conn);
             return;
         }
         
@@ -298,14 +298,14 @@ var college_action = function(accept, college, domain, conn) {
         db.connection.query('INSERT INTO `college`(`college`, `domain`) VALUES (?,?)', [college, domain], function(error, results, fields) {
             if (error) {
                 console.log(error);
-                send_alert('An error occurred');
+                send_alert('An error occurred', conn);
                 return;
             }
             
             db.connection.query('DELETE FROM `pendingcollege` WHERE `college` = ? AND `domain` = ?', [college, domain], function(error, results, fields) {
                 if (error) {
                     console.log(error);
-                    send_alert('An error occurred');
+                    send_alert('An error occurred', conn);
                     return;
                 }
                 
@@ -316,7 +316,7 @@ var college_action = function(accept, college, domain, conn) {
         db.connection.query('DELETE FROM `pendingcollege` WHERE `college` = ? AND `domain` = ?', [college, domain], function(error, results, fields) {
             if (error) {
                 console.log(error);
-                send_alert('An error occurred');
+                send_alert('An error occurred', conn);
                 return;
             }
             
@@ -332,5 +332,6 @@ module.exports = {
     add_college: add_college,
     is_user_admin: is_user_admin,
     send_pending_colleges: send_pending_colleges,
-    college_action: college_action
+    college_action: college_action,
+    send_alert: send_alert
 };
