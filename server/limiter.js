@@ -53,10 +53,6 @@ var config = JSON.parse(config_file);
 var rules_file = fs.readFileSync(__dirname + '/../config/limiter.json');
 var rules = JSON.parse(rules_file);
 
-var reset_ticks = function(r) {
-    r.counts = {};
-}
-
 var records = {};
 
 function isInt(value) {
@@ -65,6 +61,7 @@ function isInt(value) {
          !isNaN(parseInt(value, 10));
 };
 
+// INITIALIZING the records ####################################################
 for (var property in rules) {
     if (rules.hasOwnProperty(property)) {
         // Check that the rule is correctly set
@@ -100,6 +97,47 @@ for (var property in rules) {
     }
 }
 
+// TIME BASED record refresh ###################################################
+var minutes = 0;
+setInterval(function() {
+    console.log(JSON.stringify(records, null, 2));
+    
+    minutes += 1;
+    reset_ticks();
+    if (minutes == 60) {
+        minutes = 0;
+        reset_tocks();
+    }
+}, 1000 * 60); // Every 1 minute
+
+var reset_ticks = function() {
+    for (var property in rules) {
+        if (rules.hasOwnProperty(property)) {
+            // Check that the rule is correctly set
+            var a_rule = rules[property];
+            var p_timeframe = a_rule[1];
+            if (p_timeframe == 'tick') {
+                records[property] = {};
+            }
+        }
+    }
+};
+
+var reset_tocks = function() {
+    for (var property in rules) {
+        if (rules.hasOwnProperty(property)) {
+            // Check that the rule is correctly set
+            var a_rule = rules[property];
+            var p_timeframe = a_rule[1];
+            if (p_timeframe == 'tock') {
+                records[property] = {};
+            }
+        }
+    }
+};
+
+
+// INCREMENTING counters #######################################################
 var get_client_address = function(conn) {
     return conn.upgradeReq.connection.remoteAddress.toString();
 };
@@ -208,6 +246,7 @@ var limit_reached = function(ident, type) {
     return records[type][identifier] >= p_limit;
 };
 
+// EXECUTION ###################################################################
 var execute = function(ident, type, f) {
     // increment standard counter
     increment_count(ident, type);
