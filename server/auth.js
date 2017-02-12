@@ -135,7 +135,7 @@ var authenticate = function(email, password, conn, callback) {
     db.connection.query('SELECT `hash` FROM `user` WHERE `email` = ? AND `activation` IS NULL', [email], function(error, results, fields) {
         if (error) {
             login_failed(email, conn);
-            callback(error, "login");
+            callback(error);
             return;
         }
         if (results.length == 1) {
@@ -146,35 +146,33 @@ var authenticate = function(email, password, conn, callback) {
                 db.connection.query('SELECT `email` FROM `moderator` WHERE `email` = ?', [email], function(error, results, fields) {
                     if (error) {
                         login_failed(email, conn);
-                        callback(error, "login");
+                        callback(error);
                         return;
                     }
                     if (results.length == 0) {
                         // not an admin
                         login_success(email, false, conn);
-                        callback(undefined, "login");
                         return;
                     } else if (results.length == 1) {
                         // is an admin
                         login_success(email, true, conn);
-                        callback(undefined, "login");
                         return;
                     } else {
                         // impossible!
                         console.log('Unexpected result length of ' + results.length);
                         login_failed(email, conn);
-                        callback("login error", "login");
+                        callback("login error");
                         return;
                     }
                 });
             } else {
                 login_failed(email, conn);
-                callback("login failed", "login");
+                callback("login failed");
             }
             return;
         } else {
             login_failed(email, conn);
-            callback("login failed", "login");
+            callback("login failed");
             return;
         }
     });
