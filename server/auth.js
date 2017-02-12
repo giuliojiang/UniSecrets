@@ -183,16 +183,18 @@ var authenticate = function(email, password, conn, callback) {
     });
 };
 
-var activate_account = function(email, code, conn) {
+var activate_account = function(email, code, conn, callback) {
     // first check if the email with that code exist
     db.connection.query('SELECT * FROM `user` WHERE `email` = ? AND `activation` = ?', [email, code], function(error, results, fields) {
         if (error) {
             send_alert('Activation failed', conn);
+            callback('Activation failed');
             return;
         }
         
         if (results.length != 1) {
             send_alert('Activation failed.', conn);
+            callback('Activation failed');
             return;
         }
         
@@ -200,6 +202,7 @@ var activate_account = function(email, code, conn) {
         db.connection.query('UPDATE `user` SET `activation`= NULL WHERE `email` = ?', [email], function(error, results, fields) {
             if (error) {
                 send_alert('Activation failed', conn);
+                callback('Activation failed');
                 return;
             }
             
@@ -208,6 +211,7 @@ var activate_account = function(email, code, conn) {
             var msgobj = {};
             msgobj.type = 'activationsuccess';
             conn.send(JSON.stringify(msgobj));
+            callback(undefined);
         });
     });
     

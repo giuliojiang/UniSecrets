@@ -71,9 +71,11 @@ server.on('connection', function(conn) {
             });
             return;
         } else if (type == 'activationcode') {
-            var email = msgobj.email;
-            var code = msgobj.code;
-            auth.activate_account(email, code, conn);
+            limiter.execute(conn, conn, type, function(callback) {
+                var email = msgobj.email;
+                var code = msgobj.code;
+                auth.activate_account(email, code, conn, callback);
+            });
             return;
         } else if (type == 'addcollege') {
             var email = msgobj.email;
