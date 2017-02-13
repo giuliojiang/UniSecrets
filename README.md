@@ -7,7 +7,7 @@ Accessible only by students and academic people!
 ## Requirements
 
 * NodeJS v7
-* MySQL database on `localhost` setup with username database password all to `UniSecrets`
+* MySQL database on `localhost`
 * `sendmail` setup on localhost
 * `python`
 * `cpp` (The C preprocessor)
@@ -26,7 +26,7 @@ If it is the first time you setup the server, configuration files will be create
 
 `make purge` will also clean all configuration
 
-## Bootstrapping
+## Bootstrapping and database configuration
 
 Initially, the database will be empty. If you haven't created the tables and users yet, you can do it quickly by running
 `make installdb`, which will automatically create a table UniSecrets and popoulate it with table, together with a user `UniSecrets` with password `UniSecrets`.
