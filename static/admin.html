@@ -16,6 +16,7 @@
 
   <!-- Angular -->
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0-beta.2/angular-sanitize.js"></script>
 
   <!-- Controller -->
   <script src="js/admin_controller.js"></script>
@@ -54,5 +55,35 @@
       </div>
 
     </div>
+    
+    <hr />
+    
+    <div class="container">
+
+      <h2>Pending posts</h2>
+      
+      <p ng-show="!pending_posts || pending_posts.length == 0">No pending posts</p>
+
+      <div class="row" ng-repeat="a_post in pending_posts">
+        <div class="col s2">
+            <p>{{a_post.postid}}</p>
+        </div>
+        <div class="col s3">
+            <p>{{a_post.college}}</p>
+        </div>
+        <div class="col s3">
+            <div ng-bind-html="a_post.text"></div>
+        </div>
+        <div class="col s2">
+            <button class="btn waves-effect waves-light green" type="submit" name="action" ng-click="accept_post(a_post, 1)">Accept</button>
+        </div>
+        <div class="col s2">
+            <button class="btn waves-effect waves-light red" type="submit" name="action" ng-click="accept_post(a_post, 0)">Delete</button>
+        </div>
+      </div>
+
+    </div>
+    
+    
   </body>
 </html>

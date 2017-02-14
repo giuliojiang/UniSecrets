@@ -5,11 +5,7 @@
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
-
-// Load configuration
-var config_file = fs.readFileSync(__dirname + '/../config/server_config.json');
-var config = JSON.parse(config_file);
-
+var config = require(__dirname + '/config.js');
 var express = require('express');
 var app = express();
 

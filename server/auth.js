@@ -3,10 +3,7 @@ var session = require( __dirname + '/session.js');
 var randomstring = require("randomstring");
 var mail = require( __dirname + '/mail.js');
 var fs = require('fs');
-
-// Load configuration
-var config_file = fs.readFileSync(__dirname + '/../config/server_config.json');
-var config = JSON.parse(config_file);
+var config = require(__dirname + '/config.js');
 
 var generate_web_address = function() {
     var protocol_stem = config.use_ssl ? 'https' : 'http';

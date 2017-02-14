@@ -3,15 +3,9 @@ var posts = require(__dirname + '/posts.js');
 var session = require( __dirname + '/session.js');
 var limiter = require( __dirname + '/limiter.js');
 var fs = require('fs');
-
-// #############################################################################
-// WEBSOCKET PART
 var ws = require("ws");
 var WebSocketServer = ws.Server;
-
-// Load configuration
-var config_file = fs.readFileSync(__dirname + '/../config/server_config.json');
-var config = JSON.parse(config_file);
+var config = require(__dirname + '/config.js');
 
 var server = undefined;
 var app = null;
@@ -160,6 +154,14 @@ server.on('connection', function(conn) {
                     var college = msgobj.college;
                     var domain = msgobj.domain;
                     auth.college_action(accept, college, domain, conn);
+                    return;
+                } else if (type == 'get_unapproved_posts') {
+                    posts.send_unapproved_posts(conn);
+                    return;
+                } else if (type == 'approve_post') {
+                    var accept = msgobj.accept;
+                    var postid = msgobj.postid;
+                    posts.approve_post(accept, postid, conn);
                     return;
                 }
             } else {

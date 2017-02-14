@@ -25,6 +25,8 @@ SERVER TO CLIENT
     }
     Confirmation that a new secret was successfully posted
     in: new_post
+    // TODO postsuccess triggers a simple message that now post will
+    // be moderated
     
     {
         type: postlist,
@@ -105,6 +107,19 @@ SERVER TO CLIENT
         ]
     }
     Sends to an admin the list of pending colleges to be activated
+    in: admin
+    
+    {
+        type: unapproved_posts,
+        posts: [
+            {
+                postid: 34,
+                college: "imperial",
+                text: "hello world"
+            }
+        ]
+    }
+    List of unapproved posts
     in: admin
 
 
@@ -202,3 +217,17 @@ CLIENT TO SERVER
         domain: ic.ac.uk
     }
     Accept or reject a college
+    
+    {
+        type: get_unapproved_posts,
+        user_token: dfh2UMV0fmfimSVju9rwm
+    }
+    Request list of unapproved posts (admin only).
+    
+    {
+        type: approve_post,
+        user_token: dfh2UMV0fmfimSVju9rwm,
+        accept: 1,
+        postid: 95487
+    }
+    Approve or reject a post
