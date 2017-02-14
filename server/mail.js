@@ -20,8 +20,8 @@ var transporter = nodemailer.createTransport({
 if (config.mail_use_dkim) {
     console.log('Setting up DKIM signature...');
     transporter.use('stream', require('nodemailer-dkim').signer({
-        domainName: 'secrets.jstudios.ovh',
-        keySelector: 'mail',
+        domainName: config.email_hostname,
+        keySelector: config.mail_dkim_selector,
         privateKey: fs.readFileSync(config.mail_dkim_privkey)
     }));
 }
