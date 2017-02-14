@@ -19,10 +19,5 @@ moderator(K email)
 
 PENDING ACTIONS
 
-college add column domain (default is NULL)
-
-add new table pendingcollege(K college, K domain)
-
-add new table moderator(K email)
-ALTER TABLE `moderator` ADD CONSTRAINT fk_moderator_email FOREIGN KEY (`email`) REFERENCES `user`(`email`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE post ADD approved INT NOT NULL DEFAULT 1;
 

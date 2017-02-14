@@ -2,6 +2,7 @@ var db = require( __dirname + '/db.js');
 var session = require( __dirname + '/session.js');
 var marked = require('marked');
 
+
 var new_post = function(email, is_public, text, conn) {
 
     // find the college
@@ -20,7 +21,7 @@ var new_post = function(email, is_public, text, conn) {
         
         var is_public_int = is_public ? 1 : 0;
         
-        db.connection.query('INSERT INTO `post`(`college`, `public`, `text`) VALUES (?,?,?)', [college, is_public_int, text], function(error, results, fields) {
+        db.connection.query('INSERT INTO `post`(`college`, `public`, `text`, `approved`) VALUES (?,?,?,?)', [college, is_public_int, text, 0], function(error, results, fields) {
             if (error) {
                 console.log(error);
                 return;
@@ -33,6 +34,42 @@ var new_post = function(email, is_public, text, conn) {
         });
     });
     
+};
+
+var approve_post = function(postid, conn) {
+    db.connection.query('UPDATE `post` SET `approved`= 1 WHERE `postid` = ?', [postid], function(error, results, fields) {
+        if (error) {
+            console.log(error);
+            send_alert('Error', conn);
+            return;
+        }
+        
+        // send list of unapproved posts
+        send_unapproved_posts(conn);
+    });
+};
+
+var send_unapproved_posts = function(conn) {
+    db.conn.query('SELECT `postid`, `college`, `text` FROM `post` WHERE `approved` = 0 LIMIT 20', [], function(error, results, fields) {
+        if (error) {
+            console.log(error);
+            send_alert('Error', conn);
+            return;
+        }
+        
+        var msgobj = {};
+        msgobj.type = 'unapproved_posts';
+        msgobj.posts = [];
+        for (var i = 0; i < results.length; i++) {
+            var r = results[i];
+            var p = {};
+            p.postid = r.postid;
+            p.college = r.college;
+            p.text = r.text;
+            msgobj.posts.push(p);
+        }
+        conn.send(JSON.stringify(msgobj));
+    });
 };
 
 var list_contains_postid = function(thelist, postid) {
@@ -61,7 +98,7 @@ var send_list = function(email, page, conn) {
         
         var state = session.get_state(email);
         
-        db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     `likes`.`postid` = `post`.`postid` ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) AS counter FROM   dislikes WHERE   `dislikes`.`postid` = `post`.`postid` ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`college` = ? OR `public` = 1 ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [college], function(error, results, fields) {
+        db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     `likes`.`postid` = `post`.`postid` ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) AS counter FROM   dislikes WHERE   `dislikes`.`postid` = `post`.`postid` ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   (`post`.`college` = ? OR `public` = 1) AND `post`.`approved` = 1 ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [college], function(error, results, fields) {
             if (error) {
                 console.log(error);
                 return;
@@ -119,7 +156,7 @@ var send_list = function(email, page, conn) {
 
 var send_single_post_update = function(email, postid, conn) {
     // Send single post update
-    db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     likes.postid = `post`.postid ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) FROM   dislikes WHERE   dislikes.postid = `post`.postid ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   `post`.`postid` = ? ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [postid], function(error, results, fields) {
+    db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     likes.postid = `post`.postid ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) FROM   dislikes WHERE   dislikes.postid = `post`.postid ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   (`post`.`postid` = ?) AND `post`.`approved` = 1 ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [postid], function(error, results, fields) {
         if (error) {
             console.log('Error when getting the updated comment ' + error);
             return;
@@ -233,7 +270,7 @@ var like_unlike_post = function(email, postid, value, conn) {
 
 var send_single_post = function(email, postid, conn) {
     // Check that user has access to the post
-    db.connection.query('SELECT   * FROM   `post` WHERE   `postid` = ? AND(     `public` = 1 OR `college` =(     SELECT       `user`.`college`     FROM       `user`     WHERE       `user`.`email` = ?   )   )', [postid, email], function(error, results, fields) {
+    db.connection.query('SELECT   * FROM   `post` WHERE   `approved` = 1 AND `postid` = ? AND(     `public` = 1 OR `college` =(     SELECT       `user`.`college`     FROM       `user`     WHERE       `user`.`email` = ?   )   )', [postid, email], function(error, results, fields) {
         if (error) {
             console.log(error);
             var msgobj = {};

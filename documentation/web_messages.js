@@ -106,6 +106,20 @@ SERVER TO CLIENT
     }
     Sends to an admin the list of pending colleges to be activated
     in: admin
+    
+    // TODO CLIENT
+    {
+        type: unapproved_posts,
+        posts: [
+            {
+                postid: 34,
+                college: "imperial",
+                text: "hello world"
+            }
+        ]
+    }
+    List of unapproved posts
+    in: admin
 
 
 CLIENT TO SERVER
