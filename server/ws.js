@@ -158,6 +158,11 @@ server.on('connection', function(conn) {
                 } else if (type == 'get_unapproved_posts') {
                     posts.send_unapproved_posts(conn);
                     return;
+                } else if (type == 'approve_post') {
+                    var accept = msgobj.accept;
+                    var postid = msgobj.postid;
+                    posts.approve_post(accept, postid, conn);
+                    return;
                 }
             } else {
                 console.log('Unrecognized or unauthorized message type ' + type);

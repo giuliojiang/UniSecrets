@@ -2,6 +2,7 @@ var db = require( __dirname + '/db.js');
 var session = require( __dirname + '/session.js');
 var marked = require('marked');
 var config = require(__dirname + '/config.js');
+var mail = require(__dirname + '/mail.js');
 
 var new_post = function(email, is_public, text, conn) {
 
@@ -42,21 +43,34 @@ var new_post = function(email, is_public, text, conn) {
     
 };
 
-var approve_post = function(postid, conn) {
-    db.connection.query('UPDATE `post` SET `approved`= 1 WHERE `postid` = ?', [postid], function(error, results, fields) {
-        if (error) {
-            console.log(error);
-            send_alert('Error', conn);
-            return;
-        }
-        
-        // send list of unapproved posts
-        send_unapproved_posts(conn);
-    });
+var approve_post = function(accept, postid, conn) {
+    if (accept == 1) {
+        db.connection.query('UPDATE `post` SET `approved`= 1 WHERE `postid` = ?', [postid], function(error, results, fields) {
+            if (error) {
+                console.log(error);
+                send_alert('Error', conn);
+                return;
+            }
+            
+            // send list of unapproved posts
+            send_unapproved_posts(conn);
+        });
+    } else {
+        db.connection.query('DELETE FROM `post` WHERE `postid` = ? AND `approved` = 0', [postid], function(error, results, fields) {
+            if (error) {
+                console.log(error);
+                send_alert('Error', conn);
+                return;
+            }
+            
+            // Send list of unapproved posts
+            send_unapproved_posts(conn);
+        });
+    }
 };
 
 var send_unapproved_posts = function(conn) {
-    db.conn.query('SELECT `postid`, `college`, `text` FROM `post` WHERE `approved` = 0 LIMIT 20', [], function(error, results, fields) {
+    db.connection.query('SELECT `postid`, `college`, `text` FROM `post` WHERE `approved` = 0 LIMIT 20', [], function(error, results, fields) {
         if (error) {
             console.log(error);
             send_alert('Error', conn);
@@ -71,7 +85,7 @@ var send_unapproved_posts = function(conn) {
             var p = {};
             p.postid = r.postid;
             p.college = r.college;
-            p.text = r.text;
+            p.text = marked(r.text);
             msgobj.posts.push(p);
         }
         conn.send(JSON.stringify(msgobj));

@@ -109,7 +109,6 @@ SERVER TO CLIENT
     Sends to an admin the list of pending colleges to be activated
     in: admin
     
-    // TODO CLIENT
     {
         type: unapproved_posts,
         posts: [
@@ -219,9 +218,16 @@ CLIENT TO SERVER
     }
     Accept or reject a college
     
-    // TODO CLIENT
     {
         type: get_unapproved_posts,
         user_token: dfh2UMV0fmfimSVju9rwm
     }
     Request list of unapproved posts (admin only).
+    
+    {
+        type: approve_post,
+        user_token: dfh2UMV0fmfimSVju9rwm,
+        accept: 1,
+        postid: 95487
+    }
+    Approve or reject a post
