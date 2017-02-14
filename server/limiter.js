@@ -45,10 +45,7 @@
 
 var fs = require('fs');
 var auth = require( __dirname + '/auth.js');
-
-// Load configuration
-var config_file = fs.readFileSync(__dirname + '/../config/server_config.json');
-var config = JSON.parse(config_file);
+var config = require(__dirname + '/config.js');
 var rules_file = fs.readFileSync(__dirname + '/../config/limiter.json');
 var rules = JSON.parse(rules_file);
 

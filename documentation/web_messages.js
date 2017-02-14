@@ -25,6 +25,8 @@ SERVER TO CLIENT
     }
     Confirmation that a new secret was successfully posted
     in: new_post
+    // TODO postsuccess triggers a simple message that now post will
+    // be moderated
     
     {
         type: postlist,
@@ -216,3 +218,10 @@ CLIENT TO SERVER
         domain: ic.ac.uk
     }
     Accept or reject a college
+    
+    // TODO CLIENT
+    {
+        type: get_unapproved_posts,
+        user_token: dfh2UMV0fmfimSVju9rwm
+    }
+    Request list of unapproved posts (admin only).

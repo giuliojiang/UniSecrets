@@ -1,7 +1,7 @@
 var db = require( __dirname + '/db.js');
 var session = require( __dirname + '/session.js');
 var marked = require('marked');
-
+var config = require(__dirname + '/config.js');
 
 var new_post = function(email, is_public, text, conn) {
 
@@ -31,6 +31,12 @@ var new_post = function(email, is_public, text, conn) {
             var msgobj = {};
             msgobj.type = 'postsuccess';
             conn.send(JSON.stringify(msgobj));
+            
+            // Send email to admins
+            for (var i = 0; i < config.admin_emails.length; i++) {
+                var a_email = config.admin_emails[i];
+                mail.sendEmail(a_email, "New post needs approval:\n" + text);
+            }
         });
     });
     
@@ -295,5 +301,7 @@ module.exports = {
     send_list: send_list,
     add_comment: add_comment,
     like_unlike_post: like_unlike_post,
-    send_single_post: send_single_post
+    send_single_post: send_single_post,
+    approve_post: approve_post,
+    send_unapproved_posts: send_unapproved_posts
 };

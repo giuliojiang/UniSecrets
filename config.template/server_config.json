@@ -9,5 +9,8 @@
     "email_hostname": "localhost",
     "ws_port": 8001,
     "http_port": 8080,
-    "https_port": 443
+    "https_port": 443,
+    "admin_emails": [
+        
+    ]
 }
