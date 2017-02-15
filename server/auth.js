@@ -218,7 +218,11 @@ var activate_account = function(email, code, conn, callback) {
             var msgobj = {};
             msgobj.type = 'activationsuccess';
             conn.send(JSON.stringify(msgobj));
-            callback(undefined);
+            
+            // Automatically log in the user
+            login_success(email, false, conn); // new users cannot be admins!
+            
+            callback(null);
         });
     });
     

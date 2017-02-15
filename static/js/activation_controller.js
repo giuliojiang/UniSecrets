@@ -37,7 +37,7 @@ mainApp.controller("main_controller", function($scope) {
         } else {
             $scope.invalid_link = true;
             
-            $scope.apply();
+            $scope.$apply();
         }
     }
     
@@ -50,16 +50,16 @@ mainApp.controller("main_controller", function($scope) {
             window.location = 'dashboard.html';
         } else if (type == 'activationsuccess') {
             $scope.account_activated = true;
-            $scope.apply();
+            $scope.$apply();
         } else if (type == 'logintoken') {
-            localStorage.token = raw_data.token;
+            localStorage.token = msgobj.token;
             
-            var is_admin = raw_data.admin;
+            var is_admin = msgobj.admin;
             localStorage.admin = is_admin;
 
             $scope.logged_in = true;
             
-            $scope.apply();
+            $scope.$apply();
         }
     }
     
