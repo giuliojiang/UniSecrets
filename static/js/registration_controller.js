@@ -19,7 +19,8 @@ mainApp.controller("main_controller", function($scope) {
         } else if (type == 'tokenok') {
             window.location = 'dashboard.html';
         } else if (type == 'toactivation') {
-            window.location = 'activation.html';
+            $scope.show_activation_message = true;
+            $scope.$apply();
         } else if (type == 'collegenotfound') {
             $scope.show_add_college = true;
             $scope.$apply();

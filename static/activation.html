@@ -37,21 +37,13 @@
 
     <div class="container">
 
-      <h2>Activate your account below</h2>
-      <h3>Please check your email for the activation code (including spam directory)</h3>
-
-      <div class="row">
-        <div class="col s6">
-          <form>
-            <label>E-mail: <input ng-model="email" type="email"/></label><br />
-            <label>Activation code: <input ng-model="code" type="text"/></label><br />
-            <button class="btn waves-effect waves-light" type="submit" name="action" ng-click="submit()">Send
-              <i class="material-icons right">send</i>
-            </button>
-          </form>
-        </div>
-      </div>
-
+      <h2>Account activation</h2>
+      
+      <p ng-show="account_activated">Success</p>
+      
+      <button class="btn waves-effect waves-light green" type="submit" name="action" ng-click="go_to_dashboard()" ng-show="logged_in">Go to dashboard</button>
+      
+      <p ng-show="invalid_link">Error, invalid link</p>
 
     </div>
 

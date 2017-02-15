@@ -5,6 +5,7 @@
     "mail_use_dkim": false,
     "mail_dkim_privkey": "/path/to/mail.private",
     "mail_dkim_selector": "mail",
+    "mail_debug_mode": false,
     "hostname": "localhost",
     "email_hostname": "localhost",
     "ws_port": 8001,

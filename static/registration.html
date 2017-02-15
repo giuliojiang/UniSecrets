@@ -35,7 +35,7 @@
     </div>
 
 
-    <div class="container">
+    <div class="container" ng-hide="show_activation_message">
     
         <div class="row" ng-show="show_add_college">
             <div class="col s6">
@@ -69,6 +69,12 @@
       
 
 
+    </div>
+    
+    <div class="container" ng-show="show_activation_message">
+    
+        <h3>Thank you for registering. Please check your email for the activation link.</h3>
+    
     </div>
 
   </body>
