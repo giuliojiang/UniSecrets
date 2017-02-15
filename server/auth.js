@@ -28,6 +28,14 @@ var generate_web_address = function() {
     return protocol_stem + '://' + hostname + port;
 }
 
+var generate_activation_hash = function(email, code) {
+    return '#' + email + ';' + code;
+};
+
+var generate_link_to = function(addr) {
+    return '<a href="'+ addr +'">'+ addr +'</a>';
+};
+
 // #############################################################################
 // PASSWORD HASHING AND AUTHENTICATION
 var passwordHash = require('password-hash');
@@ -94,10 +102,8 @@ var add_user = function(email, nickname, password, conn, callback) {
             console.log('Successfully added account ' + email + ' to database');
 
             // Send email to user
-            var mailContent = 'Please activate your account at UniSecrets\n';
-            mailContent += 'email: ' + email + '\n';
-            mailContent += 'activation code: ' + activation_code + '\n';
-            mailContent += generate_web_address() + '/activation.html\n';
+            var mailContent = '<p>Please activate your account at UniSecrets</p>\n';
+            mailContent += generate_link_to(generate_web_address() + '/activation.html'+ generate_activation_hash(email, activation_code));
             mail.sendEmail(email, mailContent);
             
             // Redirect user to the activation page
