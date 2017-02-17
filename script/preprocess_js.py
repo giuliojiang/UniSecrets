@@ -30,8 +30,12 @@ HTTPS_DEFINE = config_obj['use_ssl']
 # Remove UniSecrets/tmp
 subprocess.call(['rm', '-rf', tmp_dir])
 
+# Create the tmp dir anew
+subprocess.call(['mkdir', tmp_dir])
+
 # Copy UniSecrets/static to UniSecrets/tmp
-subprocess.call(['cp', '-r', static_dir, tmp_dir])
+subprocess.call(['cp', '-r', static_dir + os.sep + 'js', tmp_dir + os.sep + 'js'])
+subprocess.call(['cp', '-r', static_dir + os.sep + 'css', tmp_dir + os.sep + 'css'])
 
 # UniSecrets/tmp/js
 js_dir = os.path.abspath(tmp_dir + os.sep + 'js')

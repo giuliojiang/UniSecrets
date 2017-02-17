@@ -88,8 +88,6 @@ var add_user = function(email, nickname, password, conn, callback) {
         }
     
         var college = results[0].college;
-        
-        console.log('Hashed a password: ' + hashed_password);
 
         // Add user to user table
         db.connection.query('INSERT INTO `user`(`email`, `nickname`, `college`, `hash`, `activation`) VALUES (?,?,?,?,?)', [email, nickname, college, hashed_password, activation_code], function (error, results, fields) {
@@ -103,7 +101,7 @@ var add_user = function(email, nickname, password, conn, callback) {
 
             // Send email to user
             var mailContent = '<p>Please activate your account at UniSecrets</p>\n';
-            mailContent += generate_link_to(generate_web_address() + '/activation.html'+ generate_activation_hash(email, activation_code));
+            mailContent += generate_link_to(generate_web_address() + '/activation'+ generate_activation_hash(email, activation_code));
             mail.sendEmail(email, mailContent);
             
             // Redirect user to the activation page

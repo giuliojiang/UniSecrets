@@ -25,7 +25,7 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.user_token = localStorage.token;
         ws_send(JSON.stringify(msgobj));
     }
-    
+
     $scope.wsmessage = function(ws, data) {
         var raw_data = JSON.parse(data);
         var type = raw_data.type;
@@ -34,17 +34,17 @@ mainApp.controller("main_controller", function($scope) {
             $scope.set_show_comments_to_false();
             $scope.$apply();
         } else if (type == 'loginfirst') {
-            window.location = 'login.html';
+            window.location = 'login';
         } else if (type == 'updatepost') {
             var postid = raw_data.id;
-            
+
             if (!$scope.postlist) {
                 return;
             }
             if (!$scope.postlist.posts) {
                 return;
             }
-            
+
             for (var i = 0; i < $scope.postlist.posts.length; i++) {
                 if ($scope.postlist.posts[i].id == postid) {
                     var thepost = $scope.postlist.posts[i];
@@ -56,11 +56,11 @@ mainApp.controller("main_controller", function($scope) {
                     thepost.comments = raw_data.comments;
                 }
             }
-            
+
             $scope.$apply();
         } else if (type == 'tokenok') {
             if (localStorage.postid) {
-                window.location = 'post.html#' + localStorage.postid;
+                window.location = 'post#' + localStorage.postid;
             } else {
                 // send first request for posts
                 var msgobj = {};
@@ -74,7 +74,7 @@ mainApp.controller("main_controller", function($scope) {
         }
     }
 
-    
+
 // WS MODULES LOADED HERE
 #include<clientws.js>
 
@@ -84,16 +84,16 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.user_token = localStorage.token;
         msgobj.text = text;
         msgobj.postid = postid;
-        
+
         ws_send(JSON.stringify(msgobj));
-        
+
         postobj.user_comment = '';
     }
-    
+
     $scope.reload_page = function() {
         location.reload();
     }
-    
+
     $scope.likepost = function(postid, is_like) {
         var msgobj = {};
         msgobj.type = 'like';
@@ -102,15 +102,15 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.value = is_like;
         ws_send(JSON.stringify(msgobj));
     }
-    
+
     $scope.generate_post_link = function(postid) {
-        return 'post.html#' + postid;
+        return 'post#' + postid;
     }
-    
+
     $scope.is_admin = function() {
         return localStorage.admin == 1;
     }
-    
+
     $scope.do_logout = function() {
         localStorage.clear();
         location.reload();

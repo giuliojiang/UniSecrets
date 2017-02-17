@@ -1,60 +1,35 @@
 <html>
   <head>
 
-    <title>UniSecrets - Post</title>
+    <title>UniSecrets - Dashboard</title>
 
-    <!-- JQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-
-    <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
-
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
-
-    <!-- Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-    <!-- Custom css -->
-    <link rel="stylesheet" href="css/common.css">
-
-    <!-- Angular -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <% include partials/scripts %>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0-beta.2/angular-sanitize.js"></script>
 
     <!-- Controller -->
-    <script src="js/post_controller.js"></script>
+    <script src="js/dashboard_controller.js"></script>
 
   </head>
 
   <body ng-app="mainApp" ng-controller="main_controller">
 
-    <div class="navbar-fixed">
-      <nav>
-        <div class="nav-wrapper">
-          <a href="index.html" class="brand-logo">UniSecrets</a>
-          <ul class="right  ">
-            <li><a href="index.html">Landing</a></li>
-          </ul>
-        </div>
-      </nav>
-    </div>
-    
-    <div ng-show="show_not_found">
-        <h1>Post not found or not accessible</h1>
-    </div>
+    <% include partials/nav %>
 
-    <div class="container" ng-hide="show_not_found">
-      <a class="btn-large waves-effect waves-light red right z-depth-3" href="new_post.html">Got something you wanna tell us?</a>
+    <div class="container">
+      <a class="btn-large waves-effect waves-light red right z-depth-3" href="new_post">Got something you wanna tell us?</a>
+
+      <h3>Here's the freshest secrets on campus:</h3>
 
       <br>
       <button class="btn-floating btn-large waves-effect blue z-depth-2" ng-click="reload_page()"><i class="material-icons">replay</i></button>
       <br>
       <br>
       <div class="secret-list">
-        <div class="secret-container card-medium z-depth-1">
+        <div ng-repeat="apost in postlist.posts" class="secret-container card-medium z-depth-1">
           <div class="secret-university" style="padding-left:15px">
-            <p>Found at: {{apost.college}}</p>
+            <a href="{{generate_post_link(apost.id)}}">
+                <p>Found at: {{apost.college}}</p>
+            </a>
           </div>
           <div class="card-content" style="padding-left:15px">
             <div ng-bind-html="apost.text"></div>
@@ -71,14 +46,14 @@
                 <div class="display:block; float: right">   {{apost.dislikes}}</div>
               </div>
               <div class="col s1 center-align">
-                <a href=""">Comment</a>
+                <a href="" ng-click="toggle_post_comments(apost.id)">Comment</a>
                 <div class="display:block; float: right">   {{apost.comments.length}}</div>
               </div>
             </div>
 
-            <div class="row post-comments">
+            <div class="row post-comments" ng-show="apost.show_comments">
               <div class="col s12">
-              
+
                 <div class="post-comment" ng-repeat="acomment in apost.comments">
                   <p><b>{{acomment.nickname}}</b> says: <em><span ng-bind-html="acomment.text"></span></em></p>
                 </div>

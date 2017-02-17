@@ -4,7 +4,7 @@ mainApp.controller("main_controller", function($scope) {
 
     var desired_post_id = window.location.hash.substring(1); // Removes the hash
     localStorage.postid = desired_post_id;
-    
+
     $scope.show_not_found = false;
 
     var request_post = function(ws) {
@@ -18,16 +18,16 @@ mainApp.controller("main_controller", function($scope) {
     $scope.wsonopen = function(ws) {
         request_post(ws);
     }
-    
+
     $scope.wsmessage = function(ws, data) {
         var raw_data = JSON.parse(data);
         var type = raw_data.type;
-        
+
         if (type == 'loginfirst') {
-            window.location = 'login.html';
+            window.location = 'login';
         } else if (type == 'updatepost') {
             $scope.show_not_found = false;
-            
+
             var postid = raw_data.id;
 
             $scope.apost = {};
@@ -38,20 +38,20 @@ mainApp.controller("main_controller", function($scope) {
             thepost.dislikes = raw_data.dislikes;
             thepost.college = raw_data.college;
             thepost.comments = raw_data.comments;
-            
+
             $scope.$apply();
-            
+
             delete localStorage['postid'];
         } else if (type == 'postnotfound') {
             // set apost to empty
             $scope.apost = {};
-            
+
             // reset local localStorage
             delete localStorage['postid'];
-            
+
             // show a message that post was not found
             $scope.show_not_found = true;
-            
+
             $scope.$apply();
         } else if (type == 'alert') {
             alert(raw_data.msg);
@@ -67,16 +67,16 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.user_token = localStorage.token;
         msgobj.text = text;
         msgobj.postid = postid;
-        
+
         ws_send(JSON.stringify(msgobj));
-        
+
         postobj.user_comment = '';
     }
-    
+
     $scope.reload_page = function() {
         location.reload();
     }
-    
+
     $scope.likepost = function(postid, is_like) {
         var msgobj = {};
         msgobj.type = 'like';
@@ -85,11 +85,16 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.value = is_like;
         ws_send(JSON.stringify(msgobj));
     }
-    
+
     $(window).on('hashchange', function() {
         var desired_post_id = window.location.hash.substring(1); // Removes the hash
         localStorage.postid = desired_post_id;
         request_post(ws);
     });
+    
+    $scope.do_logout = function() {
+        localStorage.clear();
+        location.reload();
+    }
 
 });

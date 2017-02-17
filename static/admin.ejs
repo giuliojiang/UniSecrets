@@ -4,38 +4,16 @@
 
     <title>UniSecrets - Admin</title>
 
-  <!-- JQuery -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <% include partials/scripts %>
 
-  <!-- Compiled and minified CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
-
-  <!-- Compiled and minified JavaScript -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
-
-  <!-- Icons -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-  <!-- Angular -->
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0-beta.2/angular-sanitize.js"></script>
-
-  <!-- Controller -->
-  <script src="js/admin_controller.js"></script>
+    <!-- Controller -->
+    <script src="js/admin_controller.js"></script>
 
   </head>
+
   <body ng-app="mainApp" ng-controller="main_controller">
 
-    <div class="navbar-fixed">
-      <nav>
-        <div class="nav-wrapper">
-          <a href="index.html" class="brand-logo">UniSecrets</a>
-          <ul class="right  ">
-            <li><a href="index.html">Landing</a></li>
-          </ul>
-        </div>
-      </nav>
-    </div>
+    <% include partials/nav %>
 
     <div class="container">
 
@@ -57,13 +35,13 @@
       </div>
 
     </div>
-    
+
     <hr />
-    
+
     <div class="container">
 
       <h2>Pending posts</h2>
-      
+
       <p ng-show="!pending_posts || pending_posts.length == 0">No pending posts</p>
 
       <div class="row" ng-repeat="a_post in pending_posts">
@@ -85,7 +63,7 @@
       </div>
 
     </div>
-    
-    
+
+
   </body>
 </html>
