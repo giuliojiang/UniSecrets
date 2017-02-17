@@ -47,7 +47,6 @@ mainApp.controller("main_controller", function($scope) {
         if (type == 'alert') {
             alert(msgobj.msg);
         } else if (type == 'tokenok') {
-            // window.location = 'dashboard.html';
             window.location = 'dashboard';
         } else if (type == 'activationsuccess') {
             $scope.account_activated = true;
@@ -68,7 +67,6 @@ mainApp.controller("main_controller", function($scope) {
 #include<clientws.js>
 
     $scope.go_to_dashboard = function() {
-        // window.location = 'dashboard.html';
         window.location = 'dashboard';
     }
 

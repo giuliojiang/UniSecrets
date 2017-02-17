@@ -17,7 +17,6 @@ mainApp.controller("main_controller", function($scope) {
         if (type == 'alert') {
             alert(msgobj.msg);
         } else if (type == 'tokenok') {
-            // window.location = 'dashboard.html';
             window.location = 'dashboard';
         } else if (type == 'toactivation') {
             $scope.show_activation_message = true;

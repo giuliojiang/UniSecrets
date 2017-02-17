@@ -23,7 +23,6 @@ mainApp.controller("main_controller", function($scope) {
         var type = raw_data.type;
         if (type == 'loginfirst') {
             alert('You are not logged in');
-            // window.location = 'login.html';
             window.location = 'login';
             return;
         } else if (type == 'pendingcollegelist') {

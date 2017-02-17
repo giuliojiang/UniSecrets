@@ -24,7 +24,6 @@ mainApp.controller("main_controller", function($scope) {
         var type = raw_data.type;
 
         if (type == 'loginfirst') {
-            // window.location = 'login.html';
             window.location = 'login';
         } else if (type == 'updatepost') {
             $scope.show_not_found = false;

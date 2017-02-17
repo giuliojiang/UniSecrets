@@ -34,7 +34,6 @@ mainApp.controller("main_controller", function($scope) {
             $scope.set_show_comments_to_false();
             $scope.$apply();
         } else if (type == 'loginfirst') {
-            // window.location = 'login.html';
             window.location = 'login';
         } else if (type == 'updatepost') {
             var postid = raw_data.id;
@@ -61,7 +60,6 @@ mainApp.controller("main_controller", function($scope) {
             $scope.$apply();
         } else if (type == 'tokenok') {
             if (localStorage.postid) {
-                // window.location = 'post.html#' + localStorage.postid;
                 window.location = 'post#' + localStorage.postid;
             } else {
                 // send first request for posts
@@ -106,7 +104,6 @@ mainApp.controller("main_controller", function($scope) {
     }
 
     $scope.generate_post_link = function(postid) {
-        // return 'post.html#' + postid;
         return 'post#' + postid;
     }
 

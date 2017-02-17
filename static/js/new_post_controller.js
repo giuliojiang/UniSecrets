@@ -14,10 +14,8 @@ mainApp.controller("main_controller", function($scope) {
         var type = msgobj.type;
         if (type == 'loginfirst') {
             alert('You need to login first!');
-            // window.location = 'login.html';
             window.location = 'login';
         } else if (type == 'postsuccess') {
-            // window.location = 'dashboard.html';
             window.location = 'dashboard';
         } else if (type == 'alert') {
             alert(msgobj.msg);

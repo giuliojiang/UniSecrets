@@ -13,10 +13,8 @@ mainApp.controller("main_controller", function($scope) {
         var target_post = localStorage.postid;
 
         if (target_post) {
-            // window.location = 'post.html#' + target_post;
             window.location = 'post#' + target_post;
         } else {
-            // window.location = 'dashboard.html';
             window.location = 'dashboard';
         }
     }
