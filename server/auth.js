@@ -88,8 +88,6 @@ var add_user = function(email, nickname, password, conn, callback) {
         }
     
         var college = results[0].college;
-        
-        console.log('Hashed a password: ' + hashed_password);
 
         // Add user to user table
         db.connection.query('INSERT INTO `user`(`email`, `nickname`, `college`, `hash`, `activation`) VALUES (?,?,?,?,?)', [email, nickname, college, hashed_password, activation_code], function (error, results, fields) {
