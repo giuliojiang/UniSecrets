@@ -1,0 +1,67 @@
+<html>
+
+  <head>
+
+    <% include partials/scripts %>
+
+    <!-- Controller -->
+    <script src="js/admin_controller.js"></script>
+
+  </head>
+
+  <body ng-app="mainApp" ng-controller="main_controller">
+
+    <% include partials/nav %>
+
+    <div class="container">
+
+      <h2>Pending college activations: {{colleges.length}}</h2>
+
+      <div class="row" ng-repeat="a_college in colleges">
+        <div class="col s4">
+            <p>{{a_college.college}}</p>
+        </div>
+        <div class="col s4">
+            <p>{{a_college.domain}}</p>
+        </div>
+        <div class="col s2">
+            <button class="btn waves-effect waves-light green" type="submit" name="action" ng-click="accept_college(a_college, 1)">Accept</button>
+        </div>
+        <div class="col s2">
+            <button class="btn waves-effect waves-light red" type="submit" name="action" ng-click="accept_college(a_college, 0)">Delete</button>
+        </div>
+      </div>
+
+    </div>
+    
+    <hr />
+    
+    <div class="container">
+
+      <h2>Pending posts</h2>
+      
+      <p ng-show="!pending_posts || pending_posts.length == 0">No pending posts</p>
+
+      <div class="row" ng-repeat="a_post in pending_posts">
+        <div class="col s2">
+            <p>{{a_post.postid}}</p>
+        </div>
+        <div class="col s3">
+            <p>{{a_post.college}}</p>
+        </div>
+        <div class="col s3">
+            <div ng-bind-html="a_post.text"></div>
+        </div>
+        <div class="col s2">
+            <button class="btn waves-effect waves-light green" type="submit" name="action" ng-click="accept_post(a_post, 1)">Accept</button>
+        </div>
+        <div class="col s2">
+            <button class="btn waves-effect waves-light red" type="submit" name="action" ng-click="accept_post(a_post, 0)">Delete</button>
+        </div>
+      </div>
+
+    </div>
+    
+    
+  </body>
+</html>

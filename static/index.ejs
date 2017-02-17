@@ -1,0 +1,30 @@
+<html>
+
+  <head>
+    <% include partials/scripts %>
+
+    <!-- Controller -->
+    <script src="js/login_controller.js"></script>
+
+  </head>
+
+  <body ng-app="mainApp" ng-controller="main_controller">
+
+    <% include partials/nav %>
+
+
+    <div class="container">
+      <h1>Welcome to UniSecrets!</h1>
+
+      <!-- <button ng-click="registration_redirect">Please register to continue</button> -->
+      <a href="registration.html">Please register to continue</a>
+      <br>
+      <!-- <button ng-click="signin_redirect">Already have an account? Sign in.</button> -->
+      <a href="login.html">Already have an account? Sign in.</a>
+      <br>
+      <a href="dashboard.html">Dashboard Link</a>
+
+    </div>
+
+  </body>
+</html>
