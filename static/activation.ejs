@@ -8,6 +8,7 @@
     <script src="js/activation_controller.js"></script>
 
   </head>
+
   <body ng-app="mainApp" ng-controller="main_controller">
 
     <% include partials/nav %>
@@ -15,11 +16,11 @@
     <div class="container">
 
       <h2>Account activation</h2>
-      
+
       <p ng-show="account_activated">Success</p>
-      
+
       <button class="btn waves-effect waves-light green" type="submit" name="action" ng-click="go_to_dashboard()" ng-show="logged_in">Go to dashboard</button>
-      
+
       <p ng-show="invalid_link">Error, invalid link</p>
 
     </div>

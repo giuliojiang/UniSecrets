@@ -8,26 +8,28 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.user_token = localStorage.token;
         ws_send(JSON.stringify(msgobj));
     }
-    
+
     $scope.goto_dashboard_or_post = function() {
         var target_post = localStorage.postid;
-        
+
         if (target_post) {
-            window.location = 'post.html#' + target_post;
+            // window.location = 'post.html#' + target_post;
+            window.location = 'post#' + target_post;
         } else {
-            window.location = 'dashboard.html';
+            // window.location = 'dashboard.html';
+            window.location = 'dashboard';
         }
     }
-    
+
     $scope.wsmessage = function(ws, data) {
         var raw_data = JSON.parse(data);
         var type = raw_data.type;
         if (type == 'logintoken') {
             localStorage.token = raw_data.token;
-            
+
             var is_admin = raw_data.admin;
             localStorage.admin = is_admin;
-            
+
             $scope.goto_dashboard_or_post();
         } else if (type == 'tokenok') {
             $scope.goto_dashboard_or_post();
@@ -37,7 +39,7 @@ mainApp.controller("main_controller", function($scope) {
             alert(raw_data.msg);
         }
     }
-    
+
 // WS MODULES LOADED HERE
 #include<clientws.js>
 

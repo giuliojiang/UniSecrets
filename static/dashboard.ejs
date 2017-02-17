@@ -1,13 +1,18 @@
 <html>
+  <head>
+    <% include partials/scripts %>
 
-  <% include partials/scripts %>
+    <!-- Controller -->
+    <script src="js/dashboard_controller.js"></script>
+
+  </head>
 
   <body ng-app="mainApp" ng-controller="main_controller">
 
     <% include partials/nav %>
 
     <div class="container">
-      <a class="btn-large waves-effect waves-light red right z-depth-3" href="new_post.html">Got something you wanna tell us?</a>
+      <a class="btn-large waves-effect waves-light red right z-depth-3" href="new_post">Got something you wanna tell us?</a>
 
       <h3>Here's the freshest secrets on campus:</h3>
 
@@ -44,7 +49,7 @@
 
             <div class="row post-comments" ng-show="apost.show_comments">
               <div class="col s12">
-              
+
                 <div class="post-comment" ng-repeat="acomment in apost.comments">
                   <p><b>{{acomment.nickname}}</b> says: <em><span ng-bind-html="acomment.text"></span></em></p>
                 </div>

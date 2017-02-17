@@ -19,15 +19,15 @@ mainApp.controller("main_controller", function($scope) {
         $scope.invalid_link = true;
     }
 
-    
+
     $scope.college = 'Imperial College London';
-    
+
     $scope.wsonopen = function(ws) {
         var msgobj = {};
         msgobj.type = 'validatetoken';
         msgobj.user_token = localStorage.token;
         ws_send(JSON.stringify(msgobj));
-        
+
         if (activation_email && activation_token) {
             msgobj = {};
             msgobj.type = 'activationcode';
@@ -36,38 +36,40 @@ mainApp.controller("main_controller", function($scope) {
             ws_send(JSON.stringify(msgobj));
         } else {
             $scope.invalid_link = true;
-            
+
             $scope.$apply();
         }
     }
-    
+
     $scope.wsmessage = function(ws, data) {
         var msgobj = JSON.parse(data);
         var type = msgobj.type;
         if (type == 'alert') {
             alert(msgobj.msg);
         } else if (type == 'tokenok') {
-            window.location = 'dashboard.html';
+            // window.location = 'dashboard.html';
+            window.location = 'dashboard';
         } else if (type == 'activationsuccess') {
             $scope.account_activated = true;
             $scope.$apply();
         } else if (type == 'logintoken') {
             localStorage.token = msgobj.token;
-            
+
             var is_admin = msgobj.admin;
             localStorage.admin = is_admin;
 
             $scope.logged_in = true;
-            
+
             $scope.$apply();
         }
     }
-    
+
 // WS MODULES LOADED HERE
 #include<clientws.js>
 
     $scope.go_to_dashboard = function() {
-        window.location = 'dashboard.html';
+        // window.location = 'dashboard.html';
+        window.location = 'dashboard';
     }
 
 });

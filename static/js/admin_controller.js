@@ -3,14 +3,14 @@ var mainApp = angular.module("mainApp", ['ngSanitize']);
 mainApp.controller("main_controller", function($scope) {
 
     $scope.colleges = [];
-    
+
     $scope.wsonopen = function(ws) {
         // Send message to request list of unactivated colleges
         var msgobj = {};
         msgobj.type = 'pendingcollegeslist';
         msgobj.user_token = localStorage.token;
         ws_send(JSON.stringify(msgobj));
-        
+
         // send message to request list of unapproved posts
         msgobj = {};
         msgobj.type = 'get_unapproved_posts';
@@ -23,7 +23,8 @@ mainApp.controller("main_controller", function($scope) {
         var type = raw_data.type;
         if (type == 'loginfirst') {
             alert('You are not logged in');
-            window.location = 'login.html';
+            // window.location = 'login.html';
+            window.location = 'login';
             return;
         } else if (type == 'pendingcollegelist') {
             $scope.colleges = raw_data.colleges;
@@ -34,7 +35,7 @@ mainApp.controller("main_controller", function($scope) {
         }
 
     }
-    
+
 // WS MODULES LOADED HERE
 #include<clientws.js>
 
@@ -47,7 +48,7 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.domain = clg.domain;
         ws_send(JSON.stringify(msgobj));
     };
-    
+
     $scope.accept_post = function(pst, accept) {
         var msgobj = {};
         msgobj.type = 'approve_post';

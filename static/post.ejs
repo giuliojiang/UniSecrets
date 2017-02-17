@@ -17,7 +17,7 @@
     </div>
 
     <div class="container" ng-hide="show_not_found">
-      <a class="btn-large waves-effect waves-light red right z-depth-3" href="new_post.html">Got something you wanna tell us?</a>
+      <a class="btn-large waves-effect waves-light red right z-depth-3" href="new_post">Got something you wanna tell us?</a>
 
       <br>
       <button class="btn-floating btn-large waves-effect blue z-depth-2" ng-click="reload_page()"><i class="material-icons">replay</i></button>
@@ -50,7 +50,7 @@
 
             <div class="row post-comments">
               <div class="col s12">
-              
+
                 <div class="post-comment" ng-repeat="acomment in apost.comments">
                   <p><b>{{acomment.nickname}}</b> says: <em><span ng-bind-html="acomment.text"></span></em></p>
                 </div>
