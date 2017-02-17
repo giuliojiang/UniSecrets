@@ -69,5 +69,10 @@ mainApp.controller("main_controller", function($scope) {
     $scope.go_to_dashboard = function() {
         window.location = 'dashboard';
     }
+    
+    $scope.do_logout = function() {
+        localStorage.clear();
+        location.reload();
+    }
 
 });

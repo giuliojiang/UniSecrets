@@ -101,7 +101,7 @@ var add_user = function(email, nickname, password, conn, callback) {
 
             // Send email to user
             var mailContent = '<p>Please activate your account at UniSecrets</p>\n';
-            mailContent += generate_link_to(generate_web_address() + '/activation.html'+ generate_activation_hash(email, activation_code));
+            mailContent += generate_link_to(generate_web_address() + '/activation'+ generate_activation_hash(email, activation_code));
             mail.sendEmail(email, mailContent);
             
             // Redirect user to the activation page

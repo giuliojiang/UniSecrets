@@ -49,5 +49,9 @@ mainApp.controller("main_controller", function($scope) {
         ws_send(JSON.stringify(msgobj));
     };
 
+    $scope.do_logout = function() {
+        localStorage.clear();
+        location.reload();
+    }
 
 });

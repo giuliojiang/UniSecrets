@@ -91,5 +91,10 @@ mainApp.controller("main_controller", function($scope) {
         localStorage.postid = desired_post_id;
         request_post(ws);
     });
+    
+    $scope.do_logout = function() {
+        localStorage.clear();
+        location.reload();
+    }
 
 });
