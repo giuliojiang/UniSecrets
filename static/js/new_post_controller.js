@@ -8,20 +8,20 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.user_token = localStorage.token;
         ws_send(JSON.stringify(msgobj));
     }
-    
+
     $scope.wsmessage = function(ws, data) {
         var msgobj = JSON.parse(data);
         var type = msgobj.type;
         if (type == 'loginfirst') {
             alert('You need to login first!');
-            window.location = 'login.html';
+            window.location = 'login';
         } else if (type == 'postsuccess') {
-            window.location = 'dashboard.html';
+            window.location = 'dashboard';
         } else if (type == 'alert') {
             alert(msgobj.msg);
         }
     }
-    
+
 // WS MODULES LOADED HERE
 #include<clientws.js>
 
@@ -34,4 +34,10 @@ mainApp.controller("main_controller", function($scope) {
 
         ws_send(JSON.stringify(msgobj));
     };
+    
+    $scope.do_logout = function() {
+        localStorage.clear();
+        location.reload();
+    }
+    
 });
