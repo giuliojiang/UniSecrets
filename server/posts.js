@@ -3,6 +3,9 @@ var session = require( __dirname + '/session.js');
 var marked = require('marked');
 var config = require(__dirname + '/config.js');
 var mail = require(__dirname + '/mail.js');
+var async = require('async');
+
+var PAGE_MAX_POSTS = 20;
 
 var new_post = function(email, is_public, text, conn) {
 
@@ -101,77 +104,136 @@ var list_contains_postid = function(thelist, postid) {
     return false;
 }
 
-var send_list = function(email, page, conn) {
-    // get the college of this user
-    db.connection.query('SELECT `college` FROM `user` WHERE `email` = ?', [email], function(error, results, fields) {
-        if (error) {
-            console.log(error);
-            return;
-        }
-        
-        if (results.length != 1) {
-            console.log("I was expecting 1 row");
-            return;
-        }
-        
-        var college = results[0].college;
-        
-        var state = session.get_state(email);
-        
-        db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     `likes`.`postid` = `post`.`postid` ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) AS counter FROM   dislikes WHERE   `dislikes`.`postid` = `post`.`postid` ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   (`post`.`college` = ? OR `public` = 1) AND `post`.`approved` = 1 ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [college], function(error, results, fields) {
-            if (error) {
-                console.log(error);
-                return;
-            }
-            
-            if (!results) {
-                results = [];
-            }
-            
-            var msgobj = {};
-            
-            msgobj.type = 'postlist';
-            
-            msgobj.posts = [];
-            
-            for (var i = 0; i < results.length; i++) {
-                var postid = results[i].postid;
-                var acollege = results[i].college;
-                var likes = results[i].likes;
-                var posttext = results[i].posttext;
-                var dislikes = results[i].dislikes;
-                var commenttext = results[i].commenttext;
-                var commentnickname = results[i].commentnickname;
-                
-                state.visible_posts[postid] = true;
-                
-                if (!list_contains_postid(msgobj.posts, postid)) {
-                    var postobj = {};
-                    postobj.id = postid;
-                    postobj.text = marked(posttext);
-                    postobj.likes = likes;
-                    postobj.dislikes = dislikes;
-                    postobj.college = acollege;
-                    postobj.comments = [];
-                    msgobj.posts.push(postobj);
-                }
+var isNumber = function(x) {
+    return typeof x === 'number';
+}
 
-                if (commenttext && commentnickname) {
-                    for (var j = 0; j < msgobj.posts.length; j++) {
-                        if (msgobj.posts[j].id == postid) {
-                            var commentobj = {};
-                            commentobj.nickname = commentnickname;
-                            commentobj.text = marked(commenttext);
-                            msgobj.posts[j].comments.push(commentobj);
+var send_list = function(email, page, conn) {
+    if (!isNumber(page) || isNaN(page) || page < 0) {
+        var msgobj = {};
+        msgobj.type = 'page_not_found';
+        conn.send(JSON.stringify(msgobj));
+        return;
+    }
+    
+    async.waterfall([
+
+        function(callback) {
+            
+            db.connection.query('SELECT `college` FROM `user` WHERE `email` = ?', [email], function(error, results, fields) {
+                if (error) {
+                    callback(error);
+                    return;
+                }
+                
+                if (results.length != 1) {
+                    callback("I was expecting 1 row");
+                    return;
+                }
+                
+                var college = results[0].college;
+                var state = session.get_state(email);
+                
+                callback(null, college, state);
+                return;
+            });
+            
+        },
+        function(college, state, callback) {
+            
+            db.connection.query('SELECT count(*) as thecount FROM   `post` WHERE   (`post`.`college` = ? OR `public` = 1) AND `post`.`approved` = 1;', [college], function(error, results, fields) {
+                if (error) {
+                    callback(error);
+                    return;
+                }
+                
+                var total_pages = Math.ceil(results[0].thecount / PAGE_MAX_POSTS);
+                
+                // Send update about total pages
+                var msgobj = {};
+                msgobj.type = 'total_pages';
+                msgobj.maxp = total_pages;
+                conn.send(JSON.stringify(msgobj));
+                
+                if (page >= total_pages) {
+                    var msgobj = {};
+                    msgobj.type = 'page_not_found';
+                    conn.send(JSON.stringify(msgobj));
+                    callback("requested too high page number");
+                    return;
+                } else {
+                    callback(null, college, state);
+                }
+                
+            });
+            
+        },
+        function(college, state, callback) {
+            
+            var pagelimit = PAGE_MAX_POSTS;
+            var pageoffset = page * PAGE_MAX_POSTS;
+            
+            db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     `likes`.`postid` = `post`.`postid` ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) AS counter FROM   dislikes WHERE   `dislikes`.`postid` = `post`.`postid` ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   (`post`.`college` = ? OR `public` = 1) AND `post`.`approved` = 1 ORDER BY  `post`.`timestamp` DESC,   `post`.`postid` DESC,   `comment`.commentid ASC limit ? offset ?', [college, pagelimit, pageoffset], function(error, results, fields) {
+                if (error) {
+                    callback(error);
+                    return;
+                }
+                if (!results) {
+                    results = [];
+                }
+                
+                var msgobj = {};
+                
+                msgobj.type = 'postlist';
+                
+                msgobj.posts = [];
+                
+                for (var i = 0; i < results.length; i++) {
+                    var postid = results[i].postid;
+                    var acollege = results[i].college;
+                    var likes = results[i].likes;
+                    var posttext = results[i].posttext;
+                    var dislikes = results[i].dislikes;
+                    var commenttext = results[i].commenttext;
+                    var commentnickname = results[i].commentnickname;
+                    
+                    state.visible_posts[postid] = true;
+                    
+                    if (!list_contains_postid(msgobj.posts, postid)) {
+                        var postobj = {};
+                        postobj.id = postid;
+                        postobj.text = marked(posttext);
+                        postobj.likes = likes;
+                        postobj.dislikes = dislikes;
+                        postobj.college = acollege;
+                        postobj.comments = [];
+                        msgobj.posts.push(postobj);
+                    }
+
+                    if (commenttext && commentnickname) {
+                        for (var j = 0; j < msgobj.posts.length; j++) {
+                            if (msgobj.posts[j].id == postid) {
+                                var commentobj = {};
+                                commentobj.nickname = commentnickname;
+                                commentobj.text = marked(commenttext);
+                                msgobj.posts[j].comments.push(commentobj);
+                            }
                         }
                     }
                 }
-            }
 
-            conn.send(JSON.stringify(msgobj));
-
-        });
+                conn.send(JSON.stringify(msgobj));
+                callback(null);
+                return;
+            });
+            
+        }
+    ], function(err, result) {
+        if (err) {
+            console.log(err);
+        }
     });
+
 };
 
 var send_single_post_update = function(email, postid, conn) {

@@ -121,6 +121,19 @@ SERVER TO CLIENT
     }
     List of unapproved posts
     in: admin
+    
+    {
+        type: page_not_found
+    }
+    Notifies that requests page doesn't exist
+    in: dashboard
+    
+    {
+        type: total_pages,
+        maxp: 2
+    }
+    Notifies that there are 2 pages available (0 and 1)
+    in: dashboard
 
 
 CLIENT TO SERVER
@@ -151,7 +164,7 @@ CLIENT TO SERVER
     {
         type: requestposts,
         user_token: dfh2UMV0fmfimSVju9rwm,
-        more: 1 // TODO CLIENT SERVER
+        page: 0
     }
     Request updated post list
     

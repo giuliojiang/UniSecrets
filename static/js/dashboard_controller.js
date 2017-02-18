@@ -3,6 +3,36 @@ var mainApp = angular.module("mainApp", ['ngSanitize']);
 mainApp.controller("main_controller", function($scope) {
 
     $scope.page = 0;
+    
+    // Read the window location hash
+    var read_hash = function() {
+        if (window.location.hash) {
+            page_number_str = window.location.hash.substring(1);
+            $scope.page = parseInt(page_number_str);
+            if (isNaN($scope.page)) {
+                $scope.page = 0;
+            }
+        }
+    };
+    
+    read_hash();
+    
+    var request_page = function() {
+        console.log('Requesting page ' + $scope.page);
+        
+        $scope.postlist = null;
+        
+        // send first request for posts
+        var msgobj = {};
+        msgobj.type = 'requestposts';
+        msgobj.user_token = localStorage.token;
+        msgobj.page = $scope.page;
+        ws_send(JSON.stringify(msgobj));
+        
+        $scope.$apply();
+    }
+    
+
 
     $scope.set_show_comments_to_false = function() {
         angular.forEach($scope.postlist.posts, function(post) {
@@ -30,9 +60,12 @@ mainApp.controller("main_controller", function($scope) {
         var raw_data = JSON.parse(data);
         var type = raw_data.type;
         if (type == 'postlist') {
+            $scope.page_not_found = false;
             $scope.postlist = raw_data;
             $scope.set_show_comments_to_false();
             $scope.$apply();
+            
+            console.log('count is ' + $scope.postlist.posts.length);
         } else if (type == 'loginfirst') {
             window.location = 'login';
         } else if (type == 'updatepost') {
@@ -63,14 +96,16 @@ mainApp.controller("main_controller", function($scope) {
                 window.location = 'post#' + localStorage.postid;
             } else {
                 // send first request for posts
-                var msgobj = {};
-                msgobj.type = 'requestposts';
-                msgobj.user_token = localStorage.token;
-                msgobj.page = $scope.page;
-                ws_send(JSON.stringify(msgobj));
+                request_page();
             }
         } else if (type == 'alert') {
             alert(raw_data.msg);
+        } else if (type == 'page_not_found') {
+            $scope.page_not_found = true;
+            $scope.$apply();
+        } else if (type == 'total_pages') {
+            $scope.total_pages = raw_data.maxp;
+            $scope.$apply();
         }
     }
 
@@ -115,5 +150,30 @@ mainApp.controller("main_controller", function($scope) {
         localStorage.clear();
         location.reload();
     }
+    
+    $(window).on('hashchange', function() {
+        read_hash();
+        request_page();
+    });
+    
+    $scope.previous_button_visible = function() {
+        return $scope.page > 0;
+    };
+    
+    $scope.next_button_visible = function() {
+        return $scope.page < $scope.total_pages - 1;
+    };
+    
+    $scope.previous_page = function() {
+        $scope.page -= 1;
+        location.hash = '#' + $scope.page;
+        window.scrollTo(0, 0);
+    };
+    
+    $scope.next_page = function() {
+        $scope.page += 1;
+        location.hash = '#' + $scope.page;
+        window.scrollTo(0, 0);
+    };
 
 });

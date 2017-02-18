@@ -6,28 +6,25 @@ mainApp.controller("main_controller", function($scope) {
     var activation_string = null;
     var activation_email = null;
     var activation_token = null;
-    if (window.location.hash) {
-        activation_string = window.location.hash.substring(1);
-        var activation_string_split = activation_string.split(';');
-        activation_email = null;
-        activation_token = null;
-        if (activation_string_split.length == 2) {
-            activation_email = activation_string_split[0];
-            activation_token = activation_string_split[1];
+    
+    var read_hash = function() {
+        if (window.location.hash) {
+            activation_string = window.location.hash.substring(1);
+            var activation_string_split = activation_string.split(';');
+            activation_email = null;
+            activation_token = null;
+            if (activation_string_split.length == 2) {
+                activation_email = activation_string_split[0];
+                activation_token = activation_string_split[1];
+            }
+        } else {
+            $scope.invalid_link = true;
         }
-    } else {
-        $scope.invalid_link = true;
-    }
-
-
-    $scope.college = 'Imperial College London';
-
-    $scope.wsonopen = function(ws) {
-        var msgobj = {};
-        msgobj.type = 'validatetoken';
-        msgobj.user_token = localStorage.token;
-        ws_send(JSON.stringify(msgobj));
-
+    };
+    
+    read_hash();
+    
+    var do_activation = function() {
         if (activation_email && activation_token) {
             msgobj = {};
             msgobj.type = 'activationcode';
@@ -39,6 +36,18 @@ mainApp.controller("main_controller", function($scope) {
 
             $scope.$apply();
         }
+    };
+
+
+    $scope.college = 'Imperial College London';
+
+    $scope.wsonopen = function(ws) {
+        var msgobj = {};
+        msgobj.type = 'validatetoken';
+        msgobj.user_token = localStorage.token;
+        ws_send(JSON.stringify(msgobj));
+
+        do_activation();
     }
 
     $scope.wsmessage = function(ws, data) {
@@ -74,5 +83,10 @@ mainApp.controller("main_controller", function($scope) {
         localStorage.clear();
         location.reload();
     }
+    
+    $(window).on('hashchange', function() {
+        read_hash();
+        do_activation();
+    });
 
 });
