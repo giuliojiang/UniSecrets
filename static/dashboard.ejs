@@ -72,8 +72,23 @@
         </div>
 
       </div>
+      
+      <br />
+      
+      <div class="row" ng-show="total_pages">
+        <div class="col s4">
+            <button class="btn" ng-click="previous_page()">Previous</button>
+        </div>
+        <div class="col s4">
+            <p>Page {{page+1}} of {{total_pages}}</p>
+        </div>
+        <div class="col s4">
+            <button class="btn" ng-click="next_page()">Next</button>
+        </div>
+      </div>
 
     </div>
+
 
   </body>
 </html>

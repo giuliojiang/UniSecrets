@@ -148,6 +148,13 @@ var send_list = function(email, page, conn) {
                 }
                 
                 var total_pages = Math.ceil(results[0].thecount / PAGE_MAX_POSTS);
+                
+                // Send update about total pages
+                var msgobj = {};
+                msgobj.type = 'total_pages';
+                msgobj.maxp = total_pages;
+                conn.send(JSON.stringify(msgobj));
+                
                 if (page >= total_pages) {
                     var msgobj = {};
                     msgobj.type = 'page_not_found';
@@ -163,7 +170,10 @@ var send_list = function(email, page, conn) {
         },
         function(college, state, callback) {
             
-            db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     `likes`.`postid` = `post`.`postid` ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) AS counter FROM   dislikes WHERE   `dislikes`.`postid` = `post`.`postid` ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   (`post`.`college` = ? OR `public` = 1) AND `post`.`approved` = 1 ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [college], function(error, results, fields) {
+            var pagelimit = PAGE_MAX_POSTS;
+            var pageoffset = page * PAGE_MAX_POSTS;
+            
+            db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     `likes`.`postid` = `post`.`postid` ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) AS counter FROM   dislikes WHERE   `dislikes`.`postid` = `post`.`postid` ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   (`post`.`college` = ? OR `public` = 1) AND `post`.`approved` = 1 ORDER BY  `post`.`timestamp` DESC,   `post`.`postid` DESC,   `comment`.commentid ASC limit ? offset ?', [college, pagelimit, pageoffset], function(error, results, fields) {
                 if (error) {
                     callback(error);
                     return;

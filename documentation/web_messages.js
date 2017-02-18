@@ -122,11 +122,18 @@ SERVER TO CLIENT
     List of unapproved posts
     in: admin
     
-    // TODO SERVER
     {
         type: page_not_found
     }
     Notifies that requests page doesn't exist
+    in: dashboard
+    
+    // TODO CLIENT
+    {
+        type: total_pages,
+        maxp: 2
+    }
+    Notifies that there are 2 pages available (0 and 1)
     in: dashboard
 
 

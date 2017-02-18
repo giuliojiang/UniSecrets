@@ -103,6 +103,9 @@ mainApp.controller("main_controller", function($scope) {
         } else if (type == 'page_not_found') {
             $scope.page_not_found = true;
             $scope.$apply();
+        } else if (type == 'total_pages') {
+            $scope.total_pages = raw_data.maxp;
+            $scope.$apply();
         }
     }
 
