@@ -148,10 +148,11 @@ CLIENT TO SERVER
     }
     New post msg
     
+    // TODO CLIENT SERVER
     {
         type: requestposts,
         user_token: dfh2UMV0fmfimSVju9rwm,
-        more: 1 // TODO CLIENT SERVER
+        page: 0
     }
     Request updated post list
     
