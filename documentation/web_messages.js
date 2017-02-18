@@ -148,7 +148,7 @@ CLIENT TO SERVER
     }
     New post msg
     
-    // TODO CLIENT SERVER
+    // TODO SERVER
     {
         type: requestposts,
         user_token: dfh2UMV0fmfimSVju9rwm,

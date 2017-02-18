@@ -30,7 +30,6 @@ mainApp.controller("main_controller", function($scope) {
             msgobj.type = 'activationcode';
             msgobj.email = activation_email;
             msgobj.code = activation_token;
-            console.log('sending ' + JSON.stringify(msgobj));
             ws_send(JSON.stringify(msgobj));
         } else {
             $scope.invalid_link = true;

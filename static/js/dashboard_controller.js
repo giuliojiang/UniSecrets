@@ -3,6 +3,36 @@ var mainApp = angular.module("mainApp", ['ngSanitize']);
 mainApp.controller("main_controller", function($scope) {
 
     $scope.page = 0;
+    
+    // Read the window location hash
+    var read_hash = function() {
+        if (window.location.hash) {
+            page_number_str = window.location.hash.substring(1);
+            $scope.page = parseInt(page_number_str);
+            if (isNaN($scope.page)) {
+                $scope.page = 0;
+            }
+        }
+    };
+    
+    read_hash();
+    
+    var request_page = function() {
+        console.log('Requesting page ' + $scope.page);
+        
+        $scope.postlist = null;
+        
+        // send first request for posts
+        var msgobj = {};
+        msgobj.type = 'requestposts';
+        msgobj.user_token = localStorage.token;
+        msgobj.page = $scope.page;
+        ws_send(JSON.stringify(msgobj));
+        
+        $scope.$apply();
+    }
+    
+
 
     $scope.set_show_comments_to_false = function() {
         angular.forEach($scope.postlist.posts, function(post) {
@@ -63,11 +93,7 @@ mainApp.controller("main_controller", function($scope) {
                 window.location = 'post#' + localStorage.postid;
             } else {
                 // send first request for posts
-                var msgobj = {};
-                msgobj.type = 'requestposts';
-                msgobj.user_token = localStorage.token;
-                msgobj.page = $scope.page;
-                ws_send(JSON.stringify(msgobj));
+                request_page();
             }
         } else if (type == 'alert') {
             alert(raw_data.msg);
@@ -115,5 +141,10 @@ mainApp.controller("main_controller", function($scope) {
         localStorage.clear();
         location.reload();
     }
+    
+    $(window).on('hashchange', function() {
+        read_hash();
+        request_page();
+    });
 
 });
