@@ -60,6 +60,7 @@ mainApp.controller("main_controller", function($scope) {
         var raw_data = JSON.parse(data);
         var type = raw_data.type;
         if (type == 'postlist') {
+            $scope.page_not_found = false;
             $scope.postlist = raw_data;
             $scope.set_show_comments_to_false();
             $scope.$apply();
@@ -97,6 +98,9 @@ mainApp.controller("main_controller", function($scope) {
             }
         } else if (type == 'alert') {
             alert(raw_data.msg);
+        } else if (type == 'page_not_found') {
+            $scope.page_not_found = true;
+            $scope.$apply();
         }
     }
 

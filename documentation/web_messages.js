@@ -121,6 +121,13 @@ SERVER TO CLIENT
     }
     List of unapproved posts
     in: admin
+    
+    // TODO SERVER
+    {
+        type: page_not_found
+    }
+    Notifies that requests page doesn't exist
+    in: dashboard
 
 
 CLIENT TO SERVER

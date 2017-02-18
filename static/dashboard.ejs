@@ -13,8 +13,12 @@
   <body ng-app="mainApp" ng-controller="main_controller">
 
     <% include partials/nav %>
+    
+    <div class="container" ng-show="page_not_found">
+        <h3>Page not found</h3>
+    </div>
 
-    <div class="container">
+    <div class="container" ng-hide="page_not_found">
       <a class="btn-large waves-effect waves-light red right z-depth-3" href="new_post">Got something you wanna tell us?</a>
 
       <h3>Here's the freshest secrets on campus:</h3>
