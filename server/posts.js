@@ -117,6 +117,7 @@ var send_list = function(email, page, conn) {
     }
     
     async.waterfall([
+
         function(callback) {
             
             db.connection.query('SELECT `college` FROM `user` WHERE `email` = ?', [email], function(error, results, fields) {
@@ -135,6 +136,28 @@ var send_list = function(email, page, conn) {
                 
                 callback(null, college, state);
                 return;
+            });
+            
+        },
+        function(college, state, callback) {
+            
+            db.connection.query('SELECT count(*) as thecount FROM   `post` WHERE   (`post`.`college` = ? OR `public` = 1) AND `post`.`approved` = 1;', [college], function(error, results, fields) {
+                if (error) {
+                    callback(error);
+                    return;
+                }
+                
+                var total_pages = Math.ceil(results[0].thecount / PAGE_MAX_POSTS);
+                if (page >= total_pages) {
+                    var msgobj = {};
+                    msgobj.type = 'page_not_found';
+                    conn.send(JSON.stringify(msgobj));
+                    callback("requested too high page number");
+                    return;
+                } else {
+                    callback(null, college, state);
+                }
+                
             });
             
         },

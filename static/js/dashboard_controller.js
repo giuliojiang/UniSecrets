@@ -64,6 +64,8 @@ mainApp.controller("main_controller", function($scope) {
             $scope.postlist = raw_data;
             $scope.set_show_comments_to_false();
             $scope.$apply();
+            
+            console.log('count is ' + $scope.postlist.posts.length);
         } else if (type == 'loginfirst') {
             window.location = 'login';
         } else if (type == 'updatepost') {
