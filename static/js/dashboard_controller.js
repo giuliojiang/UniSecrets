@@ -155,5 +155,25 @@ mainApp.controller("main_controller", function($scope) {
         read_hash();
         request_page();
     });
+    
+    $scope.previous_button_visible = function() {
+        return $scope.page > 0;
+    };
+    
+    $scope.next_button_visible = function() {
+        return $scope.page < $scope.total_pages - 1;
+    };
+    
+    $scope.previous_page = function() {
+        $scope.page -= 1;
+        location.hash = '#' + $scope.page;
+        window.scrollTo(0, 0);
+    };
+    
+    $scope.next_page = function() {
+        $scope.page += 1;
+        location.hash = '#' + $scope.page;
+        window.scrollTo(0, 0);
+    };
 
 });

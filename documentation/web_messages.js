@@ -128,7 +128,6 @@ SERVER TO CLIENT
     Notifies that requests page doesn't exist
     in: dashboard
     
-    // TODO CLIENT
     {
         type: total_pages,
         maxp: 2
@@ -162,7 +161,6 @@ CLIENT TO SERVER
     }
     New post msg
     
-    // TODO SERVER
     {
         type: requestposts,
         user_token: dfh2UMV0fmfimSVju9rwm,
