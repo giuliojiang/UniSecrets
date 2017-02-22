@@ -350,22 +350,28 @@ var add_college = function(email, college, conn) {
 
 };
 
-var is_user_admin = function(email, callback) { /*
-    db.connection.query('SELECT * FROM `moderator` WHERE `email` = ?', [email], function(error, results, fields) {
-        if (error) {
-            console.log(error);
-            callback(undefined, false);
-            return;
+var is_user_admin = function(email, callback) { 
+    
+    db.users.find({
+        email: email,
+        moderator: true
+    }, function(err, docs) {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, docs.length == 1);
         }
-        
-        callback(undefined, results.length == 1);
-    }); */
+    });
+
 };
 
-var send_pending_colleges = function(conn) { /*
-    db.connection.query('SELECT * FROM `pendingcollege`', [], function(error, results, fields) {
-        if (error) {
-            console.log(error);
+var send_pending_colleges = function(conn) { 
+    
+    db.colleges.find({
+        active: false
+    }, function(err, docs) {
+        if (err) {
+            console.log(err);
             send_alert('Could not retrieve pending colleges', conn);
             return;
         }
@@ -373,47 +379,56 @@ var send_pending_colleges = function(conn) { /*
         var msgobj = {};
         msgobj.type = 'pendingcollegelist';
         msgobj.colleges = [];
-        for (var i = 0; i < results.length; i++) {
+        for (var i = 0; i < docs.length; i++) {
             var collegeobj = {};
-            collegeobj.college = results[i].college;
-            collegeobj.domain = results[i].domain;
+            collegeobj.college = docs[i].college;
+            collegeobj.domain = docs[i].domain;
             msgobj.colleges.push(collegeobj);
         }
         conn.send(JSON.stringify(msgobj));
-    }); */
+    });
 
 };
 
-var college_action = function(accept, college, domain, conn) { /*
+var college_action = function(accept, college, domain, conn) { 
+    
     if (accept == 1) {
-        db.connection.query('INSERT INTO `college`(`college`, `domain`) VALUES (?,?)', [college, domain], function(error, results, fields) {
-            if (error) {
-                console.log(error);
-                send_alert('An error occurred', conn);
+        // update the college/domain to have active=true
+        db.colleges.update({
+            college: college,
+            domain: domain
+        }, {
+            $set: {
+                active: true
+            }
+        },
+        {},
+        function(err, num) {
+            if (err) {
+                console.log(err);
                 return;
             }
             
-            db.connection.query('DELETE FROM `pendingcollege` WHERE `college` = ? AND `domain` = ?', [college, domain], function(error, results, fields) {
-                if (error) {
-                    console.log(error);
-                    send_alert('An error occurred', conn);
-                    return;
-                }
-                
-                send_pending_colleges(conn);
-            });
-        });
-    } else {
-        db.connection.query('DELETE FROM `pendingcollege` WHERE `college` = ? AND `domain` = ?', [college, domain], function(error, results, fields) {
-            if (error) {
-                console.log(error);
-                send_alert('An error occurred', conn);
-                return;
-            }
-            
+            console.log('Updated ' + num + ' rows');
             send_pending_colleges(conn);
         });
-    } */
+    } else {
+        db.colleges.remove({
+            college: college,
+            domain: domain
+        },
+        {},
+        function(err, num) {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            
+            console.log('Removed ' + num + ' rows');
+            send_pending_colleges(conn);
+        });
+    }
+    
 };
 
 var make_user_admin = function(email, conn) {
