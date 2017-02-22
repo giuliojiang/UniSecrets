@@ -67,7 +67,10 @@ var add_user = function(email, nickname, password, conn, callback) {
     async.waterfall([
         // Check if college domain is valid
         function(callback) {
-            db.colleges.find({domain: email_domain}, function(err, docs) {
+            db.colleges.find({
+                domain: email_domain,
+                active: true
+            }, function(err, docs) {
                 if (err) {
                     callback(err);
                     return;
@@ -270,7 +273,8 @@ var activate_account = function(email, code, conn, callback) { /*
     
 };
 
-var add_college = function(email, college, conn) { /*
+var add_college = function(email, college, conn) { 
+    
     // email checks
     
     // check that it's a valid email
@@ -281,44 +285,57 @@ var add_college = function(email, college, conn) { /*
     }
     var email_domain = email_split[1];
     
-    // Check that email is .ac.uk
-    if (!email_domain.endsWith('.ac.uk')) {
-        send_alert('Your email address must end with .ac.uk', conn);
-        return;
-    }
+    async.waterfall([
     
-    // Check that the database doesn't already contain this
-    db.connection.query('SELECT `college`, `domain` FROM `college` WHERE `domain` = ?', [email_domain], function(error, results, fields) {
-        if (error) {
-            console.log(error);
-            send_alert('Could not process your request', conn);
-            return;
-        }
+        // check if domain is already in database
+        function(callback) {
+            db.colleges.find({
+                domain: email_domain
+            }, function(err, docs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                
+                if (docs.length == 0) {
+                    // College isn't in db yet
+                    callback(null);
+                } else {
+                    send_alert('Your college was already in the database.', conn);
+                    callback('College already present');
+                    return;
+                }
+            });
+        },
         
-        if (results.length == 1) {
-            send_alert('Your college is already recognized by the system. Please register or log in', conn);
-            return;
-        }
-        
-        if (results.length > 1) {
-            console.log('Error. Unexpected result length of ' + results.length);
-            send_alert('Could not process your request', conn);
-            return;
-        }
-        
-        // Insert in the database
-        db.connection.query('INSERT INTO `pendingcollege`(`college`, `domain`) VALUES (?,?)', [college, email_domain], function(error, results, fields) {
-            if (error) {
-                console.log(error);
-                send_alert('A request for your college was already sent', conn);
-                return;
+        // insert in database
+        function(callback) {
+            var doc = {
+                college: college,
+                domain: email_domain,
+                active: false
             }
             
-            console.log('Added college request for ' + email_domain);
-            send_alert('Thank you for your request', conn);
-            return;
-        });
-    }); */
+            db.colleges.insert(doc, function(err, newDoc) {
+                if (err) {
+                    callback(err);
+                    return;
+                } else {
+                    console.log('Successfully inserted doc in colleges: ' + JSON.stringify(newDoc));
+                    send_alert('Thank you for your request', conn);
+                    callback(null);
+                    return;
+                }
+            });
+        }
+    
+    
+    ], function(err, result) {
+        if (err) {
+            console.log(err);
+        }
+    });
+
 };
 
 var is_user_admin = function(email, callback) { /*
