@@ -4,6 +4,7 @@ var randomstring = require("randomstring");
 var mail = require( __dirname + '/mail.js');
 var fs = require('fs');
 var config = require(__dirname + '/config.js');
+var async = require('async');
 
 var generate_web_address = function() {
     var protocol_stem = config.use_ssl ? 'https' : 'http';
@@ -63,55 +64,98 @@ var add_user = function(email, nickname, password, conn, callback) {
         return;
     }
     
-    db.connection.query('SELECT `college` FROM `college` WHERE `domain` = ?', [email_domain], function(error, results, fields) {
-        if (error) {
-            console.log(error);
-            send_alert('Registration failed (1)', conn);
-            callback('Registration failed (1)');
-            return;
-        }
+    async.waterfall([
+        // Check if college domain is valid
+        function(callback) {
+            db.colleges.find({domain: email_domain}, function(err, docs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                
+                if (docs.length == 1) {
+                    var the_doc = docs[0];
+                    var college_name = the_doc.college;
+                    callback(null, college_name);
+                    return;
+                } else {
+                    console.log('No college found for email ' + email);
+                    var msgobj = {};
+                    msgobj.type = 'collegenotfound';
+                    conn.send(JSON.stringify(msgobj));
+                    callback("College not found");
+                    return;
+                }
+            });
+        },
         
-        if (results.length == 0) {
-            console.log('No college found for email ' + email);
-            var msgobj = {};
-            msgobj.type = 'collegenotfound';
-            conn.send(JSON.stringify(msgobj));
-            callback('Registration failed');
-            return;
-        }
+        // Check if email or nickname have already been used
+        function(college_name, callback) {
+            db.users.find({
+                $or: [
+                    {
+                        email: email
+                    },
+                    {
+                        nickname: nickname
+                    }
+                ]
+            }, function(err, docs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                
+                if (docs.length == 0) {
+                    console.log('No duplicate users found. Proceeding with registration');
+                    callback(null, college_name);
+                    return;
+                } else {
+                    send_alert('Registration failed (3). Was your email already used?', conn);
+                    callback('Found '+ docs.length +' users with existing emails or nickanmes');
+                    return;
+                }
+            });
+        },
         
-        if (results.length != 1) {
-            console.log('Unexpected results length ' + results.length);
-            send_alert('Registration failed (2)', conn);
-            callback('Registration failed (2)');
-            return;
-        }
-    
-        var college = results[0].college;
-
-        // Add user to user table
-        db.connection.query('INSERT INTO `user`(`email`, `nickname`, `college`, `hash`, `activation`) VALUES (?,?,?,?,?)', [email, nickname, college, hashed_password, activation_code], function (error, results, fields) {
-            if (error) {
-                console.log(error);
-                send_alert('Registration failed (3). Was your email already used?', conn);
-                callback('Registration failed');
-                return;
-            }
-            console.log('Successfully added account ' + email + ' to database');
-
-            // Send email to user
-            var mailContent = '<p>Please activate your account at UniSecrets</p>\n';
-            mailContent += generate_link_to(generate_web_address() + '/activation'+ generate_activation_hash(email, activation_code));
-            mail.sendEmail(email, mailContent);
+        // Insert into database the new user
+        function(college_name, callback) {
+            var doc = {};
+            doc.email = email;
+            doc.nickname = nickname;
+            doc.college = college;
+            doc.hash = hashed_password;
+            doc.activation = activation_code;
+            doc.moderator = false;
             
-            // Redirect user to the activation page
-            var msgobj = {};
-            msgobj.type = 'toactivation';
-            conn.send(JSON.stringify(msgobj));
-
-        });
-        
+            db.users.insert(doc, function(err, newDoc) {
+                if (err) {
+                    callback(err);
+                    return;
+                } else {
+                    console.log('New document inserted: ' + JSON.stringify(newDoc));
+                    
+                    // Send email to user
+                    var mailContent = '<p>Please activate your account at UniSecrets</p>\n';
+                    mailContent += generate_link_to(generate_web_address() + '/activation'+ generate_activation_hash(email, activation_code));
+                    mail.sendEmail(email, mailContent);
+                    
+                    // Redirect user to the activation page
+                    var msgobj = {};
+                    msgobj.type = 'toactivation';
+                    conn.send(JSON.stringify(msgobj));
+                    
+                    callback(null);
+                    return;
+                }
+            });
+        }
+    ], function(err, result) {
+        if (err) {
+            callback(err); // Limiter's callback
+        }
     });
+
 };
 
 var login_failed = function(email, conn) {
@@ -138,7 +182,7 @@ var login_success = function(email, is_admin, conn) {
 
 var authenticate = function(email, password, conn, callback) {
     // passwordHash.verify('Password0', hashedPassword)
-    
+    /*
     // Get the hashed password from database
     db.connection.query('SELECT `hash` FROM `user` WHERE `email` = ? AND `activation` IS NULL', [email], function(error, results, fields) {
         if (error) {
@@ -185,10 +229,10 @@ var authenticate = function(email, password, conn, callback) {
             callback("login failed");
             return;
         }
-    });
+    }); */
 };
 
-var activate_account = function(email, code, conn, callback) {
+var activate_account = function(email, code, conn, callback) { /*
     // first check if the email with that code exist
     db.connection.query('SELECT * FROM `user` WHERE `email` = ? AND `activation` = ?', [email, code], function(error, results, fields) {
         if (error) {
@@ -222,11 +266,11 @@ var activate_account = function(email, code, conn, callback) {
             
             callback(null);
         });
-    });
+    }); */
     
 };
 
-var add_college = function(email, college, conn) {
+var add_college = function(email, college, conn) { /*
     // email checks
     
     // check that it's a valid email
@@ -274,10 +318,10 @@ var add_college = function(email, college, conn) {
             send_alert('Thank you for your request', conn);
             return;
         });
-    });
+    }); */
 };
 
-var is_user_admin = function(email, callback) {
+var is_user_admin = function(email, callback) { /*
     db.connection.query('SELECT * FROM `moderator` WHERE `email` = ?', [email], function(error, results, fields) {
         if (error) {
             console.log(error);
@@ -286,10 +330,10 @@ var is_user_admin = function(email, callback) {
         }
         
         callback(undefined, results.length == 1);
-    });
+    }); */
 };
 
-var send_pending_colleges = function(conn) {
+var send_pending_colleges = function(conn) { /*
     db.connection.query('SELECT * FROM `pendingcollege`', [], function(error, results, fields) {
         if (error) {
             console.log(error);
@@ -307,11 +351,11 @@ var send_pending_colleges = function(conn) {
             msgobj.colleges.push(collegeobj);
         }
         conn.send(JSON.stringify(msgobj));
-    });
+    }); */
 
 };
 
-var college_action = function(accept, college, domain, conn) {
+var college_action = function(accept, college, domain, conn) { /*
     if (accept == 1) {
         db.connection.query('INSERT INTO `college`(`college`, `domain`) VALUES (?,?)', [college, domain], function(error, results, fields) {
             if (error) {
@@ -340,7 +384,7 @@ var college_action = function(accept, college, domain, conn) {
             
             send_pending_colleges(conn);
         });
-    }
+    } */
 };
 
 module.exports = {
