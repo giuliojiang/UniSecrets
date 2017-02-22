@@ -38,7 +38,6 @@ db.colleges.persistence.setAutocompactionInterval(3600 * 1000);
 /*
 POSTS
 {
-    postid
     college
     public
     text

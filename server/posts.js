@@ -8,29 +8,55 @@ var async = require('async');
 var PAGE_MAX_POSTS = 20;
 
 var new_post = function(email, is_public, text, conn) {
-
-    // find the college
-    db.connection.query('SELECT `college` FROM `user` WHERE `email` = ?', [email], function(error, results, fields) {
-        if (error) {
-            console.log(error);
-            return;
-        }
+    
+    async.waterfall([
         
-        if (results.length != 1) {
-            console.log("I was expecting 1 row");
-            return;
-        }
+        // Get college
+        function(callback) {
+            db.users.find({
+                email: email
+            }, function(err, docs) {
+                if (err) {
+                    console.log(error);
+                    return;
+                }
+                
+                if (docs.length == 1) {
+                    var college = docs[0].college;
+                    callback(null, college);
+                    return;
+                } else {
+                    callback('I was expecting 1 row');
+                    return;
+                }
+            });
+        },
         
-        var college = results[0].college;
-        
-        var is_public_int = is_public ? 1 : 0;
-        
-        db.connection.query('INSERT INTO `post`(`college`, `public`, `text`, `approved`) VALUES (?,?,?,?)', [college, is_public_int, text, 0], function(error, results, fields) {
-            if (error) {
-                console.log(error);
-                return;
-            }
+        // insert
+        function(college, callback) {
+            var doc = {};
+            doc.college = college;
+            doc.public = is_public;
+            doc.text = text;
+            doc.comments = [];
+            doc.likes = [];
+            doc.dislikes = [];
+            doc.time = new Date();
             
+            db.posts.insert(doc, function(err, new_doc) {
+                if (err) {
+                    callback(err);
+                } else {
+                    console.log('Inserted: ' + JSON.stringify(new_doc));
+                    callback(null);
+                }
+            });
+        }
+
+    ], function(err, result) {
+        if (err) {
+            console.log(err);
+        } else {
             // Send confirmation
             var msgobj = {};
             msgobj.type = 'postsuccess';
@@ -41,7 +67,7 @@ var new_post = function(email, is_public, text, conn) {
                 var a_email = config.admin_emails[i];
                 mail.sendEmail(a_email, "New post needs approval:\n" + text);
             }
-        });
+        }
     });
     
 };
