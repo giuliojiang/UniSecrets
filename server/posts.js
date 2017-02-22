@@ -42,6 +42,7 @@ var new_post = function(email, is_public, text, conn) {
             doc.likes = [];
             doc.dislikes = [];
             doc.time = new Date();
+            doc.approved = false;
             
             db.posts.insert(doc, function(err, new_doc) {
                 if (err) {
@@ -74,27 +75,44 @@ var new_post = function(email, is_public, text, conn) {
 
 var approve_post = function(accept, postid, conn) {
     if (accept == 1) {
-        db.connection.query('UPDATE `post` SET `approved`= 1 WHERE `postid` = ?', [postid], function(error, results, fields) {
-            if (error) {
-                console.log(error);
-                send_alert('Error', conn);
-                return;
+        // update document
+        db.posts.update({
+            _id: postid
+        },
+        {
+            $set: {
+                approved: true
             }
-            
-            // send list of unapproved posts
-            send_unapproved_posts(conn);
+        },
+        {},
+        function(err, num) {
+            if (err) {
+                console.log(err);
+                send_alert('error', conn);
+                return;
+            } else {
+                console.log('Updated ' + num + ' rows');
+                send_unapproved_posts(conn);
+            }
         });
+
     } else {
-        db.connection.query('DELETE FROM `post` WHERE `postid` = ? AND `approved` = 0', [postid], function(error, results, fields) {
-            if (error) {
-                console.log(error);
-                send_alert('Error', conn);
+        // delete document
+        db.remove({
+            _id: postid
+        },
+        {},
+        function(err, num) {
+            if (err) {
+                console.log(err);
+                send_alert('error', conn);
                 return;
+            } else {
+                console.log('Removed ' + num + ' rows');
+                send_unapproved_posts(conn);
             }
-            
-            // Send list of unapproved posts
-            send_unapproved_posts(conn);
         });
+
     }
 };
 

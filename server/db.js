@@ -51,6 +51,7 @@ POSTS
         {email}
     ]
     time
+    approved
 }
 */
 db.posts = new Datastore({
