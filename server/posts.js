@@ -117,26 +117,31 @@ var approve_post = function(accept, postid, conn) {
 };
 
 var send_unapproved_posts = function(conn) {
-    db.connection.query('SELECT `postid`, `college`, `text` FROM `post` WHERE `approved` = 0 LIMIT 20', [], function(error, results, fields) {
-        if (error) {
-            console.log(error);
-            send_alert('Error', conn);
+    db.posts.find({
+        approved: false
+    })
+    .limit(20)
+    .exec(function(err, docs) {
+        if (err) {
+            console.log(err);
+            send_alert('get unapproved posts error', conn);
             return;
         }
         
         var msgobj = {};
         msgobj.type = 'unapproved_posts';
         msgobj.posts = [];
-        for (var i = 0; i < results.length; i++) {
-            var r = results[i];
+        for (var i = 0; i < docs.length; i++) {
+            var r = docs[i];
             var p = {};
-            p.postid = r.postid;
+            p.postid = r._id;
             p.college = r.college;
             p.text = marked(r.text);
             msgobj.posts.push(p);
         }
         conn.send(JSON.stringify(msgobj));
     });
+    
 };
 
 var list_contains_postid = function(thelist, postid) {
