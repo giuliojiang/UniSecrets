@@ -184,55 +184,35 @@ var login_success = function(email, is_admin, conn) {
 };
 
 var authenticate = function(email, password, conn, callback) {
-    // passwordHash.verify('Password0', hashedPassword)
-    /*
-    // Get the hashed password from database
-    db.connection.query('SELECT `hash` FROM `user` WHERE `email` = ? AND `activation` IS NULL', [email], function(error, results, fields) {
-        if (error) {
+    
+    // Get user document
+    db.users.find({
+        email: email,
+        activation: null
+    }, function(err, docs) {
+        if (err) {
             login_failed(email, conn);
             callback(error);
             return;
         }
-        if (results.length == 1) {
-            var hashed_password = results[0]['hash'];
+        
+        if (docs.length == 1) {
+            var hashed_password = docs[0]['hash'];
             if (passwordHash.verify(password, hashed_password)) {
-                
-                // Check if user is admin or not
-                db.connection.query('SELECT `email` FROM `moderator` WHERE `email` = ?', [email], function(error, results, fields) {
-                    if (error) {
-                        login_failed(email, conn);
-                        callback(error);
-                        return;
-                    }
-                    if (results.length == 0) {
-                        // not an admin
-                        login_success(email, false, conn);
-                        callback(undefined);
-                        return;
-                    } else if (results.length == 1) {
-                        // is an admin
-                        login_success(email, true, conn);
-                        callback(undefined);
-                        return;
-                    } else {
-                        // impossible!
-                        console.log('Unexpected result length of ' + results.length);
-                        login_failed(email, conn);
-                        callback("login error");
-                        return;
-                    }
-                });
+                login_success(email, docs[0]['moderator'], conn);
+                callback(null);
+                return;
             } else {
                 login_failed(email, conn);
-                callback("login failed");
+                callback('Login failed');
+                return;
             }
-            return;
         } else {
             login_failed(email, conn);
-            callback("login failed");
-            return;
+            callback('Login failed');
         }
-    }); */
+    });
+    
 };
 
 var activate_account = function(email, code, conn, callback) { /*
@@ -313,7 +293,7 @@ var add_college = function(email, college, conn) {
             var doc = {
                 college: college,
                 domain: email_domain,
-                active: false
+                active: config.auto_enable_emails
             }
             
             db.colleges.insert(doc, function(err, newDoc) {
