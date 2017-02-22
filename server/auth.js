@@ -215,41 +215,72 @@ var authenticate = function(email, password, conn, callback) {
     
 };
 
-var activate_account = function(email, code, conn, callback) { /*
-    // first check if the email with that code exist
-    db.connection.query('SELECT * FROM `user` WHERE `email` = ? AND `activation` = ?', [email, code], function(error, results, fields) {
-        if (error) {
-            send_alert('Activation failed', conn);
-            callback('Activation failed');
-            return;
+var activate_account = function(email, code, conn, callback) { 
+    
+    async.waterfall([
+        
+        // get user document
+        function(callback) {
+            db.users.find({
+                email: email,
+                activation: code
+            }, function(err, docs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                
+                if (docs.length == 1) {
+                    var docid = docs._id;
+                    callback(null, docid);
+                    return;
+                } else {
+                    send_alert('Activation failed', conn);
+                    callback('Activation failed');
+                    return;
+                }
+            });
+        },
+        
+        // activate the user (update)
+        function(docid, callback) {
+            db.users.update({
+                _id: docid
+            },
+            {
+                $set: {
+                    activation: null
+                }
+            },
+            {},
+            function(err, num) {
+                if (err) {
+                    send_alert('Activation failed', conn);
+                    callback(err);
+                    return;
+                } else {
+                    console.log('Replaced ' + num + ' entries');
+                    
+                    var msgobj = {};
+                    msgobj.type = 'activationsuccess';
+                    conn.send(JSON.stringify(msgobj));
+                    
+                    // Automatically log in the user
+                    login_success(email, false, conn); // new users cannot be admins!
+                    
+                    callback(null);
+                    return;
+                }
+            });
         }
         
-        if (results.length != 1) {
-            send_alert('Activation failed.', conn);
-            callback('Activation failed');
-            return;
-        }
-        
-        // now activate account on database
-        db.connection.query('UPDATE `user` SET `activation`= NULL WHERE `email` = ?', [email], function(error, results, fields) {
-            if (error) {
-                send_alert('Activation failed', conn);
-                callback('Activation failed');
-                return;
-            }
-            
-            console.log('Activated account ' + email);
-            
-            var msgobj = {};
-            msgobj.type = 'activationsuccess';
-            conn.send(JSON.stringify(msgobj));
-            
-            // Automatically log in the user
-            login_success(email, false, conn); // new users cannot be admins!
-            
+    ], function(err, result) {
+        if (err) {
+            callback(err);
+        } else {
             callback(null);
-        });
-    }); */
+        }
+    });
     
 };
 
