@@ -126,7 +126,7 @@ var add_user = function(email, nickname, password, conn, callback) {
             var doc = {};
             doc.email = email;
             doc.nickname = nickname;
-            doc.college = college;
+            doc.college = college_name;
             doc.hash = hashed_password;
             doc.activation = activation_code;
             doc.moderator = false;
@@ -204,12 +204,12 @@ var authenticate = function(email, password, conn, callback) {
                 return;
             } else {
                 login_failed(email, conn);
-                callback('Login failed');
+                callback('Login failed. Password not matching');
                 return;
             }
         } else {
             login_failed(email, conn);
-            callback('Login failed');
+            callback('Login failed. Found ' + docs.length + ' docs');
         }
     });
     
@@ -231,7 +231,7 @@ var activate_account = function(email, code, conn, callback) {
                 }
                 
                 if (docs.length == 1) {
-                    var docid = docs._id;
+                    var docid = docs[0]._id;
                     callback(null, docid);
                     return;
                 } else {
@@ -244,6 +244,7 @@ var activate_account = function(email, code, conn, callback) {
         
         // activate the user (update)
         function(docid, callback) {
+            console.log('Trying to update document: ' + docid);
             db.users.update({
                 _id: docid
             },
@@ -415,6 +416,28 @@ var college_action = function(accept, college, domain, conn) { /*
     } */
 };
 
+var make_user_admin = function(email, conn) {
+    db.users.update({
+        email: email
+    },
+    {
+        $set: {
+                moderator: true
+        }
+    },
+    {},
+    function(err, num) {
+        if (err) {
+            console.log(err);
+            send_alert("Could not set to admin", conn);
+            return;
+        } else {
+            console.log('Updated ' + num + ' rows');
+            return;
+        }
+    });
+};
+
 module.exports = {
     authenticate: authenticate,
     add_user: add_user,
@@ -423,5 +446,6 @@ module.exports = {
     is_user_admin: is_user_admin,
     send_pending_colleges: send_pending_colleges,
     college_action: college_action,
-    send_alert: send_alert
+    send_alert: send_alert,
+    make_user_admin: make_user_admin
 };
