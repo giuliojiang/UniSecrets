@@ -158,6 +158,8 @@ var isNumber = function(x) {
 }
 
 var send_list = function(email, page, conn) {
+    
+
     if (!isNumber(page) || isNaN(page) || page < 0) {
         var msgobj = {};
         msgobj.type = 'page_not_found';
@@ -167,20 +169,23 @@ var send_list = function(email, page, conn) {
     
     async.waterfall([
 
+        // Get the user college and state
         function(callback) {
             
-            db.connection.query('SELECT `college` FROM `user` WHERE `email` = ?', [email], function(error, results, fields) {
-                if (error) {
-                    callback(error);
+            db.users.find({
+                email: email
+            }, function(err, docs) {
+                if (err) {
+                    callback(err);
                     return;
                 }
                 
-                if (results.length != 1) {
+                if (docs.length != 1) {
                     callback("I was expecting 1 row");
                     return;
                 }
                 
-                var college = results[0].college;
+                var college = docs[0].college;
                 var state = session.get_state(email);
                 
                 callback(null, college, state);
@@ -188,15 +193,34 @@ var send_list = function(email, page, conn) {
             });
             
         },
+        
+        // check if requested page number is within bounds
         function(college, state, callback) {
             
-            db.connection.query('SELECT count(*) as thecount FROM   `post` WHERE   (`post`.`college` = ? OR `public` = 1) AND `post`.`approved` = 1;', [college], function(error, results, fields) {
-                if (error) {
-                    callback(error);
+            db.posts.count({
+                $and: [
+                    {
+                        $or: [
+                            {
+                                college: college
+                            },
+                            {
+                                "public": true
+                            }
+                        ]
+                    },
+                    {
+                        approved: true
+                    }
+                ]
+
+            }, function(err, count) {
+                if (err) {
+                    callback(err);
                     return;
                 }
                 
-                var total_pages = Math.ceil(results[0].thecount / PAGE_MAX_POSTS);
+                var total_pages = Math.ceil(count / PAGE_MAX_POSTS);
                 
                 // Send update about total pages
                 var msgobj = {};
@@ -213,14 +237,67 @@ var send_list = function(email, page, conn) {
                 } else {
                     callback(null, college, state);
                 }
-                
-            });
-            
+            }
+
         },
+        
+        // get the relevant posts
         function(college, state, callback) {
             
             var pagelimit = PAGE_MAX_POSTS;
             var pageoffset = page * PAGE_MAX_POSTS;
+            
+            db.posts.find({
+                $and: [
+                    {
+                        $or: [
+                            {
+                                college: college
+                            },
+                            {
+                                "public": true
+                            }
+                        ]
+                    },
+                    {
+                        approved: true
+                    }
+                ]
+
+            }, function(err, docs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                
+                var msgobj = {};
+                
+                msgobj.type = 'postlist';
+                msgobj.posts = [];
+                
+                for (var i = 0; i < docs.length; i++) {
+                    var d = docs[i];
+                    var p = {};
+                    
+                    p.id = d._id;
+                    p.text = d.text;
+                    p.likes = d.likes.length;
+                    p.dislikes = d.dislikes.length;
+                    p.college = d.college;
+                    p.comments = [];
+                    
+                    for (var j = 0; j < d.comments.length; j++) {
+                        var com = d.comments[j];
+                        var pcom = {};
+                        // TODO
+                        
+                    }
+                }
+
+                conn.send(JSON.stringify(msgobj));
+                callback(null);
+                return;
+            }
             
             db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     `likes`.`postid` = `post`.`postid` ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) AS counter FROM   dislikes WHERE   `dislikes`.`postid` = `post`.`postid` ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   (`post`.`college` = ? OR `public` = 1) AND `post`.`approved` = 1 ORDER BY  `post`.`timestamp` DESC,   `post`.`postid` DESC,   `comment`.commentid ASC limit ? offset ?', [college, pagelimit, pageoffset], function(error, results, fields) {
                 if (error) {
