@@ -42,13 +42,13 @@ POSTS
     public
     text
     likes: {
-        email: true
+        nickname: true
     }
     dislikes: {
-        email: true
+        nickname: true
     }
     time
-    approved
+    approved?
 }
 */
 db.posts = new Datastore({

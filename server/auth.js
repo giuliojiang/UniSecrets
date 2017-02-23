@@ -66,6 +66,18 @@ var email_valid = function(email) {
     return re.test(email);
 }
 
+var college_valid = function(college) {
+    var whitelist = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 '";
+    for (var i = 0, len = college.length; i < len; i++) {
+        var a_char = college[i];
+        if (!(whitelist.indexOf(a_char) > -1)) {
+            // not contains
+            return false;
+        }
+    }
+    return true;
+}
+
 var add_user = function(email, nickname, password, conn, callback) {
     var hashed_password = passwordHash.generate(password);
     var activation_code = randomstring.generate(30);
@@ -320,11 +332,17 @@ var add_college = function(email, college, conn) {
     
     // check that it's a valid email
     var email_split = email.split('@');
-    if (email_split.length != 2) {
+    if (email_split.length != 2 || !email_valid(email)) {
         send_alert('Your email address is not valid', conn);
         return;
     }
     var email_domain = email_split[1];
+    
+    // Check college name
+    if (!college_valid(college)) {
+        send_alert('Only letters, numbers and single-quotes allowed in college name');
+        return;
+    }
     
     async.waterfall([
     

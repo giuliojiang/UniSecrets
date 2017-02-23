@@ -594,25 +594,60 @@ var like_unlike_post = function(email, postid, value, conn) {
 };
 
 var send_single_post = function(email, postid, conn) {
-    // Check that user has access to the post
-    db.connection.query('SELECT   * FROM   `post` WHERE   `approved` = 1 AND `postid` = ? AND(     `public` = 1 OR `college` =(     SELECT       `user`.`college`     FROM       `user`     WHERE       `user`.`email` = ?   )   )', [postid, email], function(error, results, fields) {
-        if (error) {
-            console.log(error);
-            var msgobj = {};
-            msgobj.type = 'postnotfound';
-            conn.send(JSON.stringify(msgobj));
-            return;
+    async.waterfall([
+        
+        // get user's college
+        function(callback) {
+            db.users.find({
+                email: email
+            }, function(err, docs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (docs.length == 1) {
+                    var doc = docs[0];
+                    var college = doc.college;
+                    callback(null, college);
+                    return;
+                } else {
+                    callback('unexpected number of results: ' + docs.length);
+                    return;
+                }
+            });
+        },
+        
+        // get the post
+        function(college, callback) {
+            db.posts.find({
+                college: college,
+                _id: postid,
+                approved: true
+            }, function(err, docs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (docs.length == 1) {
+                    send_single_post_update(email, postid, conn);
+                    callback(null);
+                    return;
+                } else {
+                    var msgobj = {};
+                    msgobj.type = 'postnotfound';
+                    conn.send(JSON.stringify(msgobj));
+                    callback('send_single_post: no post found');
+                    return;
+                }
+            });
         }
         
-        if (results.length == 1) {
-            send_single_post_update(email, postid, conn);
-        } else {
-            var msgobj = {};
-            msgobj.type = 'postnotfound';
-            conn.send(JSON.stringify(msgobj));
-            return;
+    ], function(err, res) {
+        if (err) {
+            console.log(err);
         }
     });
+
 };
 
 module.exports = {
