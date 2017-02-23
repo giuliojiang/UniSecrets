@@ -42,6 +42,13 @@ var generate_link_to = function(addr) {
 var passwordHash = require('password-hash');
 
 var send_alert = function(msg, conn) {
+    if (!conn) {
+        console.log('send_alert was called without conn!');
+        var err = new Error();
+        console.log(err.stack);
+        return;
+    }
+    
     var msgobj = {};
     msgobj.type = 'alert';
     msgobj.msg = msg;
@@ -49,7 +56,14 @@ var send_alert = function(msg, conn) {
     return;
 }
 
+var is_string = function(s) {
+    return typeof s === 'string' || s instanceof String;
+}
+
 var nickname_valid = function(nick) {
+    if (!is_string(nick)) {
+        return false;
+    }
     var whitelist = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     for (var i = 0, len = nick.length; i < len; i++) {
         var a_char = nick[i];
@@ -62,11 +76,17 @@ var nickname_valid = function(nick) {
 }
 
 var email_valid = function(email) {
+    if (!is_string(email)) {
+        return false;
+    }
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
 }
 
 var college_valid = function(college) {
+    if (!is_string(college)) {
+        return false;
+    }
     var whitelist = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 '";
     for (var i = 0, len = college.length; i < len; i++) {
         var a_char = college[i];
@@ -83,6 +103,11 @@ var add_user = function(email, nickname, password, conn, callback) {
     var activation_code = randomstring.generate(30);
     
     // Split the email's domain
+    if (!email_valid(email)) {
+        send_alert('Registration failed. Email invalid', conn);
+        callback('Registration failed. Email invalid');
+        return;
+    }
     var email_domain = undefined;
     var email_split = email.split('@');
     if (email_split.length == 2) {
@@ -124,13 +149,13 @@ var add_user = function(email, nickname, password, conn, callback) {
         // Check if email or nickname have already been used
         function(college_name, callback) {
             if (!nickname_valid(nickname)) {
-                send_alert('Nicknames can only contain letters and numbers');
+                send_alert('Nicknames can only contain letters and numbers', conn);
                 callback('Nicknames can only contain letters and numbers');
                 return;
             }
             
             if (!email_valid(email)) {
-                send_alert('Invalid email address');
+                send_alert('Invalid email address', conn);
                 callback('Invalid email address');
                 return;
             }
@@ -340,7 +365,7 @@ var add_college = function(email, college, conn) {
     
     // Check college name
     if (!college_valid(college)) {
-        send_alert('Only letters, numbers and single-quotes allowed in college name');
+        send_alert('Only letters, numbers and single-quotes allowed in college name', conn);
         return;
     }
     

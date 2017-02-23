@@ -247,8 +247,7 @@ var send_list = function(email, page, conn) {
             var pagelimit = PAGE_MAX_POSTS;
             var pageoffset = page * PAGE_MAX_POSTS;
             
-            // TODO sort the list
-            
+           
             db.posts.find({
                 $and: [
                     {
@@ -266,7 +265,13 @@ var send_list = function(email, page, conn) {
                     }
                 ]
 
-            }, function(err, docs) {
+            })
+            .sort({
+                time: -1
+            })
+            .skip(pageoffset)
+            .limit(pagelimit)
+            .exec(function(err, docs) {
                 if (err) {
                     callback(err);
                     return;
@@ -282,7 +287,7 @@ var send_list = function(email, page, conn) {
                     var p = {};
                     
                     p.id = d._id;
-                    p.text = d.text;
+                    p.text = marked(d.text);
                     p.likes = Object.keys(d.likes).length;
                     p.dislikes = Object.keys(d.dislikes).length;
                     p.college = d.college;
@@ -324,7 +329,11 @@ var populate_comment = function(p, callback) {
     
     db.comments.find({
         pid: p.id
-    }, function(err, docs) {
+    })
+    .sort({
+        time: 1
+    })
+    .exec(function(err, docs) {
         if (err) {
             callback(err);
             return;
@@ -366,8 +375,6 @@ var send_single_post_update = function(email, postid, conn) {
                     console.log(err);
                     return;
                 } else {
-                    var state = session.get_state(email);
-                    state.visible_posts[postid] = true;
                     conn.send(JSON.stringify(msgobj));
                     return;
                 }
@@ -381,15 +388,10 @@ var send_single_post_update = function(email, postid, conn) {
 };
 
 var add_comment = function(email, postid, text, conn) {
-    var state = session.get_state(email);
-    if (!state.visible_posts[postid]) {
-        console.log('User ' + email + ' has no access to post ' + postid);
-        return;
-    }
-    
+
     async.waterfall([
         
-        // get user's nickname
+        // get user's nickname and college
         function(callback) {
             db.users.find({
                 email: email
@@ -402,10 +404,41 @@ var add_comment = function(email, postid, text, conn) {
                 if (docs.length == 1) {
                     var doc = docs[0];
                     var nickname = doc.nickname;
-                    callback(null, nickname);
+                    var college = doc.college;
+                    callback(null, nickname, college);
                     return;
                 } else {
                     callback("Couldn't find user");
+                    return;
+                }
+            });
+        },
+        
+        // check if user can see this post
+        function(nickname, college, callback) {
+            db.posts.find({
+                $or: [
+                    {
+                        _id: postid,
+                        college: college,
+                        approved: true
+                    },
+                    {
+                        _id: postid,
+                        "public": true,
+                        approved: true
+                    }
+                ]
+            }, function(err, docs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (docs.length == 1) {
+                    callback(null, nickname);
+                    return;
+                } else {
+                    callback('User has no access to post ' + postid);
                     return;
                 }
             });
