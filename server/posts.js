@@ -485,6 +485,7 @@ var like_unlike_post = function(email, postid, value, conn) {
         if (docs.length == 1) {
             var doc = docs[0];
             var nickname = doc.nickname;
+            var college = doc.college;
 
             var dislikesDotEmail = "dislikes." + nickname;
             var likesDotEmail = "likes." + nickname;
@@ -502,7 +503,18 @@ var like_unlike_post = function(email, postid, value, conn) {
                     // unset dislike
                     function(callback) {
                         db.posts.update({
-                            _id: postid
+                            $or: [
+                                {
+                                    _id: postid,
+                                    college: college,
+                                    approved: true
+                                },
+                                {
+                                    _id: postid,
+                                    "public": true,
+                                    approved: true
+                                }
+                            ]
                         },
                         {
                             $unset: dislikesObj
@@ -520,7 +532,18 @@ var like_unlike_post = function(email, postid, value, conn) {
                     // set like
                     function(callback) {
                         db.posts.update({
-                            _id: postid
+                            $or: [
+                                {
+                                    _id: postid,
+                                    college: college,
+                                    approved: true
+                                },
+                                {
+                                    _id: postid,
+                                    "public": true,
+                                    approved: true
+                                }
+                            ]
                         },
                         {
                             $set: likesObj
@@ -548,7 +571,18 @@ var like_unlike_post = function(email, postid, value, conn) {
                     // unset like
                     function(callback) {
                         db.posts.update({
-                            _id: postid
+                            $or: [
+                                {
+                                    _id: postid,
+                                    college: college,
+                                    approved: true
+                                },
+                                {
+                                    _id: postid,
+                                    "public": true,
+                                    approved: true
+                                }
+                            ]
                         },
                         {
                             $unset: likesObj
@@ -566,7 +600,18 @@ var like_unlike_post = function(email, postid, value, conn) {
                     // set dislike
                     function(callback) {
                         db.posts.update({
-                            _id: postid
+                            $or: [
+                                {
+                                    _id: postid,
+                                    college: college,
+                                    approved: true
+                                },
+                                {
+                                    _id: postid,
+                                    "public": true,
+                                    approved: true
+                                }
+                            ]
                         },
                         {
                             $set: dislikesObj
@@ -593,7 +638,18 @@ var like_unlike_post = function(email, postid, value, conn) {
                     // unset like and unlike
                     function(callback) {
                         db.posts.update({
-                            _id: postid
+                            $or: [
+                                {
+                                    _id: postid,
+                                    college: college,
+                                    approved: true
+                                },
+                                {
+                                    _id: postid,
+                                    "public": true,
+                                    approved: true
+                                }
+                            ]
                         },
                         {
                             $unset: bothObj
