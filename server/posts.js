@@ -38,9 +38,8 @@ var new_post = function(email, is_public, text, conn) {
             doc.college = college;
             doc.public = is_public;
             doc.text = text;
-            doc.comments = [];
-            doc.likes = [];
-            doc.dislikes = [];
+            doc.likes = {};
+            doc.dislikes = {};
             doc.time = new Date();
             doc.approved = false;
             
@@ -281,17 +280,13 @@ var send_list = function(email, page, conn) {
                     
                     p.id = d._id;
                     p.text = d.text;
-                    p.likes = d.likes.length;
-                    p.dislikes = d.dislikes.length;
+                    p.likes = Object.keys(d.likes).length;
+                    p.dislikes = Object.keys(d.dislikes).length;
                     p.college = d.college;
                     p.comments = [];
                     
-                    for (var j = 0; j < d.comments.length; j++) {
-                        var com = d.comments[j];
-                        var pcom = {};
-                        // TODO
-                        
-                    }
+                    // TODO comments section
+
                 }
 
                 conn.send(JSON.stringify(msgobj));

@@ -41,15 +41,12 @@ POSTS
     college
     public
     text
-    comments: [
-        {email, text}
-    ]
-    likes: [
-        {email}
-    ]
-    dislikes: [
-        {email}
-    ]
+    likes: {
+        email: 1
+    }
+    dislikes: {
+        email: 1
+    }
     time
     approved
 }
@@ -59,6 +56,19 @@ db.posts = new Datastore({
     autoload: true});
 db.posts.persistence.setAutocompactionInterval(3600 * 1000);
 
-
+/*
+COMMENTS
+{
+    pid
+    email
+    nickname
+    text
+    time
+}
+*/
+db.comments = new Datastore({
+    filename:  __dirname + '/../db/comments.db',
+    autoload: true});
+db.comments.persistence.setAutocompactionInterval(3600 * 1000);
 
 module.exports = db;
