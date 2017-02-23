@@ -236,7 +236,7 @@ var send_list = function(email, page, conn) {
                 } else {
                     callback(null, college, state);
                 }
-            }
+            });
 
         },
         
@@ -383,17 +383,57 @@ var add_comment = function(email, postid, text, conn) {
         return;
     }
     
-    db.connection.query('INSERT INTO `comment`(`postid`, `email`, `text`) VALUES (?,?,?)', [postid, email, text], function(error, results, fields) {
-        if (error) {
-            console.log('Error when inserting a comment ' + error);
-            return;
+    async.waterfall([
+        
+        // get user's nickname
+        function(callback) {
+            db.users.find({
+                email: email
+            }, function(err, docs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                
+                if (docs.length == 1) {
+                    var doc = docs[0];
+                    var nickname = doc.nickname;
+                    callback(null, nickname);
+                    return;
+                } else {
+                    callback("Couldn't find user");
+                    return;
+                }
+            });
+        },
+        
+        // insert into database
+        function(nickname, callback) {
+            var doc = {};
+            doc.pid = postid;
+            doc.email = email;
+            doc.nickname = nickname;
+            doc.text = text;
+            doc.time = new Date();
+            db.comments.insert(doc, function(err, ndoc) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                console.log('Successfully inserted: ' + JSON.stringify(ndoc));
+                callback(null);
+                return;
+            });
         }
         
-        console.log('Successfully inserted a comment: ' + text);
-        
-        send_single_post_update(email, postid, conn);
-
+    ], function(err, res) {
+        if (err) {
+            console.log(err);
+        } else {
+            send_single_post_update(email, postid, conn);
+        }
     });
+
 };
 
 var like_unlike_post = function(email, postid, value, conn) {
