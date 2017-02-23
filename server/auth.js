@@ -49,6 +49,23 @@ var send_alert = function(msg, conn) {
     return;
 }
 
+var nickname_valid = function(nick) {
+    var whitelist = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (var i = 0, len = nick.length; i < len; i++) {
+        var a_char = nick[i];
+        if (!(whitelist.indexOf(a_char) > -1)) {
+            // not contains
+            return false;
+        }
+    }
+    return true;
+}
+
+var email_valid = function(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+
 var add_user = function(email, nickname, password, conn, callback) {
     var hashed_password = passwordHash.generate(password);
     var activation_code = randomstring.generate(30);
@@ -94,6 +111,18 @@ var add_user = function(email, nickname, password, conn, callback) {
         
         // Check if email or nickname have already been used
         function(college_name, callback) {
+            if (!nickname_valid(nickname)) {
+                send_alert('Nicknames can only contain letters and numbers');
+                callback('Nicknames can only contain letters and numbers');
+                return;
+            }
+            
+            if (!email_valid(email)) {
+                send_alert('Invalid email address');
+                callback('Invalid email address');
+                return;
+            }
+            
             db.users.find({
                 $or: [
                     {

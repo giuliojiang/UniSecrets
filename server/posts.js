@@ -441,128 +441,155 @@ var add_comment = function(email, postid, text, conn) {
 };
 
 var like_unlike_post = function(email, postid, value, conn) {
-    var dislikesDotEmail = "dislikes." + email;
-    var likesDotEmail = "likes." + email;
     
-    var dislikesObj = {};
-    dislikesObj[dislikesDotEmail] = true;
-    var likesObj = {};
-    likesObj[likesDotEmail] = true;
-    var bothObj = {};
-    bothObj[likesDotEmail] = true;
-    bothObj[dislikesDotEmail] = true;
+    db.users.find({
+        email: email
+    }, function(err, docs) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        if (docs.length == 1) {
+            var doc = docs[0];
+            var nickname = doc.nickname;
+
+            var dislikesDotEmail = "dislikes." + nickname;
+            var likesDotEmail = "likes." + nickname;
+            
+            var dislikesObj = {};
+            dislikesObj[dislikesDotEmail] = true;
+            var likesObj = {};
+            likesObj[likesDotEmail] = true;
+            var bothObj = {};
+            bothObj[likesDotEmail] = true;
+            bothObj[dislikesDotEmail] = true;
+
+            if (value == 1) {
+                async.waterfall([
+                    // unset dislike
+                    function(callback) {
+                        db.posts.update({
+                            _id: postid
+                        },
+                        {
+                            $unset: dislikesObj
+                        },
+                        {},
+                        function(err, num) {
+                            if (err) {
+                                callback(err);
+                                return;
+                            }
+                            callback(null);
+                        });
+                    },
+                    
+                    // set like
+                    function(callback) {
+                        db.posts.update({
+                            _id: postid
+                        },
+                        {
+                            $set: likesObj
+                        },
+                        {},
+                        function(err, num) {
+                            if (err) {
+                                callback(err);
+                                return;
+                            }
+                            callback(null);
+                        });
+                    }
+                ], function(err, res) {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    send_single_post_update(email, postid, conn);
+                });
+                
+            } else if (value == -1) {
+                async.waterfall([
+
+                    // unset like
+                    function(callback) {
+                        db.posts.update({
+                            _id: postid
+                        },
+                        {
+                            $unset: likesObj
+                        },
+                        {},
+                        function(err, num) {
+                            if (err) {
+                                callback(err);
+                                return;
+                            }
+                            callback(null);
+                        });
+                    },
+                    
+                    // set dislike
+                    function(callback) {
+                        db.posts.update({
+                            _id: postid
+                        },
+                        {
+                            $set: dislikesObj
+                        },
+                        {},
+                        function(err, num) {
+                            if (err) {
+                                callback(err);
+                                return;
+                            }
+                            callback(null);
+                        });
+                    }
+                ], function(err, res) {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    send_single_post_update(email, postid, conn);
+                });
+            } else {
+                async.waterfall([
+
+                    // unset like and unlike
+                    function(callback) {
+                        db.posts.update({
+                            _id: postid
+                        },
+                        {
+                            $unset: bothObj
+                        },
+                        {},
+                        function(err, num) {
+                            if (err) {
+                                callback(err);
+                                return;
+                            }
+                            callback(null);
+                        });
+                    }
+                ], function(err, res) {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    send_single_post_update(email, postid, conn);
+                });
+            }
+            
+        } else {
+            callback("Unexpected number of results: " + docs.length);
+            return;
+        }
+    });
     
-    if (value == 1) {
-        async.waterfall([
-            function(callback) {
-                db.posts.update({
-                    _id: postid
-                },
-                {
-                    $unset: dislikesObj
-                },
-                {},
-                function(err, num) {
-                    if (err) {
-                        callback(err);
-                        return;
-                    }
-                    callback(null);
-                });
-            },
-            
-            function(callback) {
-                db.posts.update({
-                    _id: postid
-                },
-                {
-                    $set: likesObj
-                },
-                {},
-                function(err, num) {
-                    if (err) {
-                        callback(err);
-                        return;
-                    }
-                    callback(null);
-                });
-            }
-        ], function(err, res) {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            send_single_post_update(email, postid, conn);
-        });
-        
-    } else if (value == -1) {
-        async.waterfall([
-            function(callback) {
-                db.posts.update({
-                    _id: postid
-                },
-                {
-                    $unset: likesObj
-                },
-                {},
-                function(err, num) {
-                    if (err) {
-                        callback(err);
-                        return;
-                    }
-                    callback(null);
-                });
-            },
-            
-            function(callback) {
-                db.posts.update({
-                    _id: postid
-                },
-                {
-                    $set: dislikesObj
-                },
-                {},
-                function(err, num) {
-                    if (err) {
-                        callback(err);
-                        return;
-                    }
-                    callback(null);
-                });
-            }
-        ], function(err, res) {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            send_single_post_update(email, postid, conn);
-        });
-    } else {
-        async.waterfall([
-            function(callback) {
-                db.posts.update({
-                    _id: postid
-                },
-                {
-                    $unset: bothObj
-                },
-                {},
-                function(err, num) {
-                    if (err) {
-                        callback(err);
-                        return;
-                    }
-                    callback(null);
-                });
-            }
-        ], function(err, res) {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            send_single_post_update(email, postid, conn);
-        });
-    }
+
 
 };
 
