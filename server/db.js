@@ -42,10 +42,10 @@ POSTS
     public
     text
     likes: {
-        email: 1
+        email: true
     }
     dislikes: {
-        email: 1
+        email: true
     }
     time
     approved

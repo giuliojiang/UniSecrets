@@ -272,8 +272,6 @@ var send_list = function(email, page, conn) {
                     return;
                 }
                 
-                console.log('send_list got posts: ' + JSON.stringify(docs));
-                
                 var msgobj = {};
                 
                 msgobj.type = 'postlist';
@@ -301,12 +299,10 @@ var send_list = function(email, page, conn) {
         
         // populate the comments
         function(msgobj, callback) {
-            console.log('send_list now populating comments');
             async.each(msgobj.posts, populate_comment, function(err) {
                 if (err) {
                     callback(err);
                 } else {
-                    console.log('WS sending: ' + JSON.stringify(msgobj));
                     conn.send(JSON.stringify(msgobj));
                     callback(null);
                 }
@@ -445,60 +441,126 @@ var add_comment = function(email, postid, text, conn) {
 };
 
 var like_unlike_post = function(email, postid, value, conn) {
+    var dislikesDotEmail = "dislikes." + email;
+    var likesDotEmail = "likes." + email;
+    
+    var dislikesObj = {};
+    dislikesObj[dislikesDotEmail] = true;
+    var likesObj = {};
+    likesObj[likesDotEmail] = true;
+    var bothObj = {};
+    bothObj[likesDotEmail] = true;
+    bothObj[dislikesDotEmail] = true;
+    
     if (value == 1) {
-        // remove from dislikes
-        db.connection.query('DELETE FROM `dislikes` WHERE postid = ? AND email = ?', [postid, email], function(error, results, fields) {
-            if (error) {
-                console.log(error);
+        async.waterfall([
+            function(callback) {
+                db.posts.update({
+                    _id: postid
+                },
+                {
+                    $unset: dislikesObj
+                },
+                {},
+                function(err, num) {
+                    if (err) {
+                        callback(err);
+                        return;
+                    }
+                    callback(null);
+                });
+            },
+            
+            function(callback) {
+                db.posts.update({
+                    _id: postid
+                },
+                {
+                    $set: likesObj
+                },
+                {},
+                function(err, num) {
+                    if (err) {
+                        callback(err);
+                        return;
+                    }
+                    callback(null);
+                });
+            }
+        ], function(err, res) {
+            if (err) {
+                console.log(err);
                 return;
             }
-            
-            // add to likes
-            db.connection.query('INSERT INTO `likes`(`postid`, `email`) VALUES (?,?)', [postid, email], function(error, results, fields) {
-                if (error) {
-                    console.log(error);
-                    return;
-                }
-                
-                send_single_post_update(email, postid, conn);
-            });
+            send_single_post_update(email, postid, conn);
         });
         
     } else if (value == -1) {
-        // remove from likes
-        db.connection.query('DELETE FROM `likes` WHERE postid = ? AND email = ?', [postid, email], function(error, results, fields) {
-            if (error) {
-                console.log(error);
+        async.waterfall([
+            function(callback) {
+                db.posts.update({
+                    _id: postid
+                },
+                {
+                    $unset: likesObj
+                },
+                {},
+                function(err, num) {
+                    if (err) {
+                        callback(err);
+                        return;
+                    }
+                    callback(null);
+                });
+            },
+            
+            function(callback) {
+                db.posts.update({
+                    _id: postid
+                },
+                {
+                    $set: dislikesObj
+                },
+                {},
+                function(err, num) {
+                    if (err) {
+                        callback(err);
+                        return;
+                    }
+                    callback(null);
+                });
+            }
+        ], function(err, res) {
+            if (err) {
+                console.log(err);
                 return;
             }
-            
-            // add to dislikes
-            db.connection.query('INSERT INTO `dislikes`(`postid`, `email`) VALUES (?,?)', [postid, email], function(error, results, fields) {
-                if (error) {
-                    console.log(error);
-                    return;
-                }
-                
-                send_single_post_update(email, postid, conn);
-            });
+            send_single_post_update(email, postid, conn);
         });
     } else {
-        // remove from likes
-        db.connection.query('DELETE FROM `likes` WHERE postid = ? AND email = ?', [postid, email], function(error, results, fields) {
-            if (error) {
-                console.log(error);
+        async.waterfall([
+            function(callback) {
+                db.posts.update({
+                    _id: postid
+                },
+                {
+                    $unset: bothObj
+                },
+                {},
+                function(err, num) {
+                    if (err) {
+                        callback(err);
+                        return;
+                    }
+                    callback(null);
+                });
+            }
+        ], function(err, res) {
+            if (err) {
+                console.log(err);
                 return;
             }
-            
-            // remove from dislikes
-            db.connection.query('DELETE FROM `dislikes` WHERE postid = ? AND email = ?', [postid, email], function(error, results, fields) {
-                if (error) {
-                    console.log(error);
-                    return;
-                }
-                
-                send_single_post_update(email, postid, conn);
-            });
+            send_single_post_update(email, postid, conn);
         });
     }
 
