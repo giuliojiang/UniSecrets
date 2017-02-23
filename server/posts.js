@@ -283,72 +283,28 @@ var send_list = function(email, page, conn) {
                     p.likes = Object.keys(d.likes).length;
                     p.dislikes = Object.keys(d.dislikes).length;
                     p.college = d.college;
-                    p.comments = [];
-                    
-                    // TODO comments section
 
                 }
+                
+                callback(null, msgobj);
 
-                conn.send(JSON.stringify(msgobj));
-                callback(null);
-                return;
-            }
-            
-            db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     `likes`.`postid` = `post`.`postid` ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) AS counter FROM   dislikes WHERE   `dislikes`.`postid` = `post`.`postid` ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   (`post`.`college` = ? OR `public` = 1) AND `post`.`approved` = 1 ORDER BY  `post`.`timestamp` DESC,   `post`.`postid` DESC,   `comment`.commentid ASC limit ? offset ?', [college, pagelimit, pageoffset], function(error, results, fields) {
-                if (error) {
-                    callback(error);
-                    return;
-                }
-                if (!results) {
-                    results = [];
-                }
-                
-                var msgobj = {};
-                
-                msgobj.type = 'postlist';
-                
-                msgobj.posts = [];
-                
-                for (var i = 0; i < results.length; i++) {
-                    var postid = results[i].postid;
-                    var acollege = results[i].college;
-                    var likes = results[i].likes;
-                    var posttext = results[i].posttext;
-                    var dislikes = results[i].dislikes;
-                    var commenttext = results[i].commenttext;
-                    var commentnickname = results[i].commentnickname;
-                    
-                    state.visible_posts[postid] = true;
-                    
-                    if (!list_contains_postid(msgobj.posts, postid)) {
-                        var postobj = {};
-                        postobj.id = postid;
-                        postobj.text = marked(posttext);
-                        postobj.likes = likes;
-                        postobj.dislikes = dislikes;
-                        postobj.college = acollege;
-                        postobj.comments = [];
-                        msgobj.posts.push(postobj);
-                    }
-
-                    if (commenttext && commentnickname) {
-                        for (var j = 0; j < msgobj.posts.length; j++) {
-                            if (msgobj.posts[j].id == postid) {
-                                var commentobj = {};
-                                commentobj.nickname = commentnickname;
-                                commentobj.text = marked(commenttext);
-                                msgobj.posts[j].comments.push(commentobj);
-                            }
-                        }
-                    }
-                }
-
-                conn.send(JSON.stringify(msgobj));
-                callback(null);
                 return;
             });
             
+        },
+        
+        // populate the comments
+        function(msgobj, callback) {
+            async.each(msgobj.posts, populate_comment, function(err) {
+                if (err) {
+                    callback(err);
+                } else {
+                    conn.send(JSON.stringify(msgobj));
+                    callback(null);
+                }
+            });
         }
+       
     ], function(err, result) {
         if (err) {
             console.log(err);
@@ -357,38 +313,67 @@ var send_list = function(email, page, conn) {
 
 };
 
-var send_single_post_update = function(email, postid, conn) {
-    // Send single post update
-    db.connection.query('SELECT   `post`.`postid` AS postid,   `post`.`college` AS college,   (   SELECT     COUNT(*)   FROM     likes   WHERE     likes.postid = `post`.postid ) AS likes, post.`text` AS posttext, ( SELECT   COUNT(*) FROM   dislikes WHERE   dislikes.postid = `post`.postid ) AS dislikes, `comment`.text AS commenttext, `user`.`nickname` AS commentnickname FROM   `post` LEFT JOIN   `comment` ON post.postid = `comment`.postid LEFT JOIN   `user` ON `comment`.email = `user`.`email` WHERE   (`post`.`postid` = ?) AND `post`.`approved` = 1 ORDER BY   `post`.`postid` DESC,   `comment`.commentid ASC', [postid], function(error, results, fields) {
-        if (error) {
-            console.log('Error when getting the updated comment ' + error);
+// p is a partially constructed post object in message 'postlist' or 'updatepost',
+// and this function will populate its 'comments' field by querying the database
+var populate_comment = function(p, callback) {
+    var comments = [];
+    
+    db.comments.find({
+        pid: p.id
+    }, function(err, docs) {
+        if (err) {
+            callback(err);
+            return;
+        } else {
+            for (var i = 0; i < docs.length; i++) {
+                var doc = docs[i];
+                var a_comment = {};
+                a_comment.nickname = doc.nickname;
+                a_comment.text = doc.text;
+                comments.push(a_comment);
+            }
+            p.comments = comments;
+            callback(null);
             return;
         }
-        
-        var msgobj = {};
-        msgobj.type = 'updatepost';
-        msgobj.id = postid;
-        msgobj.comments = [];
-        
-        for (var i = 0; i < results.length; i++) {
-            msgobj.text = marked(results[i].posttext);
-            msgobj.likes = results[i].likes;
-            msgobj.dislikes = results[i].dislikes;
-            msgobj.college = results[i].college;
-            var commentnick = results[i].commentnickname;
-            var commenttext = results[i].commenttext;
-            if (commentnick && commenttext) {
-                var commentobj = {};
-                commentobj.nickname = commentnick;
-                commentobj.text = marked(commenttext);
-                msgobj.comments.push(commentobj);
-            }
-        }
-        
-        var state = session.get_state(email);
-        state.visible_posts[postid] = true;
-        conn.send(JSON.stringify(msgobj));
     });
+}
+
+var send_single_post_update = function(email, postid, conn) {
+    db.posts.find({
+        _id: postid,
+        approved: true
+    }, function(err, docs) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        if (docs.length == 1) {
+            var doc = docs[0];
+            var msgobj = {};
+            msgobj.type = 'updatepost';
+            msgobj.id = doc._id;
+            msgobj.text = marked(doc.text);
+            msgobj.likes = Object.keys(doc.likes).length;
+            msgobj.dislikes = Object.keys(doc.dislikes).length;
+            msgobj.college = doc.college;
+            populate_comment(msgobj, function(err) {
+                if (err) {
+                    console.log(err);
+                    return;
+                } else {
+                    var state = session.get_state(email);
+                    state.visible_posts[postid] = true;
+                    conn.send(JSON.stringify(msgobj));
+                    return;
+                }
+            });
+        } else {
+            console.log('I was expecting only 1 result in send_single_post_update');
+            return;
+        }
+    });
+    
 };
 
 var add_comment = function(email, postid, text, conn) {
