@@ -13,5 +13,6 @@
     "https_port": 443,
     "admin_emails": [
         
-    ]
+    ],
+    "auto_enable_emails": false
 }

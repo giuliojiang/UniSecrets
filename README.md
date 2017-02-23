@@ -7,7 +7,6 @@ Accessible only by students and academic people!
 ## Requirements
 
 * NodeJS v7
-* MySQL database on `localhost`
 * `sendmail` setup on localhost
 * `python`
 * `cpp` (The C preprocessor)
@@ -28,14 +27,20 @@ If it is the first time you setup the server, configuration files will be create
 
 ## Bootstrapping and database configuration
 
-Initially, the database will be empty. If you haven't created the tables and users yet, you can do it quickly by running
-`make installdb`, which will automatically create a table UniSecrets and popoulate it with table, together with a user `UniSecrets` with password `UniSecrets`.
+Initially, the database will be empty. UniSecrets uses `nedb` which doesn't require any external dependency.
 
-With no entries in the `college` table, users will not be able to register, because only whitelisted email domains will be accepted.
+Initially there will be no users or approved email domains.
 
-You can manually add college domains by running the script `script/db_create_college`.
+At the beginning, you can set in `config/server_config.json` the flag `auto_enable_emails` to `true` so that new email domains don't need to be approved by an admin (there are no admins in the system yet).
 
-To make a user administrator manually, you can use the script `script/db_make_admin`.
+Now you can start the server and register a new user.
+
+To make a user into admin, stop the server, and run the script `tools_makeadmin.js`:
+```
+cd UniSecrets/server
+node tools_makeadmin.js
+```
+and type in the email addresses of the users that should be admins.
 
 Warning: these manual database scripts do not sanitize user input because they are meant to be used by server administrators only.
 
