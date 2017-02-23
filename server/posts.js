@@ -227,14 +227,15 @@ var send_list = function(email, page, conn) {
                 msgobj.maxp = total_pages;
                 conn.send(JSON.stringify(msgobj));
                 
-                if (page >= total_pages) {
+                if (total_pages == 0 || page < total_pages) {
+                    callback(null, college, state);
+                    return;
+                } else {
                     var msgobj = {};
                     msgobj.type = 'page_not_found';
                     conn.send(JSON.stringify(msgobj));
                     callback("requested too high page number");
                     return;
-                } else {
-                    callback(null, college, state);
                 }
             });
 
@@ -245,6 +246,8 @@ var send_list = function(email, page, conn) {
             
             var pagelimit = PAGE_MAX_POSTS;
             var pageoffset = page * PAGE_MAX_POSTS;
+            
+            // TODO sort the list
             
             db.posts.find({
                 $and: [
@@ -269,6 +272,8 @@ var send_list = function(email, page, conn) {
                     return;
                 }
                 
+                console.log('send_list got posts: ' + JSON.stringify(docs));
+                
                 var msgobj = {};
                 
                 msgobj.type = 'postlist';
@@ -283,6 +288,7 @@ var send_list = function(email, page, conn) {
                     p.likes = Object.keys(d.likes).length;
                     p.dislikes = Object.keys(d.dislikes).length;
                     p.college = d.college;
+                    msgobj.posts.push(p);
 
                 }
                 
@@ -295,10 +301,12 @@ var send_list = function(email, page, conn) {
         
         // populate the comments
         function(msgobj, callback) {
+            console.log('send_list now populating comments');
             async.each(msgobj.posts, populate_comment, function(err) {
                 if (err) {
                     callback(err);
                 } else {
+                    console.log('WS sending: ' + JSON.stringify(msgobj));
                     conn.send(JSON.stringify(msgobj));
                     callback(null);
                 }
