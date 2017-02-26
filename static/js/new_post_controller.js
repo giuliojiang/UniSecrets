@@ -2,6 +2,8 @@ var mainApp = angular.module("mainApp", []);
 
 mainApp.controller("main_controller", function($scope) {
 
+    $scope.is_public = false;
+    
     $scope.wsonopen = function(ws) {
         var msgobj = {};
         msgobj.type = 'validatetoken';

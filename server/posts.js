@@ -36,7 +36,7 @@ var new_post = function(email, is_public, text, conn) {
         function(college, callback) {
             var doc = {};
             doc.college = college;
-            doc.public = is_public;
+            doc["public"] = is_public;
             doc.text = text;
             doc.likes = {};
             doc.dislikes = {};
@@ -196,15 +196,7 @@ var send_list = function(email, page, conn) {
 
         // Get the user college
         function(callback) {
-            
-            get_user_college(email, function(err, college) {
-                if (err) {
-                    callback(err);
-                } else {
-                    callback(null, college);
-                }
-            });
-
+            get_user_college(email, callback);
         },
         
         // check if requested page number is within bounds
@@ -754,8 +746,59 @@ var send_single_post = function(email, postid, conn) {
 };
 
 var send_homepage_list = function(conn, callback) {
-    
-    
+
+    async.waterfall([
+
+        // get the relevant posts
+        function(callback) {
+            
+            var pagelimit = PAGE_MAX_POSTS;
+
+            db.posts.find({
+                "public": true,
+                "approved": true
+            })
+            .sort({
+                time: -1
+            })
+            .limit(pagelimit)
+            .exec(function(err, docs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                
+                var msgobj = {};
+                
+                msgobj.type = 'homepage_post_list';
+                msgobj.posts = [];
+                
+                for (var i = 0; i < docs.length; i++) {
+                    var d = docs[i];
+                    var p = {};
+                    
+                    p.id = d._id;
+                    p.text = marked(d.text);
+                    p.college = d.college;
+                    msgobj.posts.push(p);
+
+                }
+                
+                callback(null, msgobj);
+
+                return;
+            });
+            
+        }
+       
+    ], function(err, res) {
+        if (err) {
+            callback(err);
+        } else {
+            conn.send(JSON.stringify(res));
+            callback(null);
+        }
+    });
     
 };
 

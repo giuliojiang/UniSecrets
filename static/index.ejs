@@ -26,17 +26,18 @@
         </div>
     </div>
     
-    <h1>Some of the newest secrets</h1>
-    
-    <div class="secret-list">
-        <div ng-repeat="apost in posts" class="secret-container card-medium z-depth-1">
-            <div class="secret-university" style="padding-left:15px">
-                <a href="{{generate_post_link(apost.id)}}">
-                    <p>Found at: {{apost.college}}</p>
-                </a>
-            </div>
-            <div class="card-content" style="padding-left:15px">
-                <div ng-bind-html="apost.text"></div>
+    <div class="container">
+        <h1>Some of the newest secrets</h1>
+        <div class="secret-list">
+            <div ng-repeat="apost in posts" class="secret-container card-medium z-depth-1">
+                <div class="secret-university" style="padding-left:15px">
+                    <a href="{{generate_post_link(apost.id)}}">
+                        <p>Found at: {{apost.college}}</p>
+                    </a>
+                </div>
+                <div class="card-content" style="padding-left:15px">
+                    <div ng-bind-html="apost.text"></div>
+                </div>
             </div>
         </div>
     </div>

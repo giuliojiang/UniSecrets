@@ -80,6 +80,7 @@ server.on('connection', function(conn) {
             limiter.execute(conn, conn, type, function(callback) {
                 posts.send_homepage_list(conn, callback);
             });
+            return;
         }
         // ========= AUTHENTICATED MESSAGES ================
         else {

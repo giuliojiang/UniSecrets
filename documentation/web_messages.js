@@ -25,8 +25,6 @@ SERVER TO CLIENT
     }
     Confirmation that a new secret was successfully posted
     in: new_post
-    // TODO postsuccess triggers a simple message that now post will
-    // be moderated
     
     {
         type: postlist,
@@ -135,7 +133,6 @@ SERVER TO CLIENT
     Notifies that there are 2 pages available (0 and 1)
     in: dashboard
     
-    // TODO SERVER
     {
         type: homepage_post_list,
         posts: [
@@ -257,7 +254,6 @@ CLIENT TO SERVER
     }
     Approve or reject a post
     
-    // TODO SERVER
     {
         type: homepage_list
     }
