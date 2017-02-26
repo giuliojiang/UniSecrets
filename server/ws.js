@@ -81,6 +81,12 @@ server.on('connection', function(conn) {
                 posts.send_homepage_list(conn, callback);
             });
             return;
+        } else if (type == 'new_post_anon') {
+            var text = msgobj.text;
+            limiter.execute(conn, conn, type, function(callback) {
+                posts.new_post_anon(text, conn, callback);
+            });
+            return;
         }
         // ========= AUTHENTICATED MESSAGES ================
         else {

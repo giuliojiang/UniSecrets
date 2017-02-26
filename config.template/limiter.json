@@ -5,5 +5,6 @@
     "activationcode": ["ip", "tock", "error", 5],
     "new_comment": ["user", "tock", "count", 10],
     "generic_token_failure": ["ip", "tick", "error", 60],
-    "homepage_list": ["ip", "tick", "count", 30]
+    "homepage_list": ["ip", "tick", "count", 30],
+    "new_post_anon": ["ip", "tock", "count", 10]
 }

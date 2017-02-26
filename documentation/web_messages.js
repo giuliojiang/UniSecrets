@@ -171,6 +171,12 @@ CLIENT TO SERVER
     New post msg
     
     {
+        type: new_post_anon,
+        text: I like rowing sometimes
+    }
+    New post msg
+    
+    {
         type: requestposts,
         user_token: dfh2UMV0fmfimSVju9rwm,
         page: 0

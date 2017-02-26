@@ -56,7 +56,7 @@ mainApp.controller("main_controller", function($scope) {
 
     $scope.do_logout = function() {
         localStorage.clear();
-        location.reload();
+        window.location = '/';
     }
 
 });

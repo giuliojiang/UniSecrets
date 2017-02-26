@@ -27,19 +27,26 @@
     </div>
     
     <div class="container">
+        <a class="btn-large waves-effect waves-light red right z-depth-3" href="new_post_anon">Submit a new secret</a>
+        
+        <br />
+    
         <h1>Some of the newest secrets</h1>
         <div class="secret-list">
             <div ng-repeat="apost in posts" class="secret-container card-medium z-depth-1">
                 <div class="secret-university" style="padding-left:15px">
-                    <a href="{{generate_post_link(apost.id)}}">
-                        <p>Found at: {{apost.college}}</p>
-                    </a>
+                    <h4>Found at: {{apost.college}}</h4>
                 </div>
                 <div class="card-content" style="padding-left:15px">
                     <div ng-bind-html="apost.text"></div>
                 </div>
             </div>
         </div>
+        
+        <br />
+        
+        <h3>Log in to see more</h3>
+        <a class="waves-effect waves-light btn-large" ng-click="goto_login()">Log in</a>
     </div>
 
   </body>

@@ -7,36 +7,50 @@ var async = require('async');
 
 var PAGE_MAX_POSTS = 20;
 
+var check_string = function(s, maxlength, callback) {
+    if (typeof s === 'string' || s instanceof String) {
+        if (maxlength && s.length > maxlength) {
+            callback(make_error_trace("Maximum length exceeded"));
+            return;
+        } else {
+            callback(null);
+            return;
+        }
+    } else {
+        callback(make_error_trace("Not a string"));
+        return;
+    }
+};
+
+var check_boolean = function(b, callback) {
+    if (typeof(b) === "boolean") {
+        callback(null);
+    } else {
+        callback(make_error_trace("Not a boolean"));
+    }
+}
+
 var new_post = function(email, is_public, text, conn) {
     
     async.waterfall([
+    
+        function(callback) {
+            check_boolean(is_public, callback);
+        },
+        function(callback) {
+            check_string(text, 4000, callback);
+        },
         
         // Get college
         function(callback) {
-            db.users.find({
-                email: email
-            }, function(err, docs) {
-                if (err) {
-                    console.log(error);
-                    return;
-                }
-                
-                if (docs.length == 1) {
-                    var college = docs[0].college;
-                    callback(null, college);
-                    return;
-                } else {
-                    callback('I was expecting 1 row');
-                    return;
-                }
-            });
+            get_user_college(email, callback);
         },
         
         // insert
         function(college, callback) {
             var doc = {};
             doc.college = college;
-            doc["public"] = is_public;
+            doc.ispublic = is_public;
             doc.text = text;
             doc.likes = {};
             doc.dislikes = {};
@@ -71,6 +85,59 @@ var new_post = function(email, is_public, text, conn) {
     });
     
 };
+
+var new_post_anon = function(text, conn, callback) {
+    
+    async.waterfall([
+        
+        function(callback) {
+            check_string(text, 4000, callback);
+        },
+        
+        // Insert document
+        function(callback) {
+            var doc = {};
+            doc.college = null;
+            doc.ispublic = true;
+            doc.text = text;
+            doc.likes = {};
+            doc.dislikes = {};
+            doc.time = new Date();
+            doc.approved = false;
+            
+            db.posts.insert(doc, function(err, new_doc) {
+                if (err) {
+                    callback(err);
+                    return;
+                } else {
+                    console.log("Inserted : " + JSON.stringify(new_doc));
+                    callback(null);
+                }
+            });
+        }
+        
+    ], function(err, res) {
+        if (err) {
+            callback(err);
+            return;
+        } else {
+            // Send confirmation
+            var msgobj = {};
+            msgobj.type = 'postsuccess';
+            conn.send(JSON.stringify(msgobj));
+            
+            // Send email to admins
+            for (var i = 0; i < config.admin_emails.length; i++) {
+                var a_email = config.admin_emails[i];
+                mail.sendEmail(a_email, "New post needs approval:\n" + text);
+            }
+            
+            callback(null);
+            return;
+        }
+    });
+
+}
 
 var approve_post = function(accept, postid, conn) {
     if (accept == 1) {
@@ -210,7 +277,7 @@ var send_list = function(email, page, conn) {
                                 college: college
                             },
                             {
-                                "public": true
+                                "ispublic": true
                             }
                         ]
                     },
@@ -262,7 +329,7 @@ var send_list = function(email, page, conn) {
                                 college: college
                             },
                             {
-                                "public": true
+                                "ispublic": true
                             }
                         ]
                     },
@@ -297,6 +364,9 @@ var send_list = function(email, page, conn) {
                     p.likes = Object.keys(d.likes).length;
                     p.dislikes = Object.keys(d.dislikes).length;
                     p.college = d.college;
+                    if (!d.college) {
+                        p.college = "secret";
+                    }
                     msgobj.posts.push(p);
 
                 }
@@ -431,7 +501,7 @@ var add_comment = function(email, postid, text, conn) {
                     },
                     {
                         _id: postid,
-                        "public": true,
+                        "ispublic": true,
                         approved: true
                     }
                 ]
@@ -517,7 +587,7 @@ var like_unlike_post = function(email, postid, value, conn) {
                                 },
                                 {
                                     _id: postid,
-                                    "public": true,
+                                    "ispublic": true,
                                     approved: true
                                 }
                             ]
@@ -546,7 +616,7 @@ var like_unlike_post = function(email, postid, value, conn) {
                                 },
                                 {
                                     _id: postid,
-                                    "public": true,
+                                    "ispublic": true,
                                     approved: true
                                 }
                             ]
@@ -585,7 +655,7 @@ var like_unlike_post = function(email, postid, value, conn) {
                                 },
                                 {
                                     _id: postid,
-                                    "public": true,
+                                    "ispublic": true,
                                     approved: true
                                 }
                             ]
@@ -614,7 +684,7 @@ var like_unlike_post = function(email, postid, value, conn) {
                                 },
                                 {
                                     _id: postid,
-                                    "public": true,
+                                    "ispublic": true,
                                     approved: true
                                 }
                             ]
@@ -652,7 +722,7 @@ var like_unlike_post = function(email, postid, value, conn) {
                                 },
                                 {
                                     _id: postid,
-                                    "public": true,
+                                    "ispublic": true,
                                     approved: true
                                 }
                             ]
@@ -755,7 +825,7 @@ var send_homepage_list = function(conn, callback) {
             var pagelimit = PAGE_MAX_POSTS;
 
             db.posts.find({
-                "public": true,
+                "ispublic": true,
                 "approved": true
             })
             .sort({
@@ -780,6 +850,9 @@ var send_homepage_list = function(conn, callback) {
                     p.id = d._id;
                     p.text = marked(d.text);
                     p.college = d.college;
+                    if (!d.college) {
+                        p.college = "secret";
+                    }
                     msgobj.posts.push(p);
 
                 }
@@ -810,5 +883,6 @@ module.exports = {
     send_single_post: send_single_post,
     approve_post: approve_post,
     send_unapproved_posts: send_unapproved_posts,
-    send_homepage_list: send_homepage_list
+    send_homepage_list: send_homepage_list,
+    new_post_anon: new_post_anon
 };

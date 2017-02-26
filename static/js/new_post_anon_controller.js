@@ -5,23 +5,24 @@ mainApp.controller("main_controller", function($scope) {
     $scope.is_public = false;
     
     $scope.wsonopen = function(ws) {
-        var msgobj = {};
-        msgobj.type = 'validatetoken';
-        msgobj.user_token = localStorage.token;
-        ws_send(JSON.stringify(msgobj));
+        if (localStorage.token) {
+            var msgobj = {};
+            msgobj.type = 'validatetoken';
+            msgobj.user_token = localStorage.token;
+            ws_send(JSON.stringify(msgobj));
+        }
     }
 
     $scope.wsmessage = function(ws, data) {
         var msgobj = JSON.parse(data);
         var type = msgobj.type;
-        if (type == 'loginfirst') {
-            alert('You need to login first!');
-            window.location = 'login';
-        } else if (type == 'postsuccess') {
+        if (type == 'postsuccess') {
             $scope.post_sent = true;
             $scope.$apply();
         } else if (type == 'alert') {
             alert(msgobj.msg);
+        } else if (type == 'tokenok') {
+            window.location = 'new_post';
         }
     }
 
@@ -30,21 +31,20 @@ mainApp.controller("main_controller", function($scope) {
 
     $scope.post = function() {
         var msgobj = {}
-        msgobj.type = "new_post";
+        msgobj.type = "new_post_anon";
         msgobj["public"] = $scope.is_public;
         msgobj.text = $scope.text;
-        msgobj.user_token = localStorage.token;
 
         ws_send(JSON.stringify(msgobj));
     };
     
     $scope.do_logout = function() {
         localStorage.clear();
-        window.location = '/';
+        location.reload();
     }
     
     $scope.goto_dashboard = function() {
-        window.location = 'dashboard';
+        window.location = '/';
     }
     
 });
