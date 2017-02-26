@@ -4,7 +4,7 @@
     <% include partials/scripts %>
 
     <!-- Controller -->
-    <script src="js/login_controller.js"></script>
+    <script src="js/index_controller.js"></script>
 
   </head>
 
@@ -12,15 +12,19 @@
 
     <% include partials/nav %>
 
-
     <div class="container">
-      <h1>Welcome to UniSecrets!</h1>
+        <div class="row">
+            <h1>Welcome to UniSecrets!</h1>
+        </div>
 
-      <a href="register">Please register to continue</a>
-      <br>
-      <a href="login">Already have an account? Sign in.</a>
-      <br>
-      <a href="dashboard">Dashboard Link</a>
+        <div class="row">
+            <div class="col s6">
+                <a class="waves-effect waves-light btn-large" ng-click="goto_login()">Log in</a>
+            </div>
+            <div class="col s6">
+                <a class="waves-effect waves-light btn-large" ng-click="goto_register()">Register</a>
+            </div>
+        </div>
 
     </div>
 

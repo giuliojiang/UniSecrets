@@ -3,10 +3,12 @@ var mainApp = angular.module("mainApp", []);
 mainApp.controller("main_controller", function($scope) {
 
     $scope.wsonopen = function(ws) {
-        var msgobj = {};
-        msgobj.type = 'validatetoken';
-        msgobj.user_token = localStorage.token;
-        ws_send(JSON.stringify(msgobj));
+        if (localStorage.token) {
+            var msgobj = {};
+            msgobj.type = 'validatetoken';
+            msgobj.user_token = localStorage.token;
+            ws_send(JSON.stringify(msgobj));
+        }
     }
 
     $scope.goto_dashboard_or_post = function() {
@@ -35,6 +37,9 @@ mainApp.controller("main_controller", function($scope) {
             alert('Login failed');
         } else if (type == 'alert') {
             alert(raw_data.msg);
+        } if (type == 'loginfirst') {
+            $scope.do_logout();
+            $scope.$apply();
         }
     }
 
