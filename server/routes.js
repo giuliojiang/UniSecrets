@@ -24,6 +24,10 @@ module.exports = function(app) {
   app.get('/new_post', function(req, res) {
     res.render(__dirname + '/../static/new_post');
   });
+  
+  app.get('/new_post_anon', function(req, res) {
+    res.render(__dirname + '/../static/new_post_anon');
+  });
 
   app.get('/post', function(req, res) {
     res.render(__dirname + '/../static/post');

@@ -25,8 +25,6 @@ SERVER TO CLIENT
     }
     Confirmation that a new secret was successfully posted
     in: new_post
-    // TODO postsuccess triggers a simple message that now post will
-    // be moderated
     
     {
         type: postlist,
@@ -134,6 +132,17 @@ SERVER TO CLIENT
     }
     Notifies that there are 2 pages available (0 and 1)
     in: dashboard
+    
+    {
+        type: homepage_post_list,
+        posts: [
+            id: 92490,
+            text: text,
+            college: UCLSUCKS
+        ]
+    }
+    Response to homepage_list
+    in: index
 
 
 CLIENT TO SERVER
@@ -158,6 +167,12 @@ CLIENT TO SERVER
         "public": 0/1,
         text: I like rowing sometimes,
         user_token: dfh2UMV0fmfimSVju9rwm
+    }
+    New post msg
+    
+    {
+        type: new_post_anon,
+        text: I like rowing sometimes
     }
     New post msg
     
@@ -244,3 +259,8 @@ CLIENT TO SERVER
         postid: 95487
     }
     Approve or reject a post
+    
+    {
+        type: homepage_list
+    }
+    Request a list of public posts for the homepage
