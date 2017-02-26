@@ -9,6 +9,9 @@ mainApp.controller("main_controller", function($scope) {
             msgobj.user_token = localStorage.token;
             ws_send(JSON.stringify(msgobj));
         }
+        var msgobj = {};
+        msgobj.type = 'homepage_list';
+        ws_send(JSON.stringify(msgobj));
     }
 
     $scope.goto_dashboard_or_post = function() {
@@ -40,7 +43,11 @@ mainApp.controller("main_controller", function($scope) {
         } else if (type == 'loginfirst') {
             $scope.do_logout();
             $scope.$apply();
+        } else if (type == 'homepage_post_list') {
+            $scope.posts = raw_data.posts;
+            $scope.$apply();
         }
+
     }
 
 // WS MODULES LOADED HERE

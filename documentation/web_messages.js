@@ -134,6 +134,18 @@ SERVER TO CLIENT
     }
     Notifies that there are 2 pages available (0 and 1)
     in: dashboard
+    
+    // TODO SERVER
+    {
+        type: homepage_post_list,
+        posts: [
+            id: 92490,
+            text: text,
+            college: UCLSUCKS
+        ]
+    }
+    Response to homepage_list
+    in: index
 
 
 CLIENT TO SERVER
@@ -244,3 +256,9 @@ CLIENT TO SERVER
         postid: 95487
     }
     Approve or reject a post
+    
+    // TODO SERVER
+    {
+        type: homepage_list
+    }
+    Request a list of public posts for the homepage

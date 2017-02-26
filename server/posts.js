@@ -156,6 +156,32 @@ var isNumber = function(x) {
     return typeof x === 'number';
 }
 
+var make_error_trace = function(msg) {
+    var err = new Error();
+    return msg + "\n" + err.stack;
+}
+
+// callback(err, college)
+var get_user_college = function(email, callback) {
+    db.users.find({
+        email: email
+    }, function(err, docs) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        if (docs.length == 1) {
+            var doc = docs[0];
+            var college = doc.college;
+            callback(null, college);
+            return;
+        } else {
+            callback(make_error_trace("I was expecting 1 row"));
+            return;
+        }
+    });
+}
+
 var send_list = function(email, page, conn) {
     
 
@@ -168,33 +194,21 @@ var send_list = function(email, page, conn) {
     
     async.waterfall([
 
-        // Get the user college and state
+        // Get the user college
         function(callback) {
             
-            db.users.find({
-                email: email
-            }, function(err, docs) {
+            get_user_college(email, function(err, college) {
                 if (err) {
                     callback(err);
-                    return;
+                } else {
+                    callback(null, college);
                 }
-                
-                if (docs.length != 1) {
-                    callback("I was expecting 1 row");
-                    return;
-                }
-                
-                var college = docs[0].college;
-                var state = session.get_state(email);
-                
-                callback(null, college, state);
-                return;
             });
-            
+
         },
         
         // check if requested page number is within bounds
-        function(college, state, callback) {
+        function(college, callback) {
             
             db.posts.count({
                 $and: [
@@ -228,7 +242,7 @@ var send_list = function(email, page, conn) {
                 conn.send(JSON.stringify(msgobj));
                 
                 if (total_pages == 0 || page < total_pages) {
-                    callback(null, college, state);
+                    callback(null, college);
                     return;
                 } else {
                     var msgobj = {};
@@ -242,7 +256,7 @@ var send_list = function(email, page, conn) {
         },
         
         // get the relevant posts
-        function(college, state, callback) {
+        function(college, callback) {
             
             var pagelimit = PAGE_MAX_POSTS;
             var pageoffset = page * PAGE_MAX_POSTS;
@@ -739,6 +753,12 @@ var send_single_post = function(email, postid, conn) {
 
 };
 
+var send_homepage_list = function(conn, callback) {
+    
+    
+    
+};
+
 module.exports = {
     new_post: new_post,
     send_list: send_list,
@@ -746,5 +766,6 @@ module.exports = {
     like_unlike_post: like_unlike_post,
     send_single_post: send_single_post,
     approve_post: approve_post,
-    send_unapproved_posts: send_unapproved_posts
+    send_unapproved_posts: send_unapproved_posts,
+    send_homepage_list: send_homepage_list
 };

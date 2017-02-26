@@ -26,8 +26,10 @@
         </div>
     </div>
     
+    <h1>Some of the newest secrets</h1>
+    
     <div class="secret-list">
-        <div ng-repeat="apost in postlist.posts" class="secret-container card-medium z-depth-1">
+        <div ng-repeat="apost in posts" class="secret-container card-medium z-depth-1">
             <div class="secret-university" style="padding-left:15px">
                 <a href="{{generate_post_link(apost.id)}}">
                     <p>Found at: {{apost.college}}</p>

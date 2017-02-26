@@ -76,6 +76,10 @@ server.on('connection', function(conn) {
             var college = msgobj.college;
             auth.add_college(email, college, conn);
             return;
+        } else if (type == 'homepage_list') {
+            limiter.execute(conn, conn, type, function(callback) {
+                posts.send_homepage_list(conn, callback);
+            });
         }
         // ========= AUTHENTICATED MESSAGES ================
         else {
