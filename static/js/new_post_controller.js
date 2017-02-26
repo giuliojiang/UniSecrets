@@ -16,7 +16,8 @@ mainApp.controller("main_controller", function($scope) {
             alert('You need to login first!');
             window.location = 'login';
         } else if (type == 'postsuccess') {
-            window.location = 'dashboard';
+            $scope.post_sent = true;
+            $scope.$apply();
         } else if (type == 'alert') {
             alert(msgobj.msg);
         }
@@ -38,6 +39,10 @@ mainApp.controller("main_controller", function($scope) {
     $scope.do_logout = function() {
         localStorage.clear();
         location.reload();
+    }
+    
+    $scope.goto_dashboard = function() {
+        window.location = 'dashboard';
     }
     
 });

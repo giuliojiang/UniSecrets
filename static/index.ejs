@@ -16,7 +16,6 @@
         <div class="row">
             <h1>Welcome to UniSecrets!</h1>
         </div>
-
         <div class="row">
             <div class="col s6">
                 <a class="waves-effect waves-light btn-large" ng-click="goto_login()">Log in</a>
@@ -25,7 +24,19 @@
                 <a class="waves-effect waves-light btn-large" ng-click="goto_register()">Register</a>
             </div>
         </div>
-
+    </div>
+    
+    <div class="secret-list">
+        <div ng-repeat="apost in postlist.posts" class="secret-container card-medium z-depth-1">
+            <div class="secret-university" style="padding-left:15px">
+                <a href="{{generate_post_link(apost.id)}}">
+                    <p>Found at: {{apost.college}}</p>
+                </a>
+            </div>
+            <div class="card-content" style="padding-left:15px">
+                <div ng-bind-html="apost.text"></div>
+            </div>
+        </div>
     </div>
 
   </body>
