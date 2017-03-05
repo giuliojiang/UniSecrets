@@ -82,7 +82,8 @@ var email_valid = function(email) {
         return false;
     }
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
+    var res = re.test(email);
+    return res;
 }
 
 var college_valid = function(college) {
@@ -224,6 +225,8 @@ var add_user = function(email, nickname, password, conn, callback) {
     ], function(err, result) {
         if (err) {
             callback(err); // Limiter's callback
+        } else {
+            callback(null);
         }
     });
 
@@ -393,10 +396,10 @@ var activate_account_unconditioned = function(email, callback) {
 var split_email_domain = function(email) {
     // check that it's a valid email
     var email_split = email.split('@');
-    if (email_split.length != 2 || !email_valid(email)) {
+    if ((email_split.length != 2) || !email_valid(email)) {
         return null;
     }
-    var email_domain = email_split[1];
+    return email_split[1];
 }
 
 var add_college = function(email, college, conn, callback) { 
@@ -448,7 +451,7 @@ var add_college = function(email, college, conn, callback) {
             var doc = {
                 college: college,
                 domain: email_domain,
-                active: config.auto_enable_emails
+                active: config.auto_enable_colleges
             }
             
             db.colleges.insert(doc, function(err, newDoc) {
@@ -673,6 +676,28 @@ var first_time_setup_user = function(username, email, college, password, conn) {
                 }
                 console.log("First time setup: made user admin");
                 callback(null);
+            });
+        },
+        
+        // security check: check that db has only 1 user!, otherwise
+        // something went terribly wrong
+        function(callback) {
+            db.users.count({}, function(err, count) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (count == 1) {
+                    // all ok, as expected
+                    callback(null);
+                    return;
+                } else {
+                    var m = "Fatal error and security alert. User count after first setup is: " + count;
+                    var t = utils_generic.make_error_trace(m);
+                    console.log(t);
+                    process.exit(1); // Stop the server to prevent further security problems
+                    callback(t); // Shouldn't be reachable
+                }
             });
         },
         

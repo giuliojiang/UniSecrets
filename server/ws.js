@@ -102,6 +102,7 @@ server.on('connection', function(conn) {
             var college = msgobj.college;
             var password = msgobj.password;
             auth.first_time_setup_user(username, email, college, password, conn);
+            return;
         }
         // ========= AUTHENTICATED MESSAGES ================
         else {

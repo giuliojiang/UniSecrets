@@ -31,7 +31,7 @@ Initially, the database will be empty. UniSecrets uses `nedb` which doesn't requ
 
 Initially there will be no users or approved email domains.
 
-At the beginning, you can set in `config/server_config.json` the flag `auto_enable_emails` to `true` so that new email domains don't need to be approved by an admin (there are no admins in the system yet).
+At the beginning, you can set in `config/server_config.json` the flag `auto_enable_colleges` to `true` so that new email domains don't need to be approved by an admin (there are no admins in the system yet).
 
 Now you can start the server and register a new user.
 
