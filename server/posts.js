@@ -164,7 +164,7 @@ var approve_post = function(accept, postid, conn) {
 
     } else {
         // delete document
-        db.remove({
+        db.posts.remove({
             _id: postid
         },
         {},
