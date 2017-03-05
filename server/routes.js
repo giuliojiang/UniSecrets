@@ -42,11 +42,15 @@ module.exports = function(app) {
     app.get('/firsttimesetup', function(req, res) {
         db.is_empty(function(err, empty) {
             if (err) {
+                res.status(404).send("Not found");
                 console.log(err);
                 return;
             }
             if (empty) {
                 res.render(__dirname + '/../static/firsttimesetup');
+                return;
+            } else {
+                res.status(404).send("Not found");
                 return;
             }
         });
