@@ -25,24 +25,59 @@ If it is the first time you setup the server, configuration files will be create
 
 `make purge` will also clean all configuration
 
-## Bootstrapping and database configuration
+## Configuration files
 
-Initially, the database will be empty. UniSecrets uses `nedb` which doesn't require any external dependency.
+Configuration files will be created under `UniSecrets/config`
 
-Initially there will be no users or approved email domains.
+### server_config.json
 
-At the beginning, you can set in `config/server_config.json` the flag `auto_enable_colleges` to `true` so that new email domains don't need to be approved by an admin (there are no admins in the system yet).
+This file specifies server-side settings.
 
-Now you can start the server and register a new user.
+* `admin_emails` an array containing email addresses that will be used to send notifications to system admins
 
-To make a user into admin, stop the server, and run the script `tools_makeadmin.js`:
-```
-cd UniSecrets/server
-node tools_makeadmin.js
-```
-and type in the email addresses of the users that should be admins.
+* `auto_enable_colleges` if set to `true`, college domains will be enabled without admin approval
 
-Warning: these manual database scripts do not sanitize user input because they are meant to be used by server administrators only.
+* `email_hostname` the email domain name used to send emails from the server
+
+* `hostname` hostname of the server, used by clients to connect via http and ws
+
+* `http_port` and `https_port` ports where to listen
+
+* `mail_debug_mode` when set to `true` no emails will be sent, but only printed to console
+
+* `mail_dkim_privkey`, `mail_dkim_selector`, `mail_use_dkim` to enable and configure dkim signatures
+
+* `ssl_certificate`, `ssl_privkey` paths to ssl fullchain certificate and private key files if SSL is to be enabled
+
+* `use_ssl` enables SSL
+
+* `ws_port` port for websocket service to listen
+
+### limiter.json
+
+The limiter module specifies limits for all users, such as the number of posts, registration attempts per unit of time. The configuration file can be edited to change the limits if necessary.
+
+Each limit has 4 parameters:
+
+* `locality`, can be `ip` (limit applies for the ip used to connect) or `user` (limit applies for the user)
+
+* `timeframe` can be `tick` (1 minute unit) or `tock` (1 hour unit) after which limits are reset
+
+* `sensitivity` can be `count` (counter is increased for each action taken) or `error` (counter is increased only when the action fails, such as login failure)
+
+* `limit` the number of attempts before any more actions of the same category are automatically blocked
+
+## First time setup
+
+First time setup is very simple:
+
+* Start the server `./StartServer`
+
+* Direct your browser to `localhost:8080` (or the corresponding address if you have changed hostname/port/ssl in the configuration files
+
+You will be redirected automatically to a setup page where you can create an administrator account.
+
+Once completed the setup, your admin account can be used to activate new college emails and approve posts.
 
 ## Starting the server
 
