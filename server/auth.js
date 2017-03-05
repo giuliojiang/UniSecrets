@@ -355,6 +355,41 @@ var activate_account = function(email, code, conn, autologin, callback) {
     
 };
 
+var activate_account_unconditioned = function(email, callback) {
+    async.waterfall([
+        
+        // activate the user (update)
+        function(callback) {
+            db.users.update({
+                "email": email
+            },
+            {
+                $set: {
+                    "activation": null
+                }
+            },
+            {},
+            function(err, num) {
+                if (err) {
+                    callback(err);
+                    return;
+                } else {
+                    console.log('Replaced ' + num + ' entries');
+                    callback(null);
+                    return;
+                }
+            });
+        }
+        
+    ], function(err, result) {
+        if (err) {
+            callback(err);
+        } else {
+            callback(null);
+        }
+    });
+}
+
 var split_email_domain = function(email) {
     // check that it's a valid email
     var email_split = email.split('@');
@@ -517,7 +552,7 @@ var college_action = function(accept, college, domain, conn, callback) {
     
 };
 
-var make_user_admin = function(email, conn) {
+var make_user_admin = function(email, conn, callback) {
     db.users.update({
         email: email
     },
@@ -529,11 +564,12 @@ var make_user_admin = function(email, conn) {
     {},
     function(err, num) {
         if (err) {
-            console.log(err);
             send_alert("Could not set to admin", conn);
+            callback(err);
             return;
         } else {
             console.log('Updated ' + num + ' rows');
+            callback(null);
             return;
         }
     });
@@ -605,10 +641,51 @@ var first_time_setup_user = function(username, email, college, password, conn) {
         },
         
         // add user
+        function(callback) {
+            add_user(email, username, password, conn, function(err, res) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                console.log("First time setup: added user");
+                callback(null);
+            });
+        },
+
+        // activate user
+        function(callback) {
+            activate_account_unconditioned(email, function(err, res) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                console.log("First time setup: activated user account");
+                callback(null);
+            });
+        },
         
         // make user admin
+        function(callback) {
+            make_user_admin(email, conn, function(err, res) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                console.log("First time setup: made user admin");
+                callback(null);
+            });
+        },
         
-        // activate user (also logs in)
+        
+        // redirect to login page
+        function(callback) {
+            var msgobj = {};
+            msgobj.type = "goto";
+            msgobj.where = "/login",
+            msgobj.premsg = "Setup successful. Redirecting to login...";
+            conn.send(JSON.stringify(msgobj));
+            callback(null);
+        }
         
 
     ], function(err, res) {

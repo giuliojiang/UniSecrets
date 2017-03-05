@@ -274,7 +274,6 @@ CLIENT TO SERVER
     }
     Request a list of public posts for the homepage
     
-    // TODO SERVER
     {
         type: "first_time_form",
         username: "admin",
