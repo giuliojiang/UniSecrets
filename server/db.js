@@ -71,4 +71,17 @@ db.comments = new Datastore({
     autoload: true});
 db.comments.persistence.setAutocompactionInterval(3600 * 1000);
 
+// Callbacks a boolean that tells whether db.users is empty or not
+db.is_empty = function(callback) {
+    db.users.count({}, function(err, count) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        var empty = (count == 0);
+        callback(null, empty);
+        return;
+    });
+}
+
 module.exports = db;

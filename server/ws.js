@@ -6,6 +6,8 @@ var fs = require('fs');
 var ws = require("ws");
 var WebSocketServer = ws.Server;
 var config = require(__dirname + '/config.js');
+var db = require(__dirname + '/db.js');
+var async = require('async');
 
 var server = undefined;
 var app = null;
@@ -35,6 +37,9 @@ server.on('connection', function(conn) {
             console.log(err);
         }
     };
+    
+    check_first_time_setup(conn);
+    
     conn.on("message", function (str) {
         var msgobj = JSON.parse(str);
         if (!msgobj) {
@@ -187,3 +192,24 @@ server.on('connection', function(conn) {
         console.log('WebSocket error: ' + err);
     });
 });
+
+var check_first_time_setup = function(conn) {
+    async.waterfall([
+        function(callback) {
+            db.is_empty(callback);
+        },
+        function(is_empty, callback) {
+            if (is_empty) {
+                var msgobj = {};
+                msgobj.type = "goto_setup";
+                conn.send(JSON.stringify(msgobj));
+            } 
+            callback(null);
+            return;
+        }
+    ], function(err, res) {
+        if (err) {
+            console.log(err);
+        }
+    });
+}

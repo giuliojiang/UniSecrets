@@ -143,6 +143,13 @@ SERVER TO CLIENT
     }
     Response to homepage_list
     in: index
+    
+    // TODO CLIENT
+    {
+        type: goto_setup
+    }
+    Tells to open first time setup if database has no users at all
+    in: index
 
 
 CLIENT TO SERVER
