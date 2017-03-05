@@ -145,10 +145,13 @@ SERVER TO CLIENT
     in: index
     
     {
-        type: goto_setup
+        type: goto,
+        where: "/login",
+        premsg: "you need to login"
     }
-    Tells to open first time setup if database has no users at all
-    in: index
+    Redirect.
+    premsg should be shown before redirecting
+    in: index, firsttimesetup
 
 
 CLIENT TO SERVER
@@ -271,9 +274,9 @@ CLIENT TO SERVER
     }
     Request a list of public posts for the homepage
     
-    // TODO CLIENT SERVER
+    // TODO SERVER
     {
-        type: first_time_form,
+        type: "first_time_form",
         username: "admin",
         email: "email@example",
         college: "Some College",

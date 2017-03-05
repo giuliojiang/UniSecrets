@@ -4,41 +4,20 @@ var marked = require('marked');
 var config = require(__dirname + '/config.js');
 var mail = require(__dirname + '/mail.js');
 var async = require('async');
+var utils_safety = require(__dirname + "/utils_safety.js");
+var utils_generic = require(__dirname + "/utils_generic.js");
 
 var PAGE_MAX_POSTS = 20;
-
-var check_string = function(s, maxlength, callback) {
-    if (typeof s === 'string' || s instanceof String) {
-        if (maxlength && s.length > maxlength) {
-            callback(make_error_trace("Maximum length exceeded"));
-            return;
-        } else {
-            callback(null);
-            return;
-        }
-    } else {
-        callback(make_error_trace("Not a string"));
-        return;
-    }
-};
-
-var check_boolean = function(b, callback) {
-    if (typeof(b) === "boolean") {
-        callback(null);
-    } else {
-        callback(make_error_trace("Not a boolean"));
-    }
-}
 
 var new_post = function(email, is_public, text, conn) {
     
     async.waterfall([
     
         function(callback) {
-            check_boolean(is_public, callback);
+            utils_safety.check_boolean(is_public, callback);
         },
         function(callback) {
-            check_string(text, 4000, callback);
+            utils_safety.check_string(text, 4000, callback);
         },
         
         // Get college
@@ -91,7 +70,7 @@ var new_post_anon = function(text, conn, callback) {
     async.waterfall([
         
         function(callback) {
-            check_string(text, 4000, callback);
+            utils_safety.check_string(text, 4000, callback);
         },
         
         // Insert document
@@ -223,11 +202,6 @@ var isNumber = function(x) {
     return typeof x === 'number';
 }
 
-var make_error_trace = function(msg) {
-    var err = new Error();
-    return msg + "\n" + err.stack;
-}
-
 // callback(err, college)
 var get_user_college = function(email, callback) {
     db.users.find({
@@ -243,7 +217,7 @@ var get_user_college = function(email, callback) {
             callback(null, college);
             return;
         } else {
-            callback(make_error_trace("I was expecting 1 row"));
+            callback(utils_generic.make_error_trace("I was expecting 1 row"));
             return;
         }
     });

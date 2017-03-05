@@ -7,10 +7,20 @@ mainApp.controller("main_controller", function($scope) {
     }
 
     $scope.wsmessage = function(ws, data) {
-        var raw_data = JSON.parse(data);
-        var type = raw_data.type;
-        if (type == '??????') {
-
+        var msgobj = JSON.parse(data);
+        var type = msgobj.type;
+        if (type == 'alert') {
+            Materialize.toast(msgobj.msg, 5000);
+        } else if (type == 'goto') {
+            if (!(window.location.pathname == msgobj.where)) {
+                if (msgobj.premsg) {
+                    Materialize.toast(msgobj.premsg, 2000, "", function() {
+                        window.location = msgobj.where;
+                    });
+                } else {
+                    window.location = msgobj.where;
+                }
+            }
         }
 
     }

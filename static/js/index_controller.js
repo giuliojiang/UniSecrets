@@ -46,8 +46,16 @@ mainApp.controller("main_controller", function($scope) {
         } else if (type == 'homepage_post_list') {
             $scope.posts = raw_data.posts;
             $scope.$apply();
-        } else if (type == 'goto_setup') {
-            window.location = 'firsttimesetup';
+        } else if (type == 'goto') {
+            if (!(window.location.pathname == raw_data.where)) {
+                if (raw_data.premsg) {
+                    Materialize.toast(raw_data.premsg, 2000, "", function() {
+                        window.location = raw_data.where;
+                    });
+                } else {
+                    window.location = raw_data.where;
+                }
+            }
         }
 
     }

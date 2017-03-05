@@ -73,13 +73,17 @@ server.on('connection', function(conn) {
             limiter.execute(conn, conn, type, function(callback) {
                 var email = msgobj.email;
                 var code = msgobj.code;
-                auth.activate_account(email, code, conn, callback);
+                auth.activate_account(email, code, conn, true, callback);
             });
             return;
         } else if (type == 'addcollege') {
             var email = msgobj.email;
             var college = msgobj.college;
-            auth.add_college(email, college, conn);
+            auth.add_college(email, college, conn, function(err, res) {
+                if (err) {
+                    console.log(err);
+                }
+            });
             return;
         } else if (type == 'homepage_list') {
             limiter.execute(conn, conn, type, function(callback) {
@@ -92,6 +96,12 @@ server.on('connection', function(conn) {
                 posts.new_post_anon(text, conn, callback);
             });
             return;
+        } else if (type == "first_time_form") {
+            var username = msgobj.username;
+            var email = msgobj.email;
+            var college = msgobj.college;
+            var password = msgobj.password;
+            auth.first_time_setup_user(username, email, college, password, conn);
         }
         // ========= AUTHENTICATED MESSAGES ================
         else {
@@ -169,7 +179,11 @@ server.on('connection', function(conn) {
                     var accept = msgobj.accept;
                     var college = msgobj.college;
                     var domain = msgobj.domain;
-                    auth.college_action(accept, college, domain, conn);
+                    auth.college_action(accept, college, domain, conn, function(err, res) {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
                     return;
                 } else if (type == 'get_unapproved_posts') {
                     posts.send_unapproved_posts(conn);
@@ -201,7 +215,9 @@ var check_first_time_setup = function(conn) {
         function(is_empty, callback) {
             if (is_empty) {
                 var msgobj = {};
-                msgobj.type = "goto_setup";
+                msgobj.type = "goto";
+                msgobj.where = "/firsttimesetup";
+                msgobj.premsg = "Welcome to UniSecrets. Opening first time setup";
                 conn.send(JSON.stringify(msgobj));
             } 
             callback(null);
