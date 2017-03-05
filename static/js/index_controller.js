@@ -46,6 +46,8 @@ mainApp.controller("main_controller", function($scope) {
         } else if (type == 'homepage_post_list') {
             $scope.posts = raw_data.posts;
             $scope.$apply();
+        } else if (type == 'goto_setup') {
+            window.location = 'firsttimesetup';
         }
 
     }

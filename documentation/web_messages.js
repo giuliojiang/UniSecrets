@@ -144,7 +144,6 @@ SERVER TO CLIENT
     Response to homepage_list
     in: index
     
-    // TODO CLIENT
     {
         type: goto_setup
     }
