@@ -9,6 +9,8 @@ install:
 
 purge: clean
 	- rm -rf config
+	- rm -rf db
+	- rm -rf tmp
 
 clean:
 	- rm -rf tmp
