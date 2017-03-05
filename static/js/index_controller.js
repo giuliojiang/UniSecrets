@@ -37,15 +37,25 @@ mainApp.controller("main_controller", function($scope) {
         } else if (type == 'tokenok') {
             $scope.goto_dashboard_or_post();
         } else if (type == 'loginfail') {
-            alert('Login failed');
+            Materialize.toast("Login failed", 2000);
         } else if (type == 'alert') {
-            alert(raw_data.msg);
+            Materialize.toast(raw_data.msg, 5000);
         } else if (type == 'loginfirst') {
             $scope.do_logout();
             $scope.$apply();
         } else if (type == 'homepage_post_list') {
             $scope.posts = raw_data.posts;
             $scope.$apply();
+        } else if (type == 'goto') {
+            if (!(window.location.pathname == raw_data.where)) {
+                if (raw_data.premsg) {
+                    Materialize.toast(raw_data.premsg, 2000, "", function() {
+                        window.location = raw_data.where;
+                    });
+                } else {
+                    window.location = raw_data.where;
+                }
+            }
         }
 
     }

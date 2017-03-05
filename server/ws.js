@@ -6,6 +6,8 @@ var fs = require('fs');
 var ws = require("ws");
 var WebSocketServer = ws.Server;
 var config = require(__dirname + '/config.js');
+var db = require(__dirname + '/db.js');
+var async = require('async');
 
 var server = undefined;
 var app = null;
@@ -35,6 +37,9 @@ server.on('connection', function(conn) {
             console.log(err);
         }
     };
+    
+    check_first_time_setup(conn);
+    
     conn.on("message", function (str) {
         var msgobj = JSON.parse(str);
         if (!msgobj) {
@@ -68,13 +73,17 @@ server.on('connection', function(conn) {
             limiter.execute(conn, conn, type, function(callback) {
                 var email = msgobj.email;
                 var code = msgobj.code;
-                auth.activate_account(email, code, conn, callback);
+                auth.activate_account(email, code, conn, true, callback);
             });
             return;
         } else if (type == 'addcollege') {
             var email = msgobj.email;
             var college = msgobj.college;
-            auth.add_college(email, college, conn);
+            auth.add_college(email, college, conn, function(err, res) {
+                if (err) {
+                    console.log(err);
+                }
+            });
             return;
         } else if (type == 'homepage_list') {
             limiter.execute(conn, conn, type, function(callback) {
@@ -86,6 +95,13 @@ server.on('connection', function(conn) {
             limiter.execute(conn, conn, type, function(callback) {
                 posts.new_post_anon(text, conn, callback);
             });
+            return;
+        } else if (type == "first_time_form") {
+            var username = msgobj.username;
+            var email = msgobj.email;
+            var college = msgobj.college;
+            var password = msgobj.password;
+            auth.first_time_setup_user(username, email, college, password, conn);
             return;
         }
         // ========= AUTHENTICATED MESSAGES ================
@@ -164,7 +180,11 @@ server.on('connection', function(conn) {
                     var accept = msgobj.accept;
                     var college = msgobj.college;
                     var domain = msgobj.domain;
-                    auth.college_action(accept, college, domain, conn);
+                    auth.college_action(accept, college, domain, conn, function(err, res) {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
                     return;
                 } else if (type == 'get_unapproved_posts') {
                     posts.send_unapproved_posts(conn);
@@ -187,3 +207,26 @@ server.on('connection', function(conn) {
         console.log('WebSocket error: ' + err);
     });
 });
+
+var check_first_time_setup = function(conn) {
+    async.waterfall([
+        function(callback) {
+            db.is_empty(callback);
+        },
+        function(is_empty, callback) {
+            if (is_empty) {
+                var msgobj = {};
+                msgobj.type = "goto";
+                msgobj.where = "/firsttimesetup";
+                msgobj.premsg = "Welcome to UniSecrets. Opening first time setup";
+                conn.send(JSON.stringify(msgobj));
+            } 
+            callback(null);
+            return;
+        }
+    ], function(err, res) {
+        if (err) {
+            console.log(err);
+        }
+    });
+}

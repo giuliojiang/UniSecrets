@@ -143,6 +143,15 @@ SERVER TO CLIENT
     }
     Response to homepage_list
     in: index
+    
+    {
+        type: goto,
+        where: "/login",
+        premsg: "you need to login"
+    }
+    Redirect.
+    premsg should be shown before redirecting
+    in: index, firsttimesetup
 
 
 CLIENT TO SERVER
@@ -264,3 +273,12 @@ CLIENT TO SERVER
         type: homepage_list
     }
     Request a list of public posts for the homepage
+    
+    {
+        type: "first_time_form",
+        username: "admin",
+        email: "email@example",
+        college: "Some College",
+        password: "password"
+    }
+    Sends the initial data of the first user account

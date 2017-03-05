@@ -34,9 +34,9 @@ mainApp.controller("main_controller", function($scope) {
         } else if (type == 'tokenok') {
             $scope.goto_dashboard_or_post();
         } else if (type == 'loginfail') {
-            alert('Login failed');
+            Materialize.toast("Login failed", 2000);
         } else if (type == 'alert') {
-            alert(raw_data.msg);
+            Materialize.toast(raw_data.msg, 5000);
         } if (type == 'loginfirst') {
             $scope.do_logout();
             $scope.$apply();

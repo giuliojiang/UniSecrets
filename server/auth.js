@@ -5,6 +5,8 @@ var mail = require( __dirname + '/mail.js');
 var fs = require('fs');
 var config = require(__dirname + '/config.js');
 var async = require('async');
+var utils_safety = require(__dirname + "/utils_safety.js");
+var utils_generic = require(__dirname + "/utils_generic.js");
 
 var generate_web_address = function() {
     var protocol_stem = config.use_ssl ? 'https' : 'http';
@@ -80,7 +82,8 @@ var email_valid = function(email) {
         return false;
     }
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
+    var res = re.test(email);
+    return res;
 }
 
 var college_valid = function(college) {
@@ -222,6 +225,8 @@ var add_user = function(email, nickname, password, conn, callback) {
     ], function(err, result) {
         if (err) {
             callback(err); // Limiter's callback
+        } else {
+            callback(null);
         }
     });
 
@@ -281,7 +286,7 @@ var authenticate = function(email, password, conn, callback) {
     
 };
 
-var activate_account = function(email, code, conn, callback) { 
+var activate_account = function(email, code, conn, autologin, callback) { 
     
     async.waterfall([
         
@@ -333,7 +338,9 @@ var activate_account = function(email, code, conn, callback) {
                     conn.send(JSON.stringify(msgobj));
                     
                     // Automatically log in the user
-                    login_success(email, false, conn); // new users cannot be admins!
+                    if (autologin) {
+                        login_success(email, false, conn); // new users cannot be admins!
+                    }
                     
                     callback(null);
                     return;
@@ -351,21 +358,68 @@ var activate_account = function(email, code, conn, callback) {
     
 };
 
-var add_college = function(email, college, conn) { 
+var activate_account_unconditioned = function(email, callback) {
+    async.waterfall([
+        
+        // activate the user (update)
+        function(callback) {
+            db.users.update({
+                "email": email
+            },
+            {
+                $set: {
+                    "activation": null
+                }
+            },
+            {},
+            function(err, num) {
+                if (err) {
+                    callback(err);
+                    return;
+                } else {
+                    console.log('Replaced ' + num + ' entries');
+                    callback(null);
+                    return;
+                }
+            });
+        }
+        
+    ], function(err, result) {
+        if (err) {
+            callback(err);
+        } else {
+            callback(null);
+        }
+    });
+}
+
+var split_email_domain = function(email) {
+    // check that it's a valid email
+    var email_split = email.split('@');
+    if ((email_split.length != 2) || !email_valid(email)) {
+        return null;
+    }
+    return email_split[1];
+}
+
+var add_college = function(email, college, conn, callback) { 
     
     // email checks
     
     // check that it's a valid email
-    var email_split = email.split('@');
-    if (email_split.length != 2 || !email_valid(email)) {
-        send_alert('Your email address is not valid', conn);
+    var email_domain = split_email_domain(email);
+    if (!email_domain) {
+        var m = 'Your email address is not valid';
+        send_alert(m, conn);
+        callback(utils_generic.make_error_trace(m));
         return;
     }
-    var email_domain = email_split[1];
     
     // Check college name
     if (!college_valid(college)) {
-        send_alert('Only letters, numbers and single-quotes allowed in college name', conn);
+        var m = 'Only letters, numbers and single-quotes allowed in college name';
+        send_alert(m, conn);
+        callback(utils_generic.make_error_trace(m));
         return;
     }
     
@@ -397,7 +451,7 @@ var add_college = function(email, college, conn) {
             var doc = {
                 college: college,
                 domain: email_domain,
-                active: config.auto_enable_emails
+                active: config.auto_enable_colleges
             }
             
             db.colleges.insert(doc, function(err, newDoc) {
@@ -414,11 +468,7 @@ var add_college = function(email, college, conn) {
         }
     
     
-    ], function(err, result) {
-        if (err) {
-            console.log(err);
-        }
-    });
+    ], callback);
 
 };
 
@@ -462,7 +512,7 @@ var send_pending_colleges = function(conn) {
 
 };
 
-var college_action = function(accept, college, domain, conn) { 
+var college_action = function(accept, college, domain, conn, callback) { 
     
     if (accept == 1) {
         // update the college/domain to have active=true
@@ -477,12 +527,13 @@ var college_action = function(accept, college, domain, conn) {
         {},
         function(err, num) {
             if (err) {
-                console.log(err);
+                callback(err);
                 return;
             }
             
             console.log('Updated ' + num + ' rows');
             send_pending_colleges(conn);
+            callback(null);
         });
     } else {
         db.colleges.remove({
@@ -492,18 +543,19 @@ var college_action = function(accept, college, domain, conn) {
         {},
         function(err, num) {
             if (err) {
-                console.log(err);
+                callback(err);
                 return;
             }
             
             console.log('Removed ' + num + ' rows');
             send_pending_colleges(conn);
+            callback(null);
         });
     }
     
 };
 
-var make_user_admin = function(email, conn) {
+var make_user_admin = function(email, conn, callback) {
     db.users.update({
         email: email
     },
@@ -515,13 +567,158 @@ var make_user_admin = function(email, conn) {
     {},
     function(err, num) {
         if (err) {
-            console.log(err);
             send_alert("Could not set to admin", conn);
+            callback(err);
             return;
         } else {
             console.log('Updated ' + num + ' rows');
+            callback(null);
             return;
         }
+    });
+};
+
+var first_time_setup_user = function(username, email, college, password, conn) {
+    async.waterfall([
+        // check that db is indeed empty
+        function(callback) {
+            db.is_empty(function(err, empty) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (empty) {
+                    callback(null);
+                } else {
+                    callback(utils_generic.make_error_trace("Unauthorized first time setup"));
+                }
+            });
+        },
+        
+        // check arguments
+        function(callback) {
+            if (!nickname_valid(username)) {
+                var m = "Invalid username. Only alphanumeric characters allowed";
+                send_alert(m, conn);
+                callback(utils_generic.make_error_trace(m));
+                return;
+            }
+            if (!email_valid(email)) {
+                var m = "Invalid email";
+                send_alert(m, conn);
+                callback(utils_generic.make_error_trace(m));
+                return;
+            }
+            if (!college_valid(college)) {
+                var m = "College name not valid. Only alphanumeric characters and single quote allowed";
+                send_alert(m, conn);
+                callback(utils_generic.make_error_trace(m));
+                return;
+            }
+            callback(null);
+            return;
+        },
+        
+        // add college
+        function(callback) {
+            add_college(email, college, conn, function(err, res) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                console.log("First time setup: added college");
+                callback(null);
+            });
+        },
+        
+        // enable college
+        function(callback) {
+            college_action(1, college, split_email_domain(email), conn, function(err, res) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                console.log("First time setup: activated college");
+                callback(null);
+            });
+        },
+        
+        // add user
+        function(callback) {
+            add_user(email, username, password, conn, function(err, res) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                console.log("First time setup: added user");
+                callback(null);
+            });
+        },
+
+        // activate user
+        function(callback) {
+            activate_account_unconditioned(email, function(err, res) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                console.log("First time setup: activated user account");
+                callback(null);
+            });
+        },
+        
+        // make user admin
+        function(callback) {
+            make_user_admin(email, conn, function(err, res) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                console.log("First time setup: made user admin");
+                callback(null);
+            });
+        },
+        
+        // security check: check that db has only 1 user!, otherwise
+        // something went terribly wrong
+        function(callback) {
+            db.users.count({}, function(err, count) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (count == 1) {
+                    // all ok, as expected
+                    callback(null);
+                    return;
+                } else {
+                    var m = "Fatal error and security alert. User count after first setup is: " + count;
+                    var t = utils_generic.make_error_trace(m);
+                    console.log(t);
+                    process.exit(1); // Stop the server to prevent further security problems
+                    callback(t); // Shouldn't be reachable
+                }
+            });
+        },
+        
+        
+        // redirect to login page
+        function(callback) {
+            var msgobj = {};
+            msgobj.type = "goto";
+            msgobj.where = "/login",
+            msgobj.premsg = "Setup successful. Redirecting to login...";
+            conn.send(JSON.stringify(msgobj));
+            callback(null);
+        }
+        
+
+    ], function(err, res) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        console.log("Successfully completed first time setup");
     });
 };
 
@@ -534,5 +731,6 @@ module.exports = {
     send_pending_colleges: send_pending_colleges,
     college_action: college_action,
     send_alert: send_alert,
-    make_user_admin: make_user_admin
+    make_user_admin: make_user_admin,
+    first_time_setup_user: first_time_setup_user
 };

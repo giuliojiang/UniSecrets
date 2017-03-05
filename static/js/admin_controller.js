@@ -22,8 +22,9 @@ mainApp.controller("main_controller", function($scope) {
         var raw_data = JSON.parse(data);
         var type = raw_data.type;
         if (type == 'loginfirst') {
-            alert('You are not logged in');
-            window.location = 'login';
+            Materialize.toast("You are not logged in", 2000, "", function() {
+                window.location = 'login';
+            });
             return;
         } else if (type == 'pendingcollegelist') {
             $scope.colleges = raw_data.colleges;

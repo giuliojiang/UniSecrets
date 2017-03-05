@@ -15,7 +15,7 @@ mainApp.controller("main_controller", function($scope) {
         var msgobj = JSON.parse(data);
         var type = msgobj.type;
         if (type == 'alert') {
-            alert(msgobj.msg);
+            Materialize.toast(msgobj.msg, 5000);
         } else if (type == 'tokenok') {
             window.location = 'dashboard';
         } else if (type == 'toactivation') {
@@ -37,7 +37,7 @@ mainApp.controller("main_controller", function($scope) {
         msgobj.email = $scope.email;
         msgobj.nickname = $scope.nickname;
         if ($scope.password1 != $scope.password2) {
-            alert("Your passwords do not match");
+            Materialize.toast("Your passwords do not match");
             return;
         }
         msgobj.password = $scope.password1;

@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <title>UniSecrets - Admin</title>
+        <% include partials/scripts %>
+        <!-- Controller -->
+        <script src="js/firsttimesetup_controller.js"></script>
+    </head>
+    <body ng-app="mainApp" ng-controller="main_controller">
+        <% include partials/nav %>
+        <div class="container">
+            <form>
+                <fieldset>
+                    <!-- Form Name -->
+                    <legend>Administrator account setup</legend>
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col s4 control-label" for="textinput">Admin username</label>  
+                        <div class="col s4">
+                            <input ng-model="f_username" id="textinput" name="textinput" type="text" placeholder="" class="form-control input-md" required="">
+                        </div>
+                    </div>
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col s4 control-label" for="textinput">Admin email</label>  
+                        <div class="col s4">
+                            <input ng-model="f_email" id="textinput" name="textinput" type="text" placeholder="" class="form-control input-md" required="">
+                        </div>
+                    </div>
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col s4 control-label" for="textinput">Admin college name</label>  
+                        <div class="col s4">
+                            <input ng-model="f_college" id="textinput" name="textinput" type="text" placeholder="Fictitious College UK" class="form-control input-md" required="">
+                        </div>
+                    </div>
+                    <!-- Password input-->
+                    <div class="form-group">
+                        <label class="col s4 control-label" for="passwordinput">Admin password</label>
+                        <div class="col s4">
+                            <input ng-model="f_password1" id="passwordinput" name="passwordinput" type="password" placeholder="" class="form-control input-md" required="">
+                        </div>
+                    </div>
+                    <!-- Password input-->
+                    <div class="form-group">
+                        <label class="col s4 control-label" for="passwordinput">Repeat password</label>
+                        <div class="col s4">
+                            <input ng-model="f_password2" id="passwordinput" name="passwordinput" type="password" placeholder="" class="form-control input-md" required="">
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            <a ng-click="send_form()" class="waves-effect waves-light btn">Send</a>
+        </div>
+        <hr />
+    </body>
+</html>

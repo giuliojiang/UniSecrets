@@ -20,7 +20,7 @@ mainApp.controller("main_controller", function($scope) {
             $scope.post_sent = true;
             $scope.$apply();
         } else if (type == 'alert') {
-            alert(msgobj.msg);
+            Materialize.toast(msgobj.msg, 5000);
         } else if (type == 'tokenok') {
             window.location = 'new_post';
         }

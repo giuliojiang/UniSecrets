@@ -13,5 +13,9 @@ rl.on('line', function(line) {
         send: function(msg) {
             console.log('msg: ' + msg);
         }
+    }, function(err, res) {
+        if (err) {
+            console.log(err);
+        }
     });
 });
