@@ -54,7 +54,7 @@ mainApp.controller("main_controller", function($scope) {
 
             $scope.$apply();
         } else if (type == 'alert') {
-            alert(raw_data.msg);
+            Materialize.toast(raw_data.msg, 5000);
         }
     }
 

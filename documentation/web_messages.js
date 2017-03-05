@@ -270,3 +270,13 @@ CLIENT TO SERVER
         type: homepage_list
     }
     Request a list of public posts for the homepage
+    
+    // TODO CLIENT SERVER
+    {
+        type: first_time_form,
+        username: "admin",
+        email: "email@example",
+        college: "Some College",
+        password: "password"
+    }
+    Sends the initial data of the first user account

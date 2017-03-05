@@ -54,7 +54,7 @@ mainApp.controller("main_controller", function($scope) {
         var msgobj = JSON.parse(data);
         var type = msgobj.type;
         if (type == 'alert') {
-            alert(msgobj.msg);
+            Materialize.toast(msgobj.msg, 5000);
         } else if (type == 'tokenok') {
             window.location = 'dashboard';
         } else if (type == 'activationsuccess') {

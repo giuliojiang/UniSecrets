@@ -19,7 +19,18 @@ mainApp.controller("main_controller", function($scope) {
 #include<clientws.js>
 
     $scope.send_form = function() {
-        
+        if (!($scope.f_password1 == $scope.f_password2)) {
+            Materialize.toast('Passwords do not match', 5000);
+            return;
+        }
+
+        var msgobj = {};
+        msgobj.type = "first_time_form";
+        msgobj.username = $scope.f_username;
+        msgobj.email = $scope.f_email;
+        msgobj.college = $scope.f_college;
+        msgobj.password = $scope.f_password1;
+        ws_send(JSON.stringify(msgobj));
     }
 
 });

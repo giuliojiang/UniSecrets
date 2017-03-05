@@ -99,7 +99,7 @@ mainApp.controller("main_controller", function($scope) {
                 request_page();
             }
         } else if (type == 'alert') {
-            alert(raw_data.msg);
+            Materialize.toast(raw_data.msg, 2000);
         } else if (type == 'page_not_found') {
             $scope.page_not_found = true;
             $scope.$apply();
