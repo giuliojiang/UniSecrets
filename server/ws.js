@@ -151,9 +151,19 @@ server.on('connection', function(conn) {
             posts.like_unlike_post(email, postid, value, conn);
             return;
         } else if (type == 'validatetoken') {
-            var msgobj = {};
-            msgobj.type = 'tokenok';
-            conn.send(JSON.stringify(msgobj));
+            var reply = {};
+            reply.type = "logintoken";
+            reply.token = msgobj.user_token;
+            auth.is_user_admin(email, function(err, is_admin) {
+                if (err) {
+                    console.log(err);
+                    return;
+                } else {
+                    reply.admin = is_admin ? 1 : 0;
+                    conn.send(JSON.stringify(reply));
+                    return;
+                }
+            }
             return;
         } else if (type == 'getpost') {
             var postid = msgobj.postid;

@@ -91,7 +91,12 @@ mainApp.controller("main_controller", function($scope) {
             }
 
             $scope.$apply();
-        } else if (type == 'tokenok') {
+        } else if (type == 'logintoken') {
+            localStorage.token = raw_data.token;
+
+            var is_admin = raw_data.admin;
+            localStorage.admin = is_admin;
+
             if (localStorage.postid) {
                 window.location = 'post#' + localStorage.postid;
             } else {

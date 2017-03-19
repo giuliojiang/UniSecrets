@@ -16,7 +16,12 @@ mainApp.controller("main_controller", function($scope) {
         var type = msgobj.type;
         if (type == 'alert') {
             Materialize.toast(msgobj.msg, 5000);
-        } else if (type == 'tokenok') {
+        } else if (type == 'logintoken') {
+            localStorage.token = raw_data.token;
+
+            var is_admin = raw_data.admin;
+            localStorage.admin = is_admin;
+
             window.location = 'dashboard';
         } else if (type == 'toactivation') {
             $scope.show_activation_message = true;
