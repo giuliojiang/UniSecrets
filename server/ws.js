@@ -163,7 +163,7 @@ server.on('connection', function(conn) {
                     conn.send(JSON.stringify(reply));
                     return;
                 }
-            }
+            });
             return;
         } else if (type == 'getpost') {
             var postid = msgobj.postid;
