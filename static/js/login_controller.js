@@ -31,8 +31,6 @@ mainApp.controller("main_controller", function($scope) {
             localStorage.admin = is_admin;
 
             $scope.goto_dashboard_or_post();
-        } else if (type == 'tokenok') {
-            $scope.goto_dashboard_or_post();
         } else if (type == 'loginfail') {
             Materialize.toast("Login failed", 2000);
         } else if (type == 'alert') {

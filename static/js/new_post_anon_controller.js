@@ -21,8 +21,13 @@ mainApp.controller("main_controller", function($scope) {
             $scope.$apply();
         } else if (type == 'alert') {
             Materialize.toast(msgobj.msg, 5000);
-        } else if (type == 'tokenok') {
-            window.location = 'new_post';
+        } else if (type == 'logintoken') {
+            localStorage.token = raw_data.token;
+
+            var is_admin = raw_data.admin;
+            localStorage.admin = is_admin;
+
+            window.location = "new_post";
         }
     }
 

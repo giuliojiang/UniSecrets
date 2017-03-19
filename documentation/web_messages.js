@@ -63,13 +63,7 @@ SERVER TO CLIENT
         msg: pofihasopeirhpaer
     }
     in: registration, activation
-    
-    {
-        type: tokenok
-    }
-    Response to validatetoken
-    in: login, dashboard, registration, activation
-    
+
     {
         type: postnotfound
     }
