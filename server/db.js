@@ -39,7 +39,7 @@ db.colleges.persistence.setAutocompactionInterval(3600 * 1000);
 POSTS
 {
     college
-    ispublic
+    ispublic?
     text
     likes: {
         nickname: true
