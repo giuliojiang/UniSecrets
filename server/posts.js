@@ -734,51 +734,23 @@ var like_unlike_post = function(email, postid, value, conn) {
 
 var send_single_post = function(email, postid, conn) {
     async.waterfall([
-        
-        // get user's college
+    
         function(callback) {
-            db.users.find({
-                email: email
-            }, function(err, docs) {
-                if (err) {
-                    callback(err);
-                    return;
-                }
-                if (docs.length == 1) {
-                    var doc = docs[0];
-                    var college = doc.college;
-                    callback(null, college);
-                    return;
+            user_post_visible(email, postid, function(err, is_visible) {
+                if (is_visible) {
+                    callback(null);
                 } else {
-                    callback('unexpected number of results: ' + docs.length);
+                    send_postnotfound_message(conn);
+                    callback("Post not accessible");
                     return;
                 }
             });
         },
-        
+
         // get the post
-        function(college, callback) {
-            db.posts.find({
-                college: college,
-                _id: postid,
-                approved: true
-            }, function(err, docs) {
-                if (err) {
-                    callback(err);
-                    return;
-                }
-                if (docs.length == 1) {
-                    send_single_post_update(email, postid, conn);
-                    callback(null);
-                    return;
-                } else {
-                    var msgobj = {};
-                    msgobj.type = 'postnotfound';
-                    conn.send(JSON.stringify(msgobj));
-                    callback('send_single_post: no post found');
-                    return;
-                }
-            });
+        function(callback) {
+            send_single_post_update(email, postid, conn);
+            callback(null);
         }
         
     ], function(err, res) {
@@ -847,6 +819,68 @@ var send_homepage_list = function(conn, callback) {
         }
     });
     
+};
+
+// HELPER FUNCTIONS ============================================================
+
+// callbacks true if the user has read access to the post
+var user_post_visible = function(email, postid, callback) {
+    async.waterfall([
+        
+        // get user's college
+        function(callback) {
+            db.users.find({
+                email: email
+            }, function(err, docs) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                if (docs.length == 1) {
+                    var doc = docs[0];
+                    var college = doc.college;
+                    callback(null, college);
+                    return;
+                } else {
+                    callback(utils_generic.make_error_trace("Unexpected number of results " + docs.length));
+                    return;
+                }
+            });
+        },
+        
+        function(college, callback) {
+            db.posts.count({
+                $or: [
+                    {
+                        ispublic: true,
+                        approved: true,
+                        _id: postid
+                    },
+                    {
+                        college: college,
+                        approved: true,
+                        _id: postid
+                    }
+                ]
+            }, function(err, num) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                console.log("DEBUG: user_post_visible num is " + num);
+                callback(null, num == 1);
+                return;
+            });
+        }
+        
+    ], callback);
+};
+
+var send_postnotfound_message = function(conn) {
+    var msgobj = {};
+    msgobj.type = 'postnotfound';
+    conn.send(JSON.stringify(msgobj));
+    return;
 };
 
 module.exports = {

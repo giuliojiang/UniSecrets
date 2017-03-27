@@ -96,7 +96,7 @@ for (var property in rules) {
 // TIME BASED record refresh ###################################################
 var minutes = 0;
 setInterval(function() {
-    console.log(JSON.stringify(records, null, 2));
+    // console.log(JSON.stringify(records, null, 2));
     
     minutes += 1;
     reset_ticks();
