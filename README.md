@@ -88,7 +88,3 @@ Simply run `./StartServer`
 This project was created by Giulio Jiang and Abraao Mota during the Hackathon ICHack 17.
 
 Warning! This project contains hacks! They are totally hacky in the sense that they are no common practice at all, but that doesn't mean it makes the project less mantainable or understandable (they probably make it better ;) ). Enjoy!
-
-## Live website
-
-https://www.unisecrets.co.uk
